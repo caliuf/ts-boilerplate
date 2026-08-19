@@ -195,6 +195,7 @@ Deno non è un target standard: supportare contemporaneamente tre runtime aument
 │   │   ├── VISION.md                   # opzionale
 │   │   └── pdr/
 │   ├── development/
+│   │   ├── GETTING-STARTED.md
 │   │   ├── CODING.md
 │   │   ├── TESTING.md
 │   │   ├── WORKFLOWS.md
@@ -259,6 +260,22 @@ Non creare cartelle vuote o deployable ipotetici. Se non c’è una UI, `apps/we
 - principali ADR/PDR;
 - budget di performance e test;
 - stato delle funzionalità.
+
+### `docs/development/GETTING-STARTED.md`
+
+È il documento di onboarding tecnico, linkato da `docs/INDEX.md` e richiamato da
+`docs/PROJECT.md`. Deve contenere:
+
+- prerequisiti (runtime, package manager, tool esterni) e come verificarli con
+  `just doctor`;
+- setup iniziale tramite `just setup`;
+- rimando alla tabella delle recipe (§ 5) invece di duplicarla;
+- come eseguire test e debug, incluso il riesame di un flusso con
+  `LOG_LEVEL=debug` (§ 3, *Logging e observability*);
+- mappa commentata delle cartelle principali.
+
+Vincolo di freschezza: ogni comando citato deve esistere davvero nel justfile;
+un comando inventato o rinominato è un docs bug bloccante in review.
 
 ### Documenti di recap come *viste*
 
@@ -531,6 +548,26 @@ Regole:
   e citare l'output rilevante nel report invece di ipotizzare il comportamento; i log
   temporanei aggiunti per diagnosticare vanno rimossi o convertiti in chiamate
   `debug`/`trace` prima della consegna — un `console.log` dimenticato è un gate rosso.
+- **Telemetria di prodotto (se esiste)**: gli eventi analytics sono definiti nei
+  contratti condivisi, non contengono mai PII o segreti e sono emessi tramite una
+  porta dedicata, mai con chiamate dirette al provider dal dominio o dagli
+  entrypoint. La conformità è verificata dal telemetry guard (§ 10).
+
+La telemetria copre due esigenze distinte, con tool diversi (riferimento: Tolaria,
+in Fonti):
+
+- **crash reporting**: cattura di eccezioni e crash con stack trace e contesto
+  tecnico, nient'altro. Tolaria usa **Sentry**, dedicato esclusivamente a questo
+  scopo (frontend TypeScript e backend Rust). Su un progetto di questo vademecum
+  l'adapter Sentry vive nel backend Node e, se esiste, in `apps/web`;
+- **product analytics**: eventi di utilizzo **anonimi** (es. interazioni con
+  l'editor) per capire come il prodotto viene usato. Tolaria usa **PostHog**
+  (self-hostable o cloud). Gli eventi sono definiti nei contratti e non
+  contengono mai PII.
+
+Le due porte restano separate: il crash reporting non diventa un canale analytics
+e viceversa. La scelta dei tool avviene tramite ADR; quelli citati sono il
+riferimento verificato, non un default obbligatorio.
 
 ### Contratti e dati esterni
 
@@ -679,6 +716,7 @@ Gli agenti devono usare esclusivamente le recipe pubbliche di `just`. Gli script
 |`just dead-code`|Knip|
 |`just arch`|Regole architetturali e cicli|
 |`just docs-check`|Markdown, spelling e link locali|
+|`just docs-bundle`|MAY: genera il bundle `agent-docs/` (§ 7)|
 |`just workflows-check`|actionlint e zizmor|
 |`just secrets`|Gitleaks|
 |`just test-unit`|Piccola suite specialistica|
@@ -705,6 +743,53 @@ suite CI piena: ≤ 10 minuti
 ```
 
 Se questi budget vengono superati, ottimizzare suite, fixture e confini architetturali prima di introdurre un nuovo task orchestrator. Il budget dei 10 minuti della suite completa è mantenuto dal testing guard (§ 10): un feedback loop lento degrada l'intero loop di sviluppo.
+
+### Matrice gate × stage
+
+Mappa consolidata dei controlli sui tre stage di esecuzione. Ogni riga corrisponde
+a una recipe `just` eseguibile in locale: **l'intera pipeline è sempre
+riproducibile in locale** (singole recipe per un controllo puntuale, `just ci` per
+il check completo); la CI esegue le stesse recipe e resta l'autorità finale, mai il
+primo punto di rilevamento.
+
+| Controllo | Recipe | precommit | prepush | CI |
+|---|---|---|:---:|:---:|:---:|
+| Formattazione | `format-check` | ✅ | ✅ | ✅ |
+| Lint type-aware | `lint` | ✅ | ✅ | ✅ |
+| Typecheck | `typecheck` | opzionale | ✅ | ✅ |
+| Codice morto | `dead-code` | ❌ | ✅ | ✅ |
+| Regole architetturali | `arch` | ❌ | ✅ | ✅ |
+| Docs | `docs-check` | ✅ | ✅ | ✅ |
+| Workflow GitHub | `workflows-check` | se toccati | ✅ | ✅ |
+| Segreti | `secrets` | ✅ (staged) | ✅ | ✅ (+ storia) |
+| Test unit | `test-unit` | related | ✅ | ✅ |
+| Test integration | `test-integration` | ❌ | ✅ (principali) | ✅ |
+| Smoke | `smoke` | ❌ | ✅ | ✅ |
+| Coverage e cricchetto | `coverage` | ❌ | ✅ | ✅ |
+| E2E | `test-e2e` | ❌ | ❌ | ✅ |
+| Compatibilità Bun | `bun-smoke` | ❌ | ❌ | ✅ (job separato) |
+| Link esterni | lychee | ❌ | ❌ | slow lane |
+| Guard | `guards` | ❌ | ❌ | `scheduled.yml` |
+
+### Fast path per diff docs-only
+
+Quando il diff tocca **esclusivamente** `docs/**`, `*.md`, `.github/workflows/**`
+e `.githooks/**` — lista esatta e completa mantenuta nel justfile — i gate si
+riducono ai controlli pertinenti:
+
+- `just precommit` esegue solo `docs-check` e, se i workflow sono toccati,
+  `workflows-check`;
+- `just prepush` aggiunge la verifica di freschezza del bundle `agent-docs/`,
+  se esiste (§ 7);
+- la CI esegue soltanto i job minimi di docs e lint.
+
+Invarianti:
+
+- la lista dei path è protetta da CODEOWNERS come ogni altro file di gate (§ 11);
+- un diff misto (docs + codice) percorre sempre il percorso completo;
+- nessuna soglia viene abbassata: i controlli saltati non sono ridotti, sono non
+  pertinenti al diff;
+- `just ci` resta sempre disponibile in locale per la pipeline completa.
 
 Gli hook versionati chiamano soltanto:
 
@@ -1023,6 +1108,22 @@ drasticamente (evidenza riportata: dal 60% al 20%).
 `docs/product/VISION.md` (MAY): principi di prodotto stabili, usati dall'AI per
 brainstorm e bozze di spec. L'*intent* resta umano; la Vision gli dà forma verificabile.
 
+### Bundle `agent-docs/` per lookup machine-friendly (MAY)
+
+Un progetto MAY generare un bundle di documentazione derivato, ottimizzato per il
+lookup degli agenti: `agent-docs/index.md`, `all.md`, `search-index.json` ed
+eventuali pagine per sezione.
+
+Regole:
+
+- è generato da `just docs-bundle` (script in `tools/scripts/`), mai editato a mano;
+- è un **artefatto derivato**, non una seconda fonte: la fonte canonica resta
+  `docs/` e il bundle non introduce contenuto nuovo, quindi non viola il divieto
+  di frammentazione delle regole (§ 8, § 14);
+- se committato nel repository, un gate anti-stale verifica che sia aggiornato
+  rispetto a `docs/`; in alternativa è gitignored e generato on demand;
+- il deploy opzionale su GitHub Pages vive in `deploy-docs.yml` (§ 11).
+
 ---
 
 ## 8. Istruzioni per gli agenti AI
@@ -1075,6 +1176,9 @@ brainstorm e bozze di spec. L'*intent* resta umano; la Vision gli dà forma veri
   (read its types/docs in `node_modules`); do not rely on memory.
 - Do not introduce a product decision without a PDR, nor an architectural
   decision without an ADR, in the same commit as the code.
+- Maintain `tmp/commit-message.md` with the proposed commit message for the
+  work in progress: reset it when starting from a clean `git status`,
+  integrate or fix it otherwise. `tmp/` is gitignored.
 
 ## Gate circumvention — prohibited
 
@@ -1114,8 +1218,9 @@ Report:
 2. tests added or changed;
 3. commands executed, with verbatim results;
 4. coverage and quality-score deltas;
-5. ADR/PDR and documentation updated;
-6. remaining risks or unresolved questions.
+5. security and static-analysis results;
+6. ADR/PDR and documentation updated;
+7. remaining risks or unresolved questions.
 ```
 
 Creare:
@@ -1171,6 +1276,7 @@ Tabella di riferimento. La colonna 3G indica dove vive la contromisura principal
 | **Context rot**: degrado in sessioni lunghe o per accumulo di regole morte | Contesto degradato/gonfiato | Task piccoli; `AGENTS.md` <200 righe; documenti di recap; retrospettive di pulizia | Guide + Guard |
 | **Scope creep**: modifiche non correlate "già che ci si è" | Eccesso di zelo | Diff minimo; un task un branch; review del diff; divieto di refactor non correlati | Guide + Gate |
 | **Degrado lento del sistema**: duplicazione, performance drift, suite lenta | Singole modifiche corrette in isolamento | Guard schedulati; budget di tempo; cricchetto | Guard |
+| **Fast path abusato**: diff misto fatto passare per docs-only per saltare i gate | Pressione per chiudere in fretta | Lista dei path esatta nel justfile e protetta da CODEOWNERS; review del diff sui file che definiscono i gate | Gate |
 
 ---
 
@@ -1198,6 +1304,7 @@ Guard predefiniti:
 | **Health/refactoring guard** | Hotspot e accoppiamento temporale (CodeCharta/CodeMaat), duplicazione e complessità crescenti (SonarQube), se configurati (§ 4); opportunità di alzare le soglie a cricchetto |
 | **Performance guard** | Rallentamenti misurati da probe nel codice, se esistono probe |
 | **Localization guard** | Stringhe non tradotte, se esiste i18n |
+| **Telemetry guard** | Eventi analytics non tracciati rispetto ai contratti o contenenti PII/segreti, se esiste telemetria di prodotto |
 
 ### Retrospettiva di processo
 
@@ -1219,6 +1326,7 @@ security.yml
 e2e.yml              # se esiste una UI
 scheduled.yml        # guards, slow test, live eval, compatibility
 release.yml          # se esistono release
+deploy-docs.yml      # se esiste un bundle agent-docs o un sito docs
 ```
 
 `ci.yml` deve reagire a:
@@ -1380,6 +1488,30 @@ Per container o binari pubblicati, generare SBOM e artifact attestation.
 - aggiornare ADR/PDR se necessario;
 - compilare il report finale con evidenze verificabili (output verbatim dei comandi).
 
+### Convenzione dei messaggi di commit (SHOULD)
+
+I messaggi di commit SHOULD seguire una convenzione derivata dai conventional
+commits. È una guida, non un gate: niente commitlint.
+
+Formato: una prima riga riassuntiva con prefisso, una riga vuota, poi una lista
+puntata Markdown che descrive le cose fatte con dettaglio maggiore ma sintetico:
+
+```text
+feat: add retry policy to the payments adapter
+
+- introduce exponential backoff with injected clock in `packages/adapter-payments/`
+- map provider timeout errors to the shared error taxonomy
+- add integration tests for retry, idempotency and terminal failure
+```
+
+Prefissi ammessi: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`,
+`build`, `ci`, `revert`.
+
+L'agente che fa modifiche mantiene `tmp/commit-message.md` con il messaggio che
+intende proporre per il lavoro in corso: il file va **azzerato** quando si inizia
+una modifica partendo da `git status` pulito, **integrato o corretto** altrimenti.
+`tmp/` è gitignored.
+
 ---
 
 ## 13. Definition of Done
@@ -1404,6 +1536,8 @@ Una feature o un fix è completo solo se:
 - [ ]  documentazione, ADR e PDR sono aggiornate nello stesso commit;
 - [ ]  `just prepush` passa;
 - [ ]  il report finale cita l'output reale dei comandi eseguiti;
+- [ ]  il messaggio in `tmp/commit-message.md` segue la convenzione (§ 12) e
+       descrive l'intero diff;
 - [ ]  rischi e test non eseguiti sono dichiarati;
 - [ ]  il diff non contiene modifiche estranee.
 
@@ -1447,11 +1581,16 @@ Non introdurre senza una necessità misurata e un’ADR:
 10. Creare il `justfile` e gli hook.
 11. Fissare i threshold iniziali di coverage come **baseline del cricchetto**.
 12. Aggiungere `AGENTS.md` e i bridge per gli altri agenti.
-13. Configurare GitHub Actions, ruleset, CODEOWNERS (inclusi i file di gate) e Dependabot.
-14. Abilitare security scanning e coverage gate.
-15. Aggiungere `bun-smoke`.
-16. Configurare `scheduled.yml` con i guard e calendarizzare la prima retrospettiva.
-17. Verificare che `just ci` funzioni su una clone pulita.
+13. Scrivere `docs/development/GETTING-STARTED.md` (§ 3) e linkarlo da
+    `docs/INDEX.md` e da `docs/PROJECT.md`.
+14. Configurare GitHub Actions, ruleset, CODEOWNERS (inclusi i file di gate) e Dependabot.
+15. Abilitare security scanning e coverage gate.
+16. Aggiungere `bun-smoke`.
+17. Configurare `scheduled.yml` con i guard e calendarizzare la prima retrospettiva.
+18. Verificare che `just ci` funzioni su una clone pulita.
+
+MAY, se si adotta il bundle `agent-docs/` (§ 7): aggiungere la recipe
+`just docs-bundle` e il workflow `deploy-docs.yml`.
 
 ---
 
@@ -1473,6 +1612,9 @@ Il principio riassuntivo è:
   [How I Run the Tolaria Project](https://refactoring.fm/p/how-i-run-the-tolaria-project) (validazione, zero-bugs),
   [How to make AI better at product](https://refactoring.fm/p/how-to-make-ai-better-at-product) (PDR, Glossary),
   [How to Orchestrate AI Workflows](https://refactoring.fm/p/how-to-orchestrate-ai-workflows) (agents as scaffolding).
+- Pattern di processo del repository Tolaria: `docs/init/Refactoring/tolaria-dev-guidelines/`
+  (fast path docs-only, matrice gate × stage, bundle `agent-docs/`, convenzione
+  dei commit, policy telemetry, getting-started).
 - [Test Desiderata — Kent Beck](https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3).
 - [Sensors for coding agents — Birgitta Bockeler](https://martinfowler.com/articles/sensors-for-coding-agents.html).
 - Superfici di ingresso (§ 3):
