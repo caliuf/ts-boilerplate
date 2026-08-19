@@ -1,13 +1,55 @@
+# Vademecum per progetti TypeScript sviluppati con agenti AI
 
-[GPT-5.6-Sol](https://poe.com/chat/91j5pju6t0m5xcj5k3): Chat di Creazione
-
-
-# Vademecum generico per progetti TypeScript sviluppati con agenti AI
-
-> Documento riutilizzabile come base per nuovi repository.  
+> Documento riutilizzabile come base per nuovi repository.
 > **MUST** = requisito standard; **SHOULD** = default derogabile tramite ADR; **MAY** = facoltativo o dipendente dal progetto.
+>
+> Questa versione integra il Vademecum originale con il workflow *Guides, Gates, Guards*
+> (sintesi degli articoli Refactoring in `docs/init/Refactoring/`) e con le contromisure
+> ai failure modes tipici dello sviluppo interamente affidato ad agenti AI.
+> Date e versioni citate sono point-in-time: **riverificarle a ogni bootstrap**.
 
-## 1. Scelte tecniche fondamentali
+---
+
+## 1. Modello operativo: Guides, Gates, Guards (3G)
+
+Tutto ciò che governa il lavoro dell'agente è di tre tipi. Questo modello è la chiave
+di lettura dell'intero documento: ogni regola SHOULD essere classificabile in una delle
+tre categorie, e il criterio guida è **spostare il più possibile dalle guide ai gate**.
+
+| Tipo | Cosa è | Quando agisce | Affidabilità |
+|------|--------|---------------|--------------|
+| ↪️ **Guides** | Regole in linguaggio naturale: `AGENTS.md`, questo vademecum, ADR/PDR | Contesto iniziale del lavoro | **Non affidabili al 100%**: l'agente le ignora ~10% delle volte |
+| 🔄 **Gates** | Controlli deterministici che **bloccano** codice non conforme: typecheck, lint, test, soglie di coverage, hook, CI | Durante il lavoro, a ogni commit/push/PR | Deterministici: la parte **più importante** |
+| ↩️ **Guards** | Procedure di fallback (tipicamente schedulate) per ciò che sfugge ai gate | Dopo il lavoro | Ultima linea di difesa contro il degrado |
+
+### Principi operativi
+
+1. **Gate-first.** Se una regola può essere espressa come controllo automatico bloccante,
+   non deve vivere solo come istruzione testuale. Le regole architetturali stanno in
+   `dependency-cruiser`, non solo nei README.
+2. **Soglie a cricchetto (ratchet).** Le soglie di qualità (coverage, code health, budget
+   di tempo) possono solo **salire**, mai scendere. Dopo ogni miglioramento della salute
+   del codebase, l'agente alza la soglia nello stesso lavoro o in uno dedicato.
+3. **Divieto di aggiramento.** Un agente che fallisce ripetutamente un gate senza saper
+   rimediare cerca workaround: salta test, abbassa soglie, estende ignore-list, usa
+   `--no-verify`. Questo è il failure mode più pericoloso: i divieti devono essere
+   espliciti nelle guide (§ 8), i file che definiscono i gate devono essere protetti
+   (§ 11) e le guide devono insegnare **il rimedio**, non solo il divieto (TDD,
+   procedure di fix, § 6).
+4. **Mai lavorare sotto soglia.** Non si inizia lavoro nuovo su un codebase con gate
+   rossi: prima si ripristina la salute, poi si sviluppa la feature.
+5. **Loop engineering > prompt engineering.** L'intero processo è un loop da
+   ingegnerizzare: retrospettive che aggiornano le guide, guard che creano task,
+   cricchetti che alzano i gate. L'obiettivo non è la velocità iniziale ma
+   **non degradare nel tempo**.
+6. **L'umano decide** le tre cose ad alto leverage: *cosa* costruire, *come* lato
+   prodotto, *cosa è abbastanza buono*. Tutto il resto è automatizzabile.
+7. **Bias verso il progresso.** Meglio rilasciare ciò che è utile anche se imperfetto
+   e iterare sul feedback reale, che inseguire la prima versione perfetta.
+
+---
+
+## 2. Scelte tecniche fondamentali
 
 ### Stack predefinito
 
@@ -118,7 +160,7 @@ Deno non è un target standard: supportare contemporaneamente tre runtime aument
 
 ---
 
-## 2. Architettura del repository
+## 3. Architettura del repository
 
 ### Struttura consigliata
 
@@ -150,6 +192,7 @@ Deno non è un target standard: supportare contemporaneamente tre runtime aument
 │   ├── product/
 │   │   ├── OVERVIEW.md
 │   │   ├── GLOSSARY.md
+│   │   ├── VISION.md                   # opzionale
 │   │   └── pdr/
 │   ├── development/
 │   │   ├── CODING.md
@@ -216,6 +259,14 @@ Non creare cartelle vuote o deployable ipotetici. Se non c’è una UI, `apps/we
 - budget di performance e test;
 - stato delle funzionalità.
 
+### Documenti di recap come *viste*
+
+`docs/INDEX.md`, gli `OVERVIEW.md` e gli eventuali `ARCHITECTURE.md`/`ABSTRACTIONS.md`
+sono **viste sullo stato corrente**: riportano solo le decisioni *attive*, in forma
+sintetica. Evitano all'agente di rileggere decine di ADR/PDR per ricostruire l'esistente;
+i decision record servono per lo zoom-in storico. Regola: una decisione `superseded`
+sparisce dalle viste di recap e resta solo nei record.
+
 ### README dei package
 
 Ogni package o bounded context deve documentare:
@@ -254,19 +305,23 @@ apps / composition root
 - niente cartelle generiche `utils`, `helpers` o `common`.
 - niente service locator, dependency-injection container o reflection senza ADR.
 - niente grandi oggetti mutabili con stato nascosto.
+- logging e observability sono porte: il dominio non conosce il logger e niente
+  `console.log` nel codice di libreria (regola di lint).
 
 Preferire:
 
 - dati immutabili;
 - branded ID;
 - discriminated union;
-- errori tipizzati;
+- errori tipizzati: gli errori di dominio sono valori (union discriminate o tipo
+  `Result`); le eccezioni restano per errori del programmatore e per il confine
+  del processo;
 - funzioni di transizione;
 - exhaustive checking con `never`;
 - dipendenze esplicite;
 - clock, ID generator, random e I/O iniettati.
 
-Tutte queste regole devono essere codificate in `dependency-cruiser`, non affidate soltanto alla documentazione.
+Tutte queste regole devono essere codificate in `dependency-cruiser`, non affidate soltanto alla documentazione (principio gate-first, § 1).
 
 ### Contratti e dati esterni
 
@@ -289,9 +344,13 @@ const result = JSON.parse(raw) as SomeType;
 
 Il progetto seleziona una sola libreria di schema tramite ADR. Tipi TypeScript e JSON Schema devono derivare dalla stessa definizione, senza duplicazione manuale.
 
+Per la configurazione: i file `.env` reali sono sempre gitignored; nel repository
+vive un `.env.example` con valori finti ma strutturalmente validi, e l'environment
+viene validato all'avvio tramite lo schema scelto.
+
 ---
 
-## 3. Tooling statico
+## 4. Tooling statico
 
 |Scopo|Tool predefinito|
 |---|---|
@@ -311,12 +370,20 @@ Il progetto seleziona una sola libreria di schema tramite ADR. Tipi TypeScript e
 |Link|lychee, preferibilmente nella slow lane|
 |Shell|ShellCheck, se esistono script shell|
 |Container/IaC|Hadolint e Trivy, se applicabili|
+|Code health score|MAY: CodeScene, Codacy o equivalenti, esposti all'agente via MCP|
 
 Biome rimane il formatter autorevole; Oxlint è il linter autorevole. Non duplicare sistematicamente le stesse regole nei due strumenti.
 
 Oxlint supporta lint type-aware basato sul compilatore TypeScript nativo e quasi tutte le regole type-aware di typescript-eslint. Il suo `--type-check` è però ancora sperimentale: `tsc` resta l’autorità separata sul typecheck. Knip rileva file, export e dipendenze inutilizzati; dependency-cruiser applica regole sui layer e sui cicli. ([oxc.rs](https://oxc.rs/docs/guide/usage/linter/type-aware.html))
 
 ESLint non viene installato per default. Può essere aggiunto tramite ADR soltanto se una regola o un plugin necessario non è coperto da Oxlint.
+
+Gli strumenti di code health (ultima riga) non sono default perché commerciali, ma
+rispondono a un'esigenza precisa del modello 3G: forniscono un **punteggio misurabile**
+che rende applicabili la Boy Scout Rule misurata (§ 12) e le soglie a cricchetto su
+dimensioni che lint e coverage non coprono (hotspot, complessità, accoppiamento).
+Se adottati: gate di **0 issue sul codice nuovo** e punteggio pieno sul codice nuovo;
+toccando codice preesistente si correggono anche le issue dei file toccati.
 
 ### Escape hatch
 
@@ -337,7 +404,7 @@ Ogni suppression deve avere una motivazione sulla stessa riga. Le suppression in
 
 ---
 
-## 4. Interfaccia standard tramite `just`
+## 5. Interfaccia standard tramite `just`
 
 Gli agenti devono usare esclusivamente le recipe pubbliche di `just`. Gli script `package.json` sono dettagli implementativi.
 
@@ -361,8 +428,10 @@ Gli agenti devono usare esclusivamente le recipe pubbliche di `just`. Gli script
 |`just test-e2e`|Flussi end-to-end|
 |`just test-live`|Servizi reali/LLM; mai implicito|
 |`just coverage`|Suite con coverage|
+|`just coverage-raise`|Alza i threshold di coverage al valore corrente (solo salita)|
 |`just smoke`|Sottoinsieme critico di integrazione|
 |`just bun-smoke`|Compatibility suite Bun|
+|`just guards`|Esegue i guard in modalità report-only (§ 10)|
 |`just precommit`|Controlli rapidi su staged/related|
 |`just prepush`|Static analysis e integration principali|
 |`just ci`|Esatta pipeline CI locale|
@@ -370,12 +439,13 @@ Gli agenti devono usare esclusivamente le recipe pubbliche di `just`. Gli script
 Budget consigliati:
 
 ```text
-precommit:  ≤ 10 secondi
-smoke:      ≤ 20 secondi
-prepush:    ≤ 60 secondi
+precommit:     ≤ 10 secondi
+smoke:         ≤ 20 secondi
+prepush:       ≤ 60 secondi
+suite CI piena: ≤ 10 minuti
 ```
 
-Se questi budget vengono superati, ottimizzare suite, fixture e confini architetturali prima di introdurre un nuovo task orchestrator.
+Se questi budget vengono superati, ottimizzare suite, fixture e confini architetturali prima di introdurre un nuovo task orchestrator. Il budget dei 10 minuti della suite completa è mantenuto dal testing guard (§ 10): un feedback loop lento degrada l'intero loop di sviluppo.
 
 Gli hook versionati chiamano soltanto:
 
@@ -384,11 +454,13 @@ just precommit
 just prepush
 ```
 
-La CI deve eseguire le stesse recipe. I check locali migliorano il feedback loop, ma GitHub rimane l’autorità.
+I gate devono vivere **in locale prima che in CI**: l'hook dà feedback immediato
+all'agente, che può correggere subito nello stesso ciclo. La CI esegue le stesse
+recipe e resta l'autorità finale, non il primo punto di rilevamento.
 
 ---
 
-## 5. Strategia di testing: la “coppa”
+## 6. Strategia di testing: la “coppa”
 
 ```text
         pochi E2E
@@ -396,6 +468,31 @@ La CI deve eseguire le stesse recipe. I check locali migliorano il feedback loop
        pochi unit
   ampia base di static checks
 ```
+
+### TDD come ciclo di default
+
+Il modo di lavoro predefinito dell'agente è **red → green → refactor**:
+
+1. scrivere prima il test che descrive il comportamento atteso e **vederlo fallire**;
+2. implementare il minimo per farlo passare;
+3. rifattorizzare a test verdi.
+
+Motivo determinante in un progetto AI-only: **un test che non è mai stato visto
+fallire è sospetto** — può essere tautologico, non assertivo, o scollegato dal
+codice sotto test. Il ciclo TDD è la contromisura strutturale ai test fantasma
+(§ 9), oltre che il rimedio da insegnare quando un gate di coverage fallisce.
+
+### Qualità dei test
+
+Il riferimento sono i [test desiderata di Kent Beck](https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3).
+In sintesi operativa, ogni test deve essere:
+
+- **isolato**: nessuna dipendenza da altri test o dal loro ordine;
+- **deterministico**: stesso input, stesso esito, sempre;
+- **veloce**: niente attese, timer reali o I/O non necessaria;
+- **comportamentale**: verifica comportamento osservabile, non struttura interna;
+- **specifico**: un motivo di fallimento, un segnale chiaro;
+- **leggibile**: si capisce l'intento senza leggere l'implementazione.
 
 ### Static checks
 
@@ -462,6 +559,12 @@ Coprono:
 
 Playwright deve conservare trace, screenshot e log sui fallimenti, non su ogni esecuzione.
 
+**Keyboard-first** (progetti con UI): gli agenti sono deboli con il mouse e con i
+dettagli pixel-perfect. Il prodotto SHOULD essere interamente usabile da tastiera e
+i test E2E SHOULD preferire interazioni da tastiera quando equivalenti. In fase di
+implementazione UI, usare sempre i componenti del design system del progetto, mai
+elementi HTML grezzi, e studiare il linguaggio visivo esistente prima di aggiungerne.
+
 ### Test LLM, se presenti
 
 La CI deterministica usa:
@@ -481,7 +584,8 @@ o a workflow schedulati. Non bloccano la normale fast lane salvo decisione espli
 
 ### Regole generali
 
-Per ogni bug fix:
+Per ogni bug fix (**zero-bugs policy**: i bug hanno priorità sulle feature e vanno
+replicati e corretti al più presto):
 
 1. riprodurre il problema con un test fallente;
 2. implementare il fix;
@@ -514,13 +618,15 @@ Policy:
 - non imporre automaticamente il 100%;
 - non scrivere test privi di valore soltanto per coprire una riga.
 
-Una recipe separata può alzare automaticamente i threshold:
+I threshold sono **a cricchetto** (§ 1): la recipe
 
 ```text
 just coverage-raise
 ```
 
-ma nessun comando deve poterli abbassare automaticamente.
+può alzarli automaticamente al valore corrente, ma nessun comando deve poterli
+abbassare. Una modifica che abbassa i threshold nel diff è un segnale di
+aggiramento del gate e deve bloccare la review.
 
 Se disponibile nel piano GitHub, caricare un report Cobertura nella Code Quality API e configurare il ruleset con:
 
@@ -531,7 +637,16 @@ GitHub può mostrare la coverage direttamente nelle PR e bloccare merge che ne r
 
 ---
 
-## 6. Documentazione e decision record
+## 7. Documentazione e decision record
+
+### La documentazione è infrastruttura per l'AI
+
+In un progetto sviluppato da agenti, la documentazione non è (solo) per gli umani:
+è **il meccanismo principale per iniettare buon giudizio nell'AI**. Le regole astratte
+vengono ignorate con una certa frequenza; le decisioni passate, concrete e motivate,
+vengono seguite con affidabilità molto maggiore (>90–95% nelle esperienze documentate).
+Per questo i decision record non sono burocrazia: sono il modo in cui il progetto
+accumula giudizio riutilizzabile.
 
 ### Gerarchia delle fonti
 
@@ -550,44 +665,121 @@ Usare Markdown, JSON e Mermaid. Non affidare informazioni importanti esclusivame
 
 ### ADR — Architecture Decision Record
 
-Formato minimo:
+Convenzioni:
 
-```text
-Titolo e ID
-Stato: Proposed | Accepted | Superseded | Rejected
-Contesto
-Decisione
-Alternative considerate
-Conseguenze positive e negative
-Modalità di enforcement
-Piano di migrazione/rollback
-ADR sostituite o correlate
+- **una decisione per file**, nome `NNNN-titolo-breve.md`, numerazione monotona, ID mai riusati;
+- un’ADR `active` **non viene mai modificata**: una nuova ADR la sostituisce marcandola `superseded`;
+- l’ADR nasce **nello stesso commit** del codice che implementa la decisione;
+- le ADR sono anche l'**artefatto di review** per l'umano: più leggibili del diff riga per riga.
+
+Quando serve un’ADR: nuova dipendenza significativa, strategia di storage, astrazione
+core, pattern cross-cutting, deroga a uno SHOULD di questo vademecum.
+Quando **non** serve: bug fix, styling, refactoring che preservano il comportamento.
+
+Formato:
+
+```markdown
+---
+type: ADR
+id: "0001"
+title: "Titolo breve della decisione"
+status: proposed   # proposed | active | superseded | rejected
+date: YYYY-MM-DD
+superseded_by: "0007"   # solo se status: superseded
+---
+
+## Context
+Situazione, forze e vincoli che hanno portato alla decisione.
+
+## Decision
+**Cosa è stato deciso.** In una o due frasi, in grassetto.
+
+## Options considered
+- **Opzione A** (scelta): descrizione — pro / contro
+- **Opzione B**: descrizione — pro / contro
+
+## Consequences
+Cosa diventa più facile o più difficile. Cosa triggererebbe una rivalutazione.
+
+## Enforcement
+Come la decisione è verificata automaticamente: lint, dependency-cruiser, test, CI.
+
+## Migration / rollback
+Piano di migrazione e rollback, se rilevanti.
+
+## Advice
+*(opzionale)* Input ricevuti prima della decisione.
 ```
-
-Un’ADR accettata non viene riscritta per modificare la storia: una nuova ADR la sostituisce.
 
 ### PDR — Product Decision Record
 
-Formato minimo:
+Serve una PDR quando viene introdotta o modificata una regola osservabile dall’utente
+o dal business — **ogni decisione di prodotto genuinamente nuova**, indipendentemente
+dalla dimensione del lavoro (un'epica può non introdurre nulla di nuovo, una piccola
+storia può introdurre un pattern importante). Non serve per pattern già consolidati.
+Un agente non deve inventare autonomamente una nuova regola di prodotto in presenza
+di ambiguità: apre una PDR `proposed` o chiede.
 
-```text
-Titolo e ID
-Stato
-Problema e valore utente
-Regole di prodotto decise
-Esempi
-Casi limite
-Non-obiettivi
-Criteri di accettazione
-Metriche, se applicabili
-PDR sostituite o correlate
+Formato:
+
+```markdown
+---
+type: PDR
+id: "0001"
+title: "Titolo breve"
+status: proposed   # proposed | active | superseded | rejected
+date: YYYY-MM-DD
+superseded_by: ""   # solo se superseded
+---
+
+## Intent 👁️
+Problema e valore per l'utente: cosa deve riuscire a fare.
+
+## Design 🎨
+Regole di prodotto decise, con esempi e casi limite.
+
+## Tradeoffs ⚖️
+Alternative considerate e scartate, con il perché.
+
+## Non-obiettivi
+Cosa questa decisione esclude esplicitamente.
+
+## Acceptance criteria
+Criteri di accettazione verificabili.
+
+## Metriche
+*(se applicabili)*
 ```
 
-Serve una PDR quando viene introdotta o modificata una regola osservabile dall’utente o dal business. Un agente non deve inventare autonomamente una nuova regola di prodotto in presenza di ambiguità.
+### Glossary e Vision
+
+`docs/product/GLOSSARY.md` è l'equivalente di prodotto degli overview architetturali:
+mappa le **astrazioni di dominio** (componenti UI ma anche concetti non-UI: workflow,
+integrazioni, entità) descrivendo per ognuna perché esiste, a cosa serve e come si usa.
+È un documento vivo, *derivato* dalla somma delle PDR attive, e va aggiornato quando
+una PDR introduce o modifica un'astrazione. Il suo scopo operativo è ancorare le spec
+generate dall'AI: con un glossario mantenuto, il rework sulle specifiche cala
+drasticamente (evidenza riportata: dal 60% al 20%).
+
+`docs/product/VISION.md` (MAY): principi di prodotto stabili, usati dall'AI per
+brainstorm e bozze di spec. L'*intent* resta umano; la Vision gli dà forma verificabile.
 
 ---
 
-## 7. Istruzioni per gli agenti AI
+## 8. Istruzioni per gli agenti AI
+
+### Vincoli su `AGENTS.md`
+
+- **Un solo file canonico**, sempre caricato dall'agente. Semplicità deliberata:
+  niente frammentazione in decine di file di regole.
+- **Corto: <200 righe.** Il contesto dell'agente è la risorsa scarsa. Ogni riga deve
+  guadagnarsi il posto; il dettaglio vive nei documenti canonici linkati.
+- **Mantenuto dall'AI, approvato dall'umano.** Periodicamente (retrospettiva, § 10)
+  l'agente propone aggiornamenti basati sui problemi incontrati; entrano via PR.
+  Serve una procedura di pulizia contro il *context rot*: regole mai violate perché
+  ormai coperte da un gate vanno rimosse.
+- Regola di trasferimento: **quando una guida si dimostra critica e violabile, la si
+  trasforma in un gate** e la si rimuove o alleggerisce dalla guida.
 
 ### `AGENTS.md` minimale
 
@@ -598,53 +790,69 @@ Serve una PDR quando viene introdotta o modificata una regola osservabile dall�
 
 1. Read `docs/PROJECT.md` and `docs/INDEX.md`.
 2. Read the README of every package you will modify.
-3. Read the relevant accepted ADRs and PDRs.
+3. Read the relevant active ADRs and PDRs.
 4. Use only root-level `just` recipes to build, test and validate changes.
 
 ## Working rules
 
-- Keep the change limited to the requested scope.
-- Do not perform unrelated refactors or dependency upgrades.
-- Do not add a dependency unless necessary; explain the reason in the PR.
+- Keep the change limited to the requested scope. One task = one branch/worktree.
+- Before starting, check that gates are green. Never start new work on a
+  below-threshold codebase: restore health first, or report the blocker.
+- Work test-first: red → green → refactor. For a bug, the first commit is a
+  failing regression test. A test you have never seen fail is suspect.
+- Leave the code you touch better than you found it, measured by the repo gates.
+  Do NOT perform unrelated refactors or dependency upgrades.
+- Do not add a dependency unless necessary; significant ones require an ADR.
 - Preserve existing public APIs unless the task explicitly changes them.
 - Keep domain and application code independent from frameworks and runtimes.
 - Validate all external data at runtime.
 - Do not use `any`, unchecked casts, `@ts-ignore`, non-null assertions or
   disable comments to make checks pass.
 - Do not edit generated files directly.
-- Do not introduce a product decision without updating or creating a PDR.
-- Do not introduce an architectural decision without updating or creating an ADR.
+- Before using a library API, verify it exists in the installed version
+  (read its types/docs in `node_modules`); do not rely on memory.
+- Do not introduce a product decision without a PDR, nor an architectural
+  decision without an ADR, in the same commit as the code.
+
+## Gate circumvention — prohibited
+
+- NEVER use `--no-verify` or otherwise skip hooks.
+- NEVER lower coverage or quality thresholds; they only ratchet up.
+- NEVER extend ignore-lists, exclusions or suppressions to make a gate pass.
+- If a gate fails and you cannot find the fix, stop and report the exact
+  failure. Do not work around it.
 
 ## Testing
 
-- For a bug, first add a regression test that reproduces it.
-- For a feature, test observable behavior, errors and relevant edge cases.
-- Prefer integration tests; use unit tests only where they provide clearer value.
+- Prefer integration tests through public APIs; unit tests only where clearer.
 - Mock only external or non-deterministic boundaries.
+- Tests must be isolated, deterministic, fast and behavioral.
 - Never call live external services or LLMs unless explicitly requested.
+- UI: use design-system components, never raw HTML elements; prefer
+  keyboard-driven interactions.
 
 ## Validation
 
 - During development run `just precommit`.
 - Before completion run `just prepush`.
 - If a required command cannot run, report the exact reason.
-- Never claim a check passed unless it was executed successfully.
+- Never claim a check passed unless you executed it successfully; quote the
+  actual command output in the final report.
 
 ## Git safety
 
 - Do not use destructive Git commands.
 - Do not rewrite existing commits or force-push unless explicitly requested.
 - Do not delete unrelated or untracked files.
-- One task must use one branch or worktree.
 
 ## Final report
 
 Report:
 1. what changed;
 2. tests added or changed;
-3. commands executed and results;
-4. coverage impact;
-5. documentation or decisions updated;
+3. commands executed, with verbatim results;
+4. coverage and quality-score deltas;
+5. ADR/PDR and documentation updated;
 6. remaining risks or unresolved questions.
 ```
 
@@ -683,7 +891,63 @@ Non trasformare `AGENTS.md` in un manuale completo: deve indirizzare verso le fo
 
 ---
 
-## 8. Integrazione GitHub
+## 9. Failure modes degli agenti e contromisure
+
+Tabella di riferimento. La colonna 3G indica dove vive la contromisura principale.
+
+| Failure mode | Causa | Contromisura | 3G |
+|---|---|---|---|
+| L'agente **ignora le istruzioni** (~10% delle volte) | Insito nei modelli | Regole critiche espresse come controlli automatici, non solo testo | Gate + Guard |
+| L'agente **aggira i gate**: abbassa soglie, salta test, estende ignore-list, `--no-verify` | Troppi fallimenti senza rimedio noto | Divieti espliciti in `AGENTS.md`; soglie a cricchetto; guide che insegnano il rimedio (TDD, fix); file di gate protetti da CODEOWNERS; review del diff sui config | Guide + Gate |
+| **Telephone game**: la richiesta viene fraintesa tra orchestratore e coding agent e viene implementata la cosa sbagliata | Passaggi di contesto | Task piccoli; spec ancorate a PDR/Glossary/Vision; review umana sull'artefatto (ADR/PDR) prima del codice | Guide |
+| **Test fantasma**: test senza assertion, tautologici, scollegati dal codice | Pressione implicita verso il "verde" | TDD: il test deve essere visto fallire; branch coverage; review comportamentale dei test | Gate |
+| **API allucinate**: uso di simboli di librerie che non esistono nella versione installata | Il modello si affida alla memoria | Regola esplicita di verifica su `node_modules`; typecheck e test falliscono l'uso inventato | Guide + Gate |
+| **Completamento parziale dichiarato "done"**: feature cablata a metà | Ottimismo del modello | Definition of Done; integration test sul flusso completo; report con output verbatim | Gate |
+| **Report allucinati**: "i test passano" senza averli eseguiti | Insito nei modelli | Regola evidence-based nel report; la CI riesegue e fa fede | Gate |
+| **UI rotta** su dettagli: pixel-perfect, interazioni mouse, retrocompatibilità | Limiti attuali dei modelli | Keyboard-first; design system obbligatorio; trace Playwright sui fallimenti | Guide + Gate |
+| **Docs che marciscono**: ADR mancanti, documenti obsoleti | Judgment call non deterministiche | Docs guard (§ 10) | Guard |
+| **Context rot**: degrado in sessioni lunghe o per accumulo di regole morte | Contesto degradato/gonfiato | Task piccoli; `AGENTS.md` <200 righe; documenti di recap; retrospettive di pulizia | Guide + Guard |
+| **Scope creep**: modifiche non correlate "già che ci si è" | Eccesso di zelo | Diff minimo; un task un branch; review del diff; divieto di refactor non correlati | Guide + Gate |
+| **Degrado lento del sistema**: duplicazione, performance drift, suite lenta | Singole modifiche corrette in isolamento | Guard schedulati; budget di tempo; cricchetto | Guard |
+
+---
+
+## 10. Guards: procedure di fallback
+
+I guard coprono ciò che i gate non possono catturare: *judgment call* (serviva un ADR?
+una nuova stringa da localizzare? un evento analytics?) e *big picture* (una modifica
+corretta in isolamento può degradare il sistema nel tempo).
+
+Regole:
+
+- i guard **non modificano direttamente il codice**: producono report e aprono
+  issue/task nel backlog, che il normale flusso di lavoro raccoglie;
+- girano tramite `just guards` in locale e tramite `scheduled.yml` in CI
+  (frequenza notturna o settimanale); in assenza di scheduling, l'esecuzione
+  manuale periodica resta obbligo del mantainer;
+- ogni guard è report-only: nessun auto-fix, nessun commit automatico.
+
+Guard predefiniti:
+
+| Guard | Cosa rileva |
+|---|---|
+| **Docs guard** | Modifiche che avrebbero richiesto ADR/PDR; documenti di recap disallineati dalle decisioni attive; link e riferimenti rotti |
+| **Testing guard** | Suite oltre il budget dei 10 minuti; test lenti a basso segnale da rimuovere o sostituire |
+| **Health/refactoring guard** | Hotspot, duplicazione crescente, complessità; opportunità di alzare le soglie a cricchetto |
+| **Performance guard** | Rallentamenti misurati da probe nel codice, se esistono probe |
+| **Localization guard** | Stringhe non tradotte, se esiste i18n |
+
+### Retrospettiva di processo
+
+È un guard speciale, da eseguire con cadenza regolare (settimanale o a fine ciclo di
+lavoro intenso): l'agente analizza i problemi incontrati — gate falliti ripetutamente,
+istruzioni ignorate, workaround tentati, task riaperti — e propone aggiornamenti a
+`AGENTS.md`, alle guide e ai guard stessi, tramite PR. È il meccanismo che chiude il
+loop del § 1: il sistema di regole migliora in base all'evidenza, non per accumulo.
+
+---
+
+## 11. Integrazione GitHub
 
 ### Workflow minimi
 
@@ -691,7 +955,7 @@ Non trasformare `AGENTS.md` in un manuale completo: deve indirizzare verso le fo
 ci.yml
 security.yml
 e2e.yml              # se esiste una UI
-scheduled.yml        # slow test, live eval, compatibility
+scheduled.yml        # guards, slow test, live eval, compatibility
 release.yml          # se esistono release
 ```
 
@@ -712,7 +976,10 @@ bun-compatibility
 dependency-review
 ```
 
-`quality` esegue `just check` o le recipe statiche equivalenti. La CI usa installazione frozen e non modifica il lockfile.
+`quality` esegue le recipe statiche aggregate. La CI usa installazione frozen e non modifica il lockfile.
+
+`scheduled.yml` ospita l'esecuzione automatica dei guard (§ 10): apre issue con i
+risultati, senza committare codice.
 
 ### Ruleset di `main`
 
@@ -729,6 +996,14 @@ Configurare:
 - code scanning e coverage gate, quando disponibili;
 - merge queue se operano molti agenti in parallelo.
 
+Il default è un solo agente di coding alla volta: il collo di bottiglia è la
+validazione umana, non la generazione. Il lavoro parallelo di più agenti (worktree,
+merge queue) va introdotto solo quando la capacità di review lo sostiene.
+
+Progetti personali a singolo mantainer MAY adottare un flusso trunk-based con commit
+frequenti direttamente su `main` e hook come gate unico, ma la scelta va registrata
+in un'ADR e i divieti di aggiramento restano identici.
+
 I ruleset GitHub possono richiedere status check, risultati CodeQL, Code Quality e soglie di coverage. ([docs.github.com](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets?ref=jscarle.dev))
 
 ### `CODEOWNERS`
@@ -744,6 +1019,19 @@ Proteggere almeno:
 /migrations/
 /SECURITY.md
 ```
+
+E, in quanto **file che definiscono i gate** (contromisura all'aggiramento, § 1 e § 9):
+
+```text
+/justfile
+/.githooks/
+/biome.json
+/.oxlintrc.json
+/knip.json
+/dependency-cruiser.config.*
+```
+
+Qualunque file contenga threshold di coverage o budget va protetto allo stesso modo.
 
 ### Sicurezza
 
@@ -793,59 +1081,70 @@ Per container o binari pubblicati, generare SBOM e artifact attestation.
 
 ---
 
-## 9. Workflow operativo di un agente
+## 12. Workflow operativo di un agente
 
 ### Prima di modificare codice
 
+0. Verificare che i gate siano verdi: **mai iniziare lavoro nuovo su un codebase
+   sotto soglia**. Se sono rossi, ripristinare la salute o segnalare il blocco.
 1. Leggere `PROJECT.md` e l’indice.
 2. Identificare bounded context e API pubbliche coinvolte.
 3. Leggere test, ADR e PDR rilevanti.
-4. Verificare se la richiesta contiene ambiguità di prodotto.
-5. Definire un piano breve.
+4. Verificare se la richiesta contiene ambiguità di prodotto (→ PDR `proposed` o domanda).
+5. Definire un piano breve. Il task deve stare in una sessione di lavoro:
+   se il piano non ci sta, spezzare il task prima di iniziare.
 6. Creare branch o worktree dedicato.
 
 ### Durante la modifica
 
+- lavorare in cicli TDD: red → green → refactor;
 - produrre il diff minimo coerente;
 - seguire pattern già presenti;
 - non aggiungere nuove astrazioni senza necessità;
 - eseguire continuamente `just precommit`;
 - aggiornare test e documentazione insieme al codice;
-- non silenziare check per ottenere una pipeline verde;
-- non modificare codice estraneo “già che ci si è”.
+- **Boy Scout Rule, riconciliata col diff minimo**: il codice *toccato* va lasciato
+  migliore di come è stato trovato, misuratamente (issue dei gate risolte nei file
+  modificati); refactoring di codice non correlato resta vietato;
+- non silenziare check per ottenere una pipeline verde (§ 9);
+- ADR/PDR nello stesso commit del codice che le implementa.
 
 ### Prima della consegna
 
 - eseguire `just prepush`;
-- controllare `git diff`;
+- controllare `git diff` per intero, inclusi i file di configurazione;
 - verificare che non esistano file generati sporchi;
 - verificare coverage e static analysis;
 - aggiornare ADR/PDR se necessario;
-- compilare il report finale con evidenze verificabili.
+- compilare il report finale con evidenze verificabili (output verbatim dei comandi).
 
 ---
 
-## 10. Definition of Done
+## 13. Definition of Done
 
 Una feature o un fix è completo solo se:
 
 - [ ]  i criteri di accettazione sono soddisfatti;
 - [ ]  il comportamento è coperto da test appropriati;
 - [ ]  ogni bug fix possiede un regression test;
+- [ ]  ogni nuovo test è stato **visto fallire** prima dell'implementazione;
 - [ ]  happy path, errori e casi limite rilevanti sono coperti;
 - [ ]  la coverage non è diminuita;
+- [ ]  nessuna soglia è stata abbassata e nessun gate è stato aggirato; il diff non
+       contiene modifiche ingiustificate a justfile, hook, config di lint/coverage;
 - [ ]  non esistono nuovi warning o suppression ingiustificate;
 - [ ]  non esistono file, export o dipendenze inutilizzati;
 - [ ]  le regole architetturali passano;
 - [ ]  gli schemi esterni sono validati a runtime;
-- [ ]  documentazione, ADR e PDR sono aggiornate;
+- [ ]  documentazione, ADR e PDR sono aggiornate nello stesso commit;
 - [ ]  `just prepush` passa;
+- [ ]  il report finale cita l'output reale dei comandi eseguiti;
 - [ ]  rischi e test non eseguiti sono dichiarati;
 - [ ]  il diff non contiene modifiche estranee.
 
 ---
 
-## 11. Strumenti e pratiche da non aggiungere per default
+## 14. Strumenti e pratiche da non aggiungere per default
 
 Non introdurre senza una necessità misurata e un’ADR:
 
@@ -862,11 +1161,13 @@ Non introdurre senza una necessità misurata e un’ADR:
 - mandato di coverage al 100%;
 - snapshot UI estesi;
 - grandi barrel file;
-- test che verificano dettagli d’implementazione.
+- test che verificano dettagli d’implementazione;
+- skill o file di regole frammentati in parallelo ad `AGENTS.md`;
+- auto-fix da parte dei guard o commit automatici in CI.
 
 ---
 
-## 12. Ordine di bootstrap di un nuovo progetto
+## 15. Ordine di bootstrap di un nuovo progetto
 
 1. Compilare `docs/PROJECT.md`.
 2. Creare `docs/INDEX.md`, glossario e overview.
@@ -878,12 +1179,33 @@ Non introdurre senza una necessità misurata e un’ADR:
 8. Installare Biome, Oxlint, Knip e dependency-cruiser.
 9. Configurare Vitest e una prima integration suite.
 10. Creare il `justfile` e gli hook.
-11. Aggiungere `AGENTS.md` e i bridge per gli altri agenti.
-12. Configurare GitHub Actions, ruleset, CODEOWNERS e Dependabot.
-13. Abilitare security scanning e coverage gate.
-14. Aggiungere `bun-smoke`.
-15. Verificare che `just ci` funzioni su una clone pulita.
+11. Fissare i threshold iniziali di coverage come **baseline del cricchetto**.
+12. Aggiungere `AGENTS.md` e i bridge per gli altri agenti.
+13. Configurare GitHub Actions, ruleset, CODEOWNERS (inclusi i file di gate) e Dependabot.
+14. Abilitare security scanning e coverage gate.
+15. Aggiungere `bun-smoke`.
+16. Configurare `scheduled.yml` con i guard e calendarizzare la prima retrospettiva.
+17. Verificare che `just ci` funzioni su una clone pulita.
+
+---
 
 Il principio riassuntivo è:
 
-> **Una sola interfaccia operativa, documentazione corta e gerarchica, architettura verificata automaticamente, static checks molto ampi, pochi unit test specialistici, molti integration test comportamentali e pochi E2E ad alto valore.**
+> **Guides corte e vive, gate deterministici a cricchetto, guard che creano task invece
+> di codice. Una sola interfaccia operativa, documentazione gerarchica come iniezione
+> di giudizio, architettura verificata automaticamente, TDD come ciclo di default,
+> molti integration test comportamentali e pochi E2E ad alto valore. L'obiettivo non
+> è la velocità iniziale ma non degradare nel tempo.**
+
+---
+
+## Fonti
+
+- Vademecum originale: versione precedente di questo file (chat GPT-5.6-Sol, in cronologia git).
+- Sintesi del workflow AI di Luca Rossi (Refactoring): `docs/init/Refactoring/00-refactoring-ai-workflow.md`,
+  in particolare [My AI Coding Workflow](https://refactoring.fm/p/my-ai-coding-workflow-b09) (modello 3G),
+  [How I Run the Tolaria Project](https://refactoring.fm/p/how-i-run-the-tolaria-project) (validazione, zero-bugs),
+  [How to make AI better at product](https://refactoring.fm/p/how-to-make-ai-better-at-product) (PDR, Glossary),
+  [How to Orchestrate AI Workflows](https://refactoring.fm/p/how-to-orchestrate-ai-workflows) (agents as scaffolding).
+- [Test Desiderata — Kent Beck](https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3).
+- [Sensors for coding agents — Birgitta Bockeler](https://martinfowler.com/articles/sensors-for-coding-agents.html).
