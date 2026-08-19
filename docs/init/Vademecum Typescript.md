@@ -206,7 +206,8 @@ Deno non è un target standard: supportare contemporaneamente tre runtime aument
 │   ├── api/                            # se esiste un'API
 │   ├── worker/                         # se esistono job
 │   ├── web/                            # se esiste una UI
-│   └── cli/                            # se esiste una CLI
+│   ├── cli/                            # la CLI (default: un bin con subcommand)
+│   └── mcp/                            # se espone tool agli agenti AI
 │
 ├── packages/
 │   ├── <bounded-context>/
@@ -249,12 +250,12 @@ Non creare cartelle vuote o deployable ipotetici. Se non c’è una UI, `apps/we
 
 - obiettivo e non-obiettivi;
 - tabella dei deployable esistenti;
-- presenza o assenza di UI, API, worker, CLI e mobile;
+- presenza o assenza di UI, API, worker, CLI, MCP e mobile;
 - data store utilizzati;
 - servizi esterni;
 - flussi critici;
 - classificazione dei dati;
-- command map;
+- command map e mappa delle superfici (caso d'uso × canale: CLI, API, MCP, UI);
 - principali ADR/PDR;
 - budget di performance e test;
 - stato delle funzionalità.
@@ -299,6 +300,8 @@ apps / composition root
 - `application` orchestra il dominio attraverso porte.
 - gli adapter implementano le porte.
 - gli entrypoint compongono l’applicazione.
+- gli adapter di ingresso (CLI, HTTP, MCP, UI) non contengono logica: parsing →
+  validazione → caso d’uso → mappatura del risultato (§ 3, *Superfici di ingresso*).
 - i bounded context comunicano solo tramite API pubbliche e contratti espliciti.
 - il codice di produzione non può importare `testkit`.
 - niente dipendenze circolari.
@@ -323,6 +326,170 @@ Preferire:
 - clock, ID generator, random e I/O iniettati.
 
 Tutte queste regole devono essere codificate in `dependency-cruiser`, non affidate soltanto alla documentazione (principio gate-first, § 1).
+
+### Superfici di ingresso: CLI, API, MCP, UI
+
+**Un caso d'uso, molte superfici.** Ogni capability del sistema esiste **una sola
+volta**, come caso d'uso nell'application layer di un bounded context. CLI, API HTTP,
+server MCP e UI web sono **adapter di ingresso (driving)** intercambiabili che
+proiettano lo stesso caso d'uso su canali diversi. La duplicazione tra superfici è il
+sintomo di un caso d'uso mancante: se due entrypoint contengono la stessa logica,
+questa va spostata nell'application layer, mai copiata.
+
+Ogni entrypoint ha la stessa anatomia, e **nient'altro**:
+
+```text
+parse input → valida (schema condiviso) → chiama il caso d'uso → mappa il risultato sul canale
+```
+
+- Niente logica di dominio o di orchestrazione negli entrypoint. È un **gate**
+  dependency-cruiser: `apps/**` importa solo le API pubbliche dei package, mai gli
+  internals di `domain/` o degli adapter.
+- Il wiring (costruzione di config, adapter e casi d'uso) vive nel **composition
+  root** dell'app: un `main.ts`/`cli.ts`/`server.ts` sottile che fa solo startup e
+  dispatch. La policy specifica di un comando vive nel file del comando, non accumulata
+  nell'entrypoint.
+- Input e output dei casi d'uso sono DTO definiti in `packages/contracts`, insieme agli
+  schemi di validazione e alla **tassonomia degli errori condivisa**: stessa fonte per
+  CLI, API, MCP e frontend, nessuna ridefinizione manuale.
+- **Naming parallelo**: lo stesso caso d'uso ha lo stesso nome su ogni canale —
+  `user create` in CLI, `POST /users` in API, tool `user_create` in MCP, mutation
+  `useCreateUser` nella UI. La corrispondenza è documentata nella mappa delle
+  superfici di `docs/PROJECT.md`.
+
+Anatomia delle app:
+
+```text
+apps/
+├── cli/
+│   └── src/
+│       ├── cli.ts                 # entrypoint sottile: bootstrap + dispatch
+│       ├── commands/              # un file per subcommand; il path è la route
+│       │   ├── user/
+│       │   │   ├── create.ts
+│       │   │   └── list.ts
+│       │   └── report/
+│       │       └── generate.ts
+│       ├── registry.ts            # registro dichiarativo dei comandi (non un barrel)
+│       └── output.ts              # renderer human/JSON, mappatura exit code
+├── api/
+│   └── src/
+│       ├── main.ts                # composition root
+│       ├── routes/                # un file per risorsa, un handler per caso d'uso
+│       └── error-mapper.ts        # errori di dominio → Problem Details (RFC 9457)
+├── mcp/
+│   └── src/
+│       ├── server.ts              # composition root + transport
+│       └── tools/                 # un file per tool, 1:1 con i casi d'uso esposti
+└── web/
+    └── src/
+        ├── features/<feature>/    # componenti, hook, client API e test colocati
+        └── design-system/
+```
+
+#### CLI
+
+Default: **un solo bin con albero di subcommand** (`<progetto> <gruppo> <verbo>`).
+Comandi separati solo quando audience, lifecycle di deploy o bounded context sono
+genuinamente disgiunti; la scelta è un'ADR. In entrambi i casi ogni bin resta un
+composition root sottile sugli stessi package.
+
+- **Un file per subcommand**, con path che rispecchia il comando
+  (`commands/user/create.ts` → `cli user create`): l'albero dei file è la tabella di
+  routing, greppabile e navigabile dagli agenti.
+- Framework: fino a ~5 comandi può bastare `node:util.parseArgs`; oltre, default
+  consigliato **commander** (o `cac` se si privilegia il footprint); **oclif** o
+  **clipanion** quando servono routing file-based, plugin o help molto ricco. Il
+  framework resta confinato in `apps/cli`: i casi d'uso non lo conoscono.
+- **Contratto agent-first** — la CLI sarà operata anche da agenti AI, quindi l'output
+  è un'API a tutti gli effetti:
+  - stdout porta **solo dati**; spinner, progress, warning e log vanno su stderr;
+  - ogni comando supporta `--json`; in contesto non-TTY (pipe) l'output JSON è il
+    default, la tabella leggibile resta per l'uso interattivo;
+  - errori strutturati (`{"error": "...", "message": "..."}`) su stderr anche in
+    modalità JSON;
+  - tassonomia di exit code fissata in ADR (es. `0` ok, `1` errore interno, `2` input
+    non valido, `3` auth, `4` non trovato, `5` conflitto), mappata dalla stessa
+    tassonomia di errori dei contratti;
+  - `--dry-run` e `--yes` per le operazioni distruttive; operazioni idempotenti dove
+    possibile (gli agenti ritentano);
+  - `--help` completo con esempi: è il meccanismo con cui un agente esplora la CLI;
+  - rispettare `NO_COLOR`; niente codici ANSI su stream non-TTY.
+- Il contratto è un **gate**: una integration suite itera il registry e verifica per
+  ogni comando `--help`, `--json`, exit code e separazione degli stream.
+
+#### API HTTP
+
+- Un handler per caso d'uso: valida l'input con lo schema condiviso, chiama il caso
+  d'uso, mappa il risultato. Niente logica nei controller.
+- Framework preferibilmente basato su Web Standard API (`Request`/`Response`, es.
+  Hono) per la portabilità tra runtime (§ 2, policy Bun); alternative (Fastify,
+  Express) tramite ADR. Il framework non esce da `apps/api`.
+- Errori: la tassonomia condivisa è mappata su **Problem Details RFC 9457**
+  (`application/problem+json`), con status coerenti con gli exit code della CLI.
+- Frontend e client consumano tipi e schemi da `packages/contracts`: nessuna
+  ridefinizione manuale dei tipi dell'API.
+
+#### Server MCP
+
+- Il server MCP è un adapter di ingresso come gli altri: ogni tool è un file in
+  `tools/`, dichiara description e input schema (Standard Schema: Zod v4, Valibot o
+  equivalenti) e delega a un caso d'uso. Niente logica nei tool handler.
+- SDK ufficiale TypeScript **v2** (`@modelcontextprotocol/server`, allineato alla spec
+  2026-07-28). Trasporto **stdio** come default per l'integrazione locale con gli
+  agenti; **Streamable HTTP** con autenticazione quando serve accesso remoto.
+- **Tool curati, non generati in massa**: esporre un sottoinsieme deliberato di casi
+  d'uso, con `description` scritte per il modello (cosa fa, quando usarlo, cosa
+  restituisce). Non esporre automaticamente l'intera API come tool: la superficie
+  grezza degrada la selezione del tool da parte dell'LLM.
+- Output dei tool: contenuto strutturato derivato dagli stessi DTO dei contratti;
+  errori di dominio mappati su errori di tool con la stessa tassonomia.
+- Sicurezza: default read-only; i tool di scrittura richiedono scope espliciti;
+  niente segreti in descrizioni e output.
+- Se il server MCP avvolge lo stesso core della CLI e ne condivide il lifecycle, MAY
+  essere un subcommand (`<progetto> mcp serve`) invece di un deployable separato.
+
+#### UI web
+
+- Struttura per **feature colocate** (`features/<feature>/`: componenti, hook, client
+  API, test), non per tipo tecnico (`components/`, `hooks/` globali): ogni feature è
+  comprensibile ed eliminabile in un solo posto.
+- Il design system vive in `apps/web/src/design-system/` (o `packages/ui` se condiviso
+  tra più frontend); elementi HTML grezzi restano vietati fuori da esso (§ 6).
+- Le chiamate API passano da un client tipato sui contratti; lo stato server (cache,
+  refetch) è tenuto separato dallo stato UI.
+
+#### Navigabilità per gli agenti
+
+Regole strutturali che rendono il repository percorribile senza esplorazione
+esaustiva:
+
+- **Screaming architecture**: i nomi di package, cartelle e file dicono cosa fa il
+  sistema (`packages/billing/`, `commands/report/generate.ts`), non quali framework usa.
+- **Un caso d'uso = un file** `<verbo>-<nome>.ts` con test colocato: trovare il
+  comportamento significa trovare il file.
+- **Registry espliciti**: ogni app ha un punto unico e dichiarativo che elenca la
+  propria superficie (comandi, route, tool). Non è un barrel: importa e registra, non
+  riesporta.
+- **Mappa delle superfici** in `docs/PROJECT.md`: tabella caso d'uso × canale
+  (CLI/API/MCP/UI), aggiornata a ogni aggiunta. È l'indice che evita all'agente la
+  scansione di tutte le app.
+- Convenzioni costanti: stessa struttura interna per ogni bounded context, stesso
+  naming su ogni canale, stessa anatomia per ogni entrypoint. La predicibilità è la
+  feature.
+
+| Cosa | Dove |
+|---|---|
+| Regola di business | `packages/<context>/src/domain/` |
+| Caso d'uso | `packages/<context>/src/application/<verbo>-<nome>.ts` |
+| Porta verso l'esterno | `packages/<context>/src/ports/` |
+| Adapter (db, fs, SaaS) | `packages/adapter-<technology>/` |
+| DTO, schemi, tassonomia errori | `packages/contracts/` |
+| Subcommand CLI | `apps/cli/src/commands/<gruppo>/<verbo>.ts` |
+| Endpoint HTTP | `apps/api/src/routes/` |
+| Tool MCP | `apps/mcp/src/tools/` |
+| Schermata o flusso UI | `apps/web/src/features/<feature>/` |
+| Wiring e composition root | `apps/<app>/src/{main,cli,server}.ts` |
 
 ### Logging e observability
 
@@ -1180,6 +1347,9 @@ Una feature o un fix è completo solo se:
 - [ ]  non esistono nuovi warning o suppression ingiustificate;
 - [ ]  non esistono file, export o dipendenze inutilizzati;
 - [ ]  le regole architetturali passano;
+- [ ]  ogni nuovo caso d'uso è esposto sulle superfici decise (registry CLI, route
+       API, tool MCP) con naming parallelo e contratti condivisi, e la mappa delle
+       superfici in `docs/PROJECT.md` è aggiornata;
 - [ ]  gli schemi esterni sono validati a runtime;
 - [ ]  documentazione, ADR e PDR sono aggiornate nello stesso commit;
 - [ ]  `just prepush` passa;
@@ -1254,3 +1424,10 @@ Il principio riassuntivo è:
   [How to Orchestrate AI Workflows](https://refactoring.fm/p/how-to-orchestrate-ai-workflows) (agents as scaffolding).
 - [Test Desiderata — Kent Beck](https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3).
 - [Sensors for coding agents — Birgitta Bockeler](https://martinfowler.com/articles/sensors-for-coding-agents.html).
+- Superfici di ingresso (§ 3):
+  [MCP TypeScript SDK v2](https://github.com/modelcontextprotocol/typescript-sdk) e
+  [documentazione v2](https://ts.sdk.modelcontextprotocol.io/v2/);
+  [Building a CLI That Works for Humans and Machines — OpenStatus](https://www.openstatus.dev/blog/building-cli-for-human-and-agents);
+  [Machine-Readable Output — Agent Surface](https://agentsurface.dev/docs/cli-design/machine-readable-output);
+  [Building a production TypeScript CLI in 2026: oclif vs commander vs custom](https://dev.to/thegdsks/building-a-production-typescript-cli-in-2026-oclif-vs-commander-vs-custom-9ah);
+  [Vertical Slice Architecture in Node.js — The T-Shaped Dev](https://thetshaped.dev/p/vertical-slice-architecture-in-nodejs-typescript-one-folder-per-use-case).
