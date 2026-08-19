@@ -579,7 +579,9 @@ viene validato all'avvio tramite lo schema scelto.
 |Link|lychee, preferibilmente nella slow lane|
 |Shell|ShellCheck, se esistono script shell|
 |Container/IaC|Hadolint e Trivy, se applicabili|
-|Code health score|MAY: CodeScene, Codacy o equivalenti, esposti all'agente via MCP|
+|Qualità continua e quality gate|MAY: SonarQube — vedi *Code health e hotspot*|
+|Hotspot e analisi git-history|MAY: CodeCharta o CodeMaat, nel health guard (§ 10) — vedi *Code health e hotspot*|
+|Code health pro|MAY, solo su progetti maturi: Codacy o CodeScene (a pagamento su repo privati), esposti all'agente via MCP|
 
 Biome rimane il formatter autorevole; Oxlint è il linter autorevole. Non duplicare sistematicamente le stesse regole nei due strumenti.
 
@@ -587,12 +589,60 @@ Oxlint supporta lint type-aware basato sul compilatore TypeScript nativo e quasi
 
 ESLint non viene installato per default. Può essere aggiunto tramite ADR soltanto se una regola o un plugin necessario non è coperto da Oxlint.
 
-Gli strumenti di code health (ultima riga) non sono default perché commerciali, ma
-rispondono a un'esigenza precisa del modello 3G: forniscono un **punteggio misurabile**
-che rende applicabili la Boy Scout Rule misurata (§ 12) e le soglie a cricchetto su
-dimensioni che lint e coverage non coprono (hotspot, complessità, accoppiamento).
-Se adottati: gate di **0 issue sul codice nuovo** e punteggio pieno sul codice nuovo;
-toccando codice preesistente si correggono anche le issue dei file toccati.
+### Code health e hotspot: free di default, pro solo a regime
+
+Questi strumenti rispondono a un'esigenza precisa del modello 3G: forniscono un
+**punteggio misurabile** su dimensioni che lint e coverage non coprono (hotspot,
+complessità, accoppiamento temporale, duplicazione), rendendo applicabili la Boy
+Scout Rule misurata (§ 12) e le soglie a cricchetto (§ 1). Restano MAY, ma quando
+si adottano si parte dallo **stack gratuito**: i commerciali (Codacy e CodeScene,
+al momento della verifica ~20 €/mese ciascuno per i repository privati e gratuiti
+solo per l'open source) si aggiungono solo quando il progetto diventa importante.
+
+**Sostituto di Codacy — qualità continua, duplicazione, quality gate:**
+
+- **SonarQube Community Build**, self-hosted in Docker (~2 GB di RAM): analisi
+  TS/JS e Python, bug, code smell, vulnerabilità di base, duplicazione,
+  complessità, debito tecnico, import di coverage e di report SARIF, quality
+  gate. Limiti: niente analisi dei branch né decoration delle PR.
+- Alternativa zero-infrastruttura: **SonarQube Cloud Free** — fino a 5 membri e
+  50k LOC privati complessive, analisi del branch principale e delle PR verso di
+  esso, quality gate; progetti pubblici illimitati. Oltre la soglia si valuta
+  self-hosting o piano a pagamento.
+- Policy invariata: gate di **0 issue sul codice nuovo**; toccando codice
+  preesistente si correggono anche le issue dei file toccati.
+- Se serve SAST più profondo del livello base incluso: Semgrep CE (open source),
+  con ADR.
+
+**Sostituto di CodeScene — hotspot dalla storia git (churn × complessità),
+knowledge map, change coupling:**
+
+- **CodeCharta** (open source, interamente locale): `unifiedparser` calcola
+  complessità, rloc e code smell su TS/TSX e Python; `gitlogparser` aggiunge
+  commit, autori, accoppiamento temporale e hotfix ratio; importa anche metriche
+  SonarQube, CodeMaat e coverage. Due comandi più un merge producono la mappa
+  degli hotspot.
+- Alternativa minimale: **CodeMaat** (la CLI open source dell'autore di
+  CodeScene, language-agnostic perché legge il git log) con output CSV.
+- Esecuzione: **mai nella fast lane** — girano nel health/refactoring guard
+  (§ 10) su `scheduled.yml` e producono report e task, non auto-fix.
+- Se basta un gate di complessità senza server né dashboard: **lizard** con
+  soglia di complessità ciclomatica in CI.
+
+**Pro, solo a regime** (progetto con utenti reali, business o team multiplo):
+Codacy Team e/o CodeScene Standard, esposti all'agente via MCP; tornano gratuiti
+se il repository diventa open source. Su piani GitHub Team/Enterprise esiste
+anche GitHub Code Quality (a pagamento sui repository privati, gratuito sui
+pubblici), già richiamato al § 6 e § 11.
+
+Esclusioni verificate al momento della scrittura: **DeepSource** (non gratuito
+per i repository privati), **Qodana** (il linter JS/TS richiede la licenza
+Ultimate; solo JVM, Python, .NET e C/C++ hanno edizione Community gratuita),
+**Mega-Linter** e **GitHub Super-Linter** (aggregatori senza scoring né quality
+gate: reintrodurrebbero ESLint/Prettier al posto di Oxlint/Biome e
+duplicherebbero Gitleaks, cspell, actionlint, markdownlint, ShellCheck,
+Hadolint e Trivy già curati singolarmente; per codice Python occasionale
+installare direttamente `ruff` e `mypy`).
 
 ### Escape hatch
 
@@ -837,12 +887,12 @@ può alzarli automaticamente al valore corrente, ma nessun comando deve poterli
 abbassare. Una modifica che abbassa i threshold nel diff è un segnale di
 aggiramento del gate e deve bloccare la review.
 
-Se disponibile nel piano GitHub, caricare un report Cobertura nella Code Quality API e configurare il ruleset con:
+Se disponibile nel piano GitHub (Code Quality è gratuito sui repository pubblici e a pagamento sui privati), caricare un report Cobertura nella Code Quality API e configurare il ruleset con:
 
 - minimum coverage;
 - maximum coverage drop pari a zero.
 
-GitHub può mostrare la coverage direttamente nelle PR e bloccare merge che ne riducono il livello. In assenza della funzionalità nativa, usare Codecov o uno script CI di confronto con `main`. ([docs.github.com](https://docs.github.com/en/code-security/how-tos/maintain-quality-code/restrict-code-coverage))
+GitHub può mostrare la coverage direttamente nelle PR e bloccare merge che ne riducono il livello. In assenza della funzionalità nativa, usare il quality gate di SonarQube (§ 4), Codecov o uno script CI di confronto con `main`. ([docs.github.com](https://docs.github.com/en/code-security/how-tos/maintain-quality-code/restrict-code-coverage))
 
 ---
 
@@ -1145,7 +1195,7 @@ Guard predefiniti:
 |---|---|
 | **Docs guard** | Modifiche che avrebbero richiesto ADR/PDR; documenti di recap disallineati dalle decisioni attive; link e riferimenti rotti |
 | **Testing guard** | Suite oltre il budget dei 10 minuti; test lenti a basso segnale da rimuovere o sostituire |
-| **Health/refactoring guard** | Hotspot, duplicazione crescente, complessità; opportunità di alzare le soglie a cricchetto |
+| **Health/refactoring guard** | Hotspot e accoppiamento temporale (CodeCharta/CodeMaat), duplicazione e complessità crescenti (SonarQube), se configurati (§ 4); opportunità di alzare le soglie a cricchetto |
 | **Performance guard** | Rallentamenti misurati da probe nel codice, se esistono probe |
 | **Localization guard** | Stringhe non tradotte, se esiste i18n |
 
@@ -1367,6 +1417,7 @@ Non introdurre senza una necessità misurata e un’ADR:
 - Nx o Turborepo;
 - Deno come terzo runtime;
 - ESLint affiancato integralmente a Oxlint;
+- Mega-Linter o GitHub Super-Linter, ridondanti rispetto allo stack curato (§ 4);
 - Husky o lint-staged, dato che hook e comandi sono gestiti da `just`;
 - dependency-injection container;
 - ORM Active Record nel dominio;
@@ -1431,3 +1482,13 @@ Il principio riassuntivo è:
   [Machine-Readable Output — Agent Surface](https://agentsurface.dev/docs/cli-design/machine-readable-output);
   [Building a production TypeScript CLI in 2026: oclif vs commander vs custom](https://dev.to/thegdsks/building-a-production-typescript-cli-in-2026-oclif-vs-commander-vs-custom-9ah);
   [Vertical Slice Architecture in Node.js — The T-Shaped Dev](https://thetshaped.dev/p/vertical-slice-architecture-in-nodejs-typescript-one-folder-per-use-case).
+- Code health e alternative gratuite (§ 4), prezzi e licenze verificati 2026-08:
+  [SonarQube Community Build](https://www.sonarsource.com/open-source-editions/sonarqube-community-edition/) e
+  [piani SonarQube Cloud](https://docs.sonarsource.com/sonarqube-cloud/administering-sonarcloud/managing-subscription/subscription-plans);
+  [prezzi Codacy](https://www.codacy.com/pricing) e [prezzi CodeScene](https://codescene.com/pricing);
+  [licenze e linter Qodana](https://www.jetbrains.com/help/qodana/linters.html);
+  [GitHub Code Quality GA](https://github.blog/changelog/2026-07-20-github-code-quality-is-now-generally-available/);
+  [CodeCharta](https://codecharta.com/docs/parser/git-log) (parser git-log e unified);
+  [CodeMaat](https://github.com/adamtornhill/code-maat);
+  [lizard](https://github.com/terryyin/lizard);
+  [linter supportati da Mega-Linter](https://megalinter.io/latest/supported-linters/).
