@@ -306,7 +306,8 @@ apps / composition root
 - niente service locator, dependency-injection container o reflection senza ADR.
 - niente grandi oggetti mutabili con stato nascosto.
 - logging e observability sono porte: il dominio non conosce il logger e niente
-  `console.log` nel codice di libreria (regola di lint).
+  `console.log` nel codice di libreria (regola di lint; dettagli in
+  § 3, *Logging e observability*).
 
 Preferire:
 
@@ -322,6 +323,47 @@ Preferire:
 - clock, ID generator, random e I/O iniettati.
 
 Tutte queste regole devono essere codificate in `dependency-cruiser`, non affidate soltanto alla documentazione (principio gate-first, § 1).
+
+### Logging e observability
+
+Il logging è I/O: vive dietro una **porta** (`Logger`), con un adapter scelto tramite
+ADR — default consigliato su Node: `pino` (JSON-first, `pino-pretty` in sviluppo).
+Il dominio non logga: restituisce valori, eventi o errori tipizzati; è l'application
+layer a decidere cosa registrare. `console.log` è vietato nel codice di libreria
+(`packages/**`) e il divieto è un **gate di lint** (`no-console` in Oxlint), non una
+convenzione: la console è un'uscita non governabile — niente livelli, niente redazione
+dei segreti, niente formato strutturato, rumore nei test e nelle pipe CLI.
+
+**Il debug logging resta centrale anche con gli agenti AI.** Un agente *può* pilotare
+un debugger, ma è uno strumento interattivo, lento e assente in CI e in produzione;
+i log invece sono **sensori** (Bockeler, in Fonti): artefatti testuali che l'agente
+può produrre, rileggere, filtrare e citare come evidenza nel report finale. Un buon
+logging di debug serve quindi due volte: all'umano che scorre il terminale e
+all'agente che diagnostica un bug senza doverlo indovinare.
+
+Regole:
+
+- **Livelli standard** `trace`/`debug`/`info`/`warn`/`error` (+ `fatal` dove sensato),
+  controllati da una variabile `LOG_LEVEL` validata all'avvio come il resto
+  dell'environment: default `debug` in sviluppo, `info` in produzione e nei test.
+  Sopprimibile fino a `warn`/`error`, aumentabile fino a `trace` senza rilasciare.
+- **Doppio formato**: JSON strutturato in produzione e CI (leggibile da macchine,
+  agenti e aggregatori); pretty a colori in sviluppo (leggibile da umani). Stessa
+  porta, due trasporti. Emoji MAY come marcatori visivi di livello, ma stabili nel
+  tempo e greppabili (es. `❌` error, `⚠️` warn), mai come unico segnale.
+- **Dove loggare**: ai confini — entrypoint, adapter, chiamate esterne, transizioni
+  di stato rilevanti — non dentro le funzioni pure di dominio. Child logger con
+  contesto e correlation/request ID propagato a ogni entry.
+- **Cosa non loggare**: segreti, PII, payload interi (troncare), hot loop. La
+  redazione è responsabilità dell'adapter, non del chiamante.
+- **Frontend**: stesso contratto `Logger`; l'adapter default scrive sulla console del
+  browser con gruppi collassabili e stili. Un pannello di log in-app (console fissa
+  riducibile/espandibile nel layout) è MAY: solo sviluppo, dietro flag, implementato
+  come adapter che bufferizza le entry; richiede un'ADR quando nasce l'esigenza reale.
+- **Per gli agenti**: in diagnosi SHOULD rieseguire il flusso con `LOG_LEVEL=debug`
+  e citare l'output rilevante nel report invece di ipotizzare il comportamento; i log
+  temporanei aggiunti per diagnosticare vanno rimossi o convertiti in chiamate
+  `debug`/`trace` prima della consegna — un `console.log` dimenticato è un gate rosso.
 
 ### Contratti e dati esterni
 
@@ -806,6 +848,9 @@ brainstorm e bozze di spec. L'*intent* resta umano; la Vision gli dà forma veri
 - Preserve existing public APIs unless the task explicitly changes them.
 - Keep domain and application code independent from frameworks and runtimes.
 - Validate all external data at runtime.
+- When diagnosing runtime behavior, rerun the flow with debug logging enabled
+  (`LOG_LEVEL=debug`) and cite the relevant log output as evidence; never leave
+  `console.log` or temporary debug output behind.
 - Do not use `any`, unchecked casts, `@ts-ignore`, non-null assertions or
   disable comments to make checks pass.
 - Do not edit generated files directly.
