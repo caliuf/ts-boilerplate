@@ -27,6 +27,7 @@ prepush
 # Project dictionary for cspell. One word per line.
 Qube
 ratchet
+riaggiungere
 rieseguilo
 rieseguire
 Semgrep

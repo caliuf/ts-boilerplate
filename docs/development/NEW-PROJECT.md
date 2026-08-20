@@ -104,8 +104,8 @@ Poi, in *Settings* (o via API):
 1. **Code security**: abilita Dependabot alerts, Dependabot security updates,
    secret scanning e push protection.
 2. **Rules → Rulesets** su `main`: require pull request, status check
-   obbligatori (`quality`, `integration-and-coverage`, `bun-compatibility`,
-   `e2e`, `dependency-review`), block force pushes, squash merge, require
+   obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`,
+   `bun-compatibility`, `e2e`), block force pushes, squash merge, require
    review from Code Owners.
 3. Niente altro: i workflow partono da soli al primo push.
 

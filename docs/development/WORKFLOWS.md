@@ -35,10 +35,9 @@ I workflow vivono in `.github/workflows/` e sono verificati da
 fissate a SHA completo; le permission di default sono read-only.
 
 | Workflow | Quando | Cosa fa |
-| --- | --- | --- |
-| `ci.yml` | PR, push su main, manuale | quality (static checks) + integration & coverage + bun-compatibility + dependency-review |
-| `e2e.yml` | PR, push su main | Playwright; carica trace/screenshot solo su fallimento |
-| `security.yml` | PR, push su main, settimanale | CodeQL + scansione segreti su tutta la storia |
+|---|---|---|
+| `ci.yml` | PR, push su main, manuale | un unico run: quality + integration & coverage + bun-compatibility + e2e + dependency-review (ADR-0005) |
+| `security.yml` | settimanale, manuale | CodeQL + scansione segreti su tutta la storia (slow lane) |
 | `scheduled.yml` | cron settimanale, manuale | guard (apre issue sui findings) + link esterni |
 
 > CodeQL (`security.yml`) e Dependency Review (`ci.yml`) sono gratuiti sui
@@ -52,9 +51,9 @@ fissate a SHA completo; le permission di default sono read-only.
 2. Abilita in *Settings → Code security*: Dependabot alerts, security updates,
    secret scanning, push protection.
 3. Crea il ruleset di `main` (*Settings → Rules → Rulesets*): require PR,
-   status check obbligatori (`quality`, `integration-and-coverage`,
-   `bun-compatibility`, `e2e`, `dependency-review`), no force push, squash
-   merge, Code Owner review. Vedi la checklist con i prompt pronti in
+   status check obbligatori (i job di `ci.yml`: `quality`,
+   `integration-and-coverage`, `bun-compatibility`, `e2e`), no force push,
+   squash merge, Code Owner review. Vedi la checklist con i prompt pronti in
    [`NEW-PROJECT.md`](./NEW-PROJECT.md).
 
 ## Task schedulati (guards)

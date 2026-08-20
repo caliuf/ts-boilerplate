@@ -62,7 +62,7 @@ GitHub (ruleset, security), attivazione dei task schedulati.
 | [`tests/`](./tests/) | Suite integration ed E2E |
 | [`tools/scripts`](./tools/scripts/) | doctor, diff-scope, coverage-raise, guards, bun-smoke |
 | [`.githooks/`](./.githooks/) | Hook git versionati |
-| [`.github/workflows/`](./.github/workflows/) | CI: quality, integration, e2e, security, guards schedulati |
+| [`.github/workflows/`](./.github/workflows/) | Unica CI per push/PR; security e guards in slow lane settimanale |
 
 ## Il modello: Guides, Gates, Guards
 
