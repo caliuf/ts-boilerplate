@@ -46,8 +46,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: just bun-smoke
 
+  # Dependency Review requires GitHub Advanced Security on private repos.
+  # Self-skips there; enable GHAS (Settings → Code security) and remove the
+  # second condition to activate it.
   dependency-review:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.repository.private == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

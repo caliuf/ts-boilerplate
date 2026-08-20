@@ -41,10 +41,10 @@ fissate a SHA completo; le permission di default sono read-only.
 | `security.yml` | PR, push su main, settimanale | CodeQL + scansione segreti su tutta la storia |
 | `scheduled.yml` | cron settimanale, manuale | guard (apre issue sui findings) + link esterni |
 
-> CodeQL (in `security.yml`) è gratuito sui repository pubblici; sui privati
-> richiede GitHub Advanced Security. Il job si auto-esclude sui repo privati:
-> abilita GHAS in *Settings → Code security* e rimuovi la condizione `if` per
-> attivarlo lì.
+> CodeQL (`security.yml`) e Dependency Review (`ci.yml`) sono gratuiti sui
+> repository pubblici; sui privati richiedono GitHub Advanced Security. I job
+> si auto-escludono sui repo privati: abilita GHAS in *Settings → Code
+> security* e rimuovi le condizioni `if` per attivarli lì.
 
 ### Cosa devi fare tu (una tantum, sul repo GitHub)
 
