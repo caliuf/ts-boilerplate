@@ -13,7 +13,7 @@
     "@project/contracts": "workspace:*",
     "@project/greetings": "workspace:*",
     "@project/testkit": "workspace:*",
-    "@types/node": "24.10.4",
+    "@types/node": "26.2.0",
     "@vitest/coverage-v8": "4.1.11",
     "cspell": "10.0.1",
     "dependency-cruiser": "18.2.0",
