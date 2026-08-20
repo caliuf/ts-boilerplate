@@ -1,8 +1,6 @@
 # Getting started
 
-Onboarding tecnico del progetto. Ogni comando citato qui esiste nel
-`justfile`: un comando inventato o rinominato è un docs bug bloccante in
-review (il docs guard ne verifica un sottoinsieme).
+Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: un comando inventato o rinominato è un docs bug bloccante in review (il docs guard ne verifica un sottoinsieme).
 
 ## Prerequisiti
 
@@ -13,9 +11,7 @@ review (il docs guard ne verifica un sottoinsieme).
 | just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
 
-Senza mise: installa le stesse versioni con il tuo package manager. I tool
-mancanti degradano le recipe corrispondenti a warning in locale, ma restano
-**bloccanti in CI** — non abituarti ai warning.
+Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning.
 
 Verifica sempre con:
 
@@ -29,8 +25,7 @@ just doctor
 just setup
 ```
 
-Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`) e i
-browser Playwright (chromium).
+Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`) e i browser Playwright (chromium).
 
 ## Sviluppo
 
@@ -39,13 +34,11 @@ just dev          # API (:3100) + web (:5100) in parallelo
 node apps/cli/src/cli.ts hello-world --name Ada
 ```
 
-Configurazione: copia `.env.example` in `.env` (opzionale, tutti i default
-funzionano). L'environment è validato all'avvio da ogni composition root.
+Configurazione: copia `.env.example` in `.env` (opzionale, tutti i default funzionano). L'environment è validato all'avvio da ogni composition root.
 
 ## Recipe
 
-`just` è l'unica interfaccia operativa: gli script in `package.json` sono
-dettagli implementativi, non chiamarli direttamente.
+`just` è l'unica interfaccia operativa: gli script in `package.json` sono dettagli implementativi, non chiamarli direttamente.
 
 ### Ciclo di vita
 
@@ -92,9 +85,7 @@ dettagli implementativi, non chiamarli direttamente.
 | `just prepush` | Static analysis e integration principali | ≤ 60s |
 | `just ci` | Esatta pipeline CI in locale | ≤ 10min |
 
-Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile
-`DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai
-controlli pertinenti (`docs-check`, `workflows-check`).
+Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check`).
 
 ## Test e debug
 
@@ -107,9 +98,7 @@ LOG_LEVEL=debug node apps/cli/src/cli.ts hello-world --name Ada 2>&1
 LOG_LEVEL=debug just dev
 ```
 
-I log sono JSON strutturato fuori dal TTY (leggibili da macchine e agenti) e
-pretty a colori nel TTY. Mai lasciare `console.log` o log temporanei: sono un
-gate rosso.
+I log sono JSON strutturato fuori dal TTY (leggibili da macchine e agenti) e pretty a colori nel TTY. Mai lasciare `console.log` o log temporanei: sono un gate rosso.
 
 ## Mappa delle cartelle
 

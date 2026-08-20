@@ -5,9 +5,7 @@
 
 ## Scope
 
-Il boilerplate espone un'unica capability dimostrativa, `hello-world`, su
-tutte le superfici (CLI, API, MCP, UI) per fungere da riferimento strutturale
-completo e verificato.
+Il boilerplate espone un'unica capability dimostrativa, `hello-world`, su tutte le superfici (CLI, API, MCP, UI) per fungere da riferimento strutturale completo e verificato.
 
 ## Decisioni di prodotto attive
 
@@ -17,5 +15,4 @@ completo e verificato.
 
 ## Fuori scope
 
-Autenticazione, persistenza, multiutente, i18n della UI, telemetria: non
-esistono e non vanno introdotti "per completezza" nel boilerplate.
+Autenticazione, persistenza, multiutente, i18n della UI, telemetria: non esistono e non vanno introdotti "per completezza" nel boilerplate.

@@ -1,8 +1,6 @@
 # Da boilerplate a progetto: guida di adozione
 
-Cosa fare da quando prendi in mano questo boilerplate per iniziare un progetto
-nuovo. Pensata per essere eseguita **insieme a un agente AI**: ogni passo ha
-il prompt pronto da incollare.
+Cosa fare da quando prendi in mano questo boilerplate per iniziare un progetto nuovo. Pensata per essere eseguita **insieme a un agente AI**: ogni passo ha il prompt pronto da incollare.
 
 > Quando l'adozione è completa, cancella questo file e `docs/init/`.
 
@@ -24,8 +22,7 @@ just doctor                     # tutto ✅ prima di proseguire
 
 ## 2. Rinomina i placeholder
 
-I meta-placeholder sono marcati e greppabili. Cerca `META:` nei file e lo
-scope `@project`:
+I meta-placeholder sono marcati e greppabili. Cerca `META:` nei file e lo scope `@project`:
 
 ```sh
 grep -rn "META:" --include="*.md" --include="*.ts" --include="*.tsx" . | grep -v node_modules
@@ -48,8 +45,7 @@ Aggiorna docs/PROJECT.md di conseguenza. Chiudi con `just ci` verde.
 
 Compila, anche a mano o dettandoli all'agente:
 
-1. `docs/PROJECT.md` — obiettivo, non-obiettivi, superfici reali, servizi
-   esterni. È il primo file che ogni agente legge.
+1. `docs/PROJECT.md` — obiettivo, non-obiettivi, superfici reali, servizi    esterni. È il primo file che ogni agente legge.
 2. `docs/product/GLOSSARY.md` — le prime astrazioni di dominio.
 3. Prima PDR `proposed` se hai già regole di prodotto.
 
@@ -65,8 +61,7 @@ completo.
 
 ## 4. Taglia ciò che non serve
 
-Il vademecum vieta deployable ipotetici. Se il progetto non ha UI, elimina
-`apps/web` + `tests/e2e` + `e2e.yml`; se non ha MCP, elimina `apps/mcp`; ecc.
+Il vademecum vieta deployable ipotetici. Se il progetto non ha UI, elimina `apps/web` + `tests/e2e` + `e2e.yml`; se non ha MCP, elimina `apps/mcp`; ecc.
 
 Prompt pronto:
 
@@ -92,8 +87,7 @@ d'uso introduce una regola di prodotto nuova. Chiudi con `just prepush` verde.
 
 ## 6. Setup GitHub
 
-Crea il repo e configuralo (serve `gh` autenticato; altrimenti segui i passi
-in UI — stessa checklist):
+Crea il repo e configuralo (serve `gh` autenticato; altrimenti segui i passi in UI — stessa checklist):
 
 ```sh
 gh repo create <nome> --private --source . --push
@@ -101,12 +95,8 @@ gh repo create <nome> --private --source . --push
 
 Poi, in *Settings* (o via API):
 
-1. **Code security**: abilita Dependabot alerts, Dependabot security updates,
-   secret scanning e push protection.
-2. **Rules → Rulesets** su `main`: require pull request, status check
-   obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`,
-   `bun-compatibility`, `e2e`), block force pushes, squash merge, require
-   review from Code Owners.
+1. **Code security**: abilita Dependabot alerts, Dependabot security updates,    secret scanning e push protection.
+2. **Rules → Rulesets** su `main`: require pull request, status check    obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`,    `bun-compatibility`, `e2e`), block force pushes, squash merge, require    review from Code Owners.
 3. Niente altro: i workflow partono da soli al primo push.
 
 Prompt pronto (l'agente userà `gh api` dove serve):
@@ -121,11 +111,7 @@ e le risposte dell'API.
 
 ## 7. Attiva i task schedulati
 
-I guard girano via `.github/workflows/scheduled.yml` (cron settimanale):
-**non richiedono configurazione** oltre al repo attivo. Apriranno issue in
-caso di findings. Verifica dopo la prima settimana che il workflow sia girato
-(*Actions → scheduled*) e calendarizzati la prima retrospettiva di processo
-(prompt in `WORKFLOWS.md`).
+I guard girano via `.github/workflows/scheduled.yml` (cron settimanale): **non richiedono configurazione** oltre al repo attivo. Apriranno issue in caso di findings. Verifica dopo la prima settimana che il workflow sia girato (*Actions → scheduled*) e calendarizzati la prima retrospettiva di processo (prompt in `WORKFLOWS.md`).
 
 Se lavori senza remoto GitHub: esegui `just guards` a mano ogni settimana.
 

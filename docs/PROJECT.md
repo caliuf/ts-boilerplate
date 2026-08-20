@@ -1,21 +1,18 @@
 # PROJECT
 
 <!-- META: questo file descrive il boilerplate stesso. In un progetto derivato
-     va riscritto per descrivere il TUO sistema (è il primo documento che un
+va riscritto per descrivere il TUO sistema (è il primo documento che un
      agente legge). La struttura delle sezioni va mantenuta. -->
 
 ## Obiettivo
 
-Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente
-tramite agenti AI: CLI, API HTTP, server MCP e UI web minime ma reali, con
-tutti i gate di qualità del vademecum già configurati e verdi.
+Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente tramite agenti AI: CLI, API HTTP, server MCP e UI web minime ma reali, con tutti i gate di qualità del vademecum già configurati e verdi.
 
 ## Non-obiettivi
 
 - Persistenza, autenticazione, multiutente: non esistono data store.
 - SSR, SEO: la UI è una SPA Vite.
-- Coprire ogni tool opzionale del vademecum (SonarQube, CodeCharta, ecc.):
-  documentati come MAY in `docs/development/WORKFLOWS.md`.
+- Coprire ogni tool opzionale del vademecum (SonarQube, CodeCharta, ecc.):   documentati come MAY in `docs/development/WORKFLOWS.md`.
 
 ## Deployable esistenti
 
@@ -53,8 +50,7 @@ Nessuno. Tutte le suite sono deterministiche; non esiste `test-live` reale.
 
 ## Classificazione dei dati
 
-Nessun dato personale o sensibile: solo il nome opzionale passato a
-`hello-world`.
+Nessun dato personale o sensibile: solo il nome opzionale passato a `hello-world`.
 
 ## Command map
 
@@ -62,15 +58,13 @@ Vedi la tabella recipe in [`development/GETTING-STARTED.md`](./development/GETTI
 
 ## Mappa delle superfici (caso d'uso × canale)
 
-Un caso d'uso esiste una sola volta (`packages/greetings/src/application/`) e
-ogni superficie lo proietta con naming parallelo.
+Un caso d'uso esiste una sola volta (`packages/greetings/src/application/`) e ogni superficie lo proietta con naming parallelo.
 
 | Caso d'uso | CLI | API | MCP | UI |
 |---|---|---|---|---|
 | `sayHello` | `project hello-world` | `GET /api/hello-world` | tool `hello_world` | hook `useHelloWorld` |
 
-Aggiorna questa tabella a ogni nuovo caso d'uso (il docs guard verifica la
-coerenza con il registry CLI).
+Aggiorna questa tabella a ogni nuovo caso d'uso (il docs guard verifica la coerenza con il registry CLI).
 
 ## ADR/PDR principali
 
@@ -84,8 +78,7 @@ coerenza con il registry CLI).
 ## Budget
 
 - Performance: nessun probe ancora (performance guard non applicabile).
-- Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI ≤ 10 min
-  (misurato dal testing guard).
+- Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI ≤ 10 min   (misurato dal testing guard).
 - Coverage: cricchetto in `coverage-thresholds.json` (baseline 95/95/94/76).
 
 ## Stato delle funzionalità

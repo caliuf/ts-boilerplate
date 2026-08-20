@@ -5,8 +5,7 @@ Vista sintetica delle decisioni **attive**. Dettagli e storia nelle
 
 ## Forma
 
-Modular monolith in monorepo pnpm, *functional core / imperative shell*,
-ports & adapters (ADR-0002).
+Modular monolith in monorepo pnpm, *functional core / imperative shell*, ports & adapters (ADR-0002).
 
 ```text
 packages/contracts     DTO, schemi Zod, tassonomia errori (foglia)
@@ -19,9 +18,7 @@ tests/                 suite integration ed E2E
 
 ## Un caso d'uso, molte superfici
 
-Ogni capability esiste **una sola volta** come caso d'uso nell'application
-layer (`<verbo>-<nome>.ts`, un file per caso d'uso, test colocato). CLI, API,
-MCP e UI sono adapter di ingresso intercambiabili con la stessa anatomia:
+Ogni capability esiste **una sola volta** come caso d'uso nell'application layer (`<verbo>-<nome>.ts`, un file per caso d'uso, test colocato). CLI, API, MCP e UI sono adapter di ingresso intercambiabili con la stessa anatomia:
 
 ```text
 parse input → valida (schema condiviso) → chiama il caso d'uso → mappa il risultato
@@ -37,10 +34,8 @@ Naming parallelo su ogni canale; la mappa caso d'uso × canale vive in
 - gli adapter implementano le porte; gli entrypoint compongono.
 - i bounded context comunicano solo via API pubbliche (`src/index.ts`).
 - niente `utils`/`helpers`/`common`, niente service locator o DI container.
-- errori di dominio come valori (`Result`, union discriminate); eccezioni solo
-  al confine del processo.
-- logging dietro la porta `Logger`; niente `console.log` fuori da
-  `tools/scripts` (gate di lint).
+- errori di dominio come valori (`Result`, union discriminate); eccezioni solo   al confine del processo.
+- logging dietro la porta `Logger`; niente `console.log` fuori da   `tools/scripts` (gate di lint).
 
 L'elenco completo con i gate che le applicano: [`BOUNDARIES.md`](./BOUNDARIES.md).
 
