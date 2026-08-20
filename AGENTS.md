@@ -108,4 +108,5 @@ Report:
 4. coverage and quality-score deltas;
 5. security and static-analysis results;
 6. ADR/PDR and documentation updated;
-7. remaining risks or unresolved questions.
+7. remaining risks or unresolved questions;
+8. commit message in `tmp/commit-message.md` in a code block.
