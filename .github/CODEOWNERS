@@ -1,25 +1,25 @@
-# META: replace @YOUR-GITHUB-USERNAME with the maintainer handle (or team).
+# META: replace @caliuf with the maintainer handle (or team).
 
 # Repository-wide default
-* @YOUR-GITHUB-USERNAME
+* @caliuf
 
 # Agent contract and product/architecture decisions
-/AGENTS.md @YOUR-GITHUB-USERNAME
-/CLAUDE.md @YOUR-GITHUB-USERNAME
-/GEMINI.md @YOUR-GITHUB-USERNAME
-/docs/architecture/ @YOUR-GITHUB-USERNAME
-/docs/product/ @YOUR-GITHUB-USERNAME
-/SECURITY.md @YOUR-GITHUB-USERNAME
+/AGENTS.md @caliuf
+/CLAUDE.md @caliuf
+/GEMINI.md @caliuf
+/docs/architecture/ @caliuf
+/docs/product/ @caliuf
+/SECURITY.md @caliuf
 
 # CI/CD and automation
-/.github/ @YOUR-GITHUB-USERNAME
+/.github/ @caliuf
 
 # Gate-defining files (anti-circumvention, Vademecum §11)
-/justfile @YOUR-GITHUB-USERNAME
-/.githooks/ @YOUR-GITHUB-USERNAME
-/biome.json @YOUR-GITHUB-USERNAME
-/.oxlintrc.json @YOUR-GITHUB-USERNAME
-/knip.json @YOUR-GITHUB-USERNAME
-/dependency-cruiser.config.mjs @YOUR-GITHUB-USERNAME
-/coverage-thresholds.json @YOUR-GITHUB-USERNAME
-/tools/scripts/ @YOUR-GITHUB-USERNAME
+/justfile @caliuf
+/.githooks/ @caliuf
+/biome.json @caliuf
+/.oxlintrc.json @caliuf
+/knip.json @caliuf
+/dependency-cruiser.config.mjs @caliuf
+/coverage-thresholds.json @caliuf
+/tools/scripts/ @caliuf
