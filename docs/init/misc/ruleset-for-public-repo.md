@@ -76,3 +76,60 @@ Nulla di bloccante nei workflow (gestiscono già entrambi gli stati), ma quattro
 Qui sta il punto dolente: su account personale **Free, le branch protection e le rulesets non sono disponibili sui repo privati** — servono GitHub Pro. Le push rulesets richiedono addirittura Team/Enterprise (organizzazioni). Quindi restare privato non solo fa pagare i minuti CI oltre soglia, ma per avere le stesse protezioni dovresti comunque pagare Pro. Se non hai esigenze di riservatezza, il passaggio a pubblico è vantaggioso su entrambi i fronti: minuti illimitati e protezioni complete a costo zero.
 
 Se un giorno tornassi privato con Pro, la configurazione equivalente sarebbe: branch ruleset su `main` come sopra, ambienti con required reviewers per eventuali deploy, e niente regole sui fork (non applicabili).
+
+
+---
+
+# Domanda
+
+Ho fatto le modifiche che mi hai detto, a parte mettere la LICENSE, però ora non riesco più a pushare. Indagheresti il motivo?
+
+Errore:
+```
+To https://github.com/caliuf/ts-boilerplate.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/caliuf/ts-boilerplate.git'
+```
+
+# Risposta
+
+Trovato. Il push fallisce perché **la ruleset che hai creato sta facendo esattamente il suo lavoro** — e nel configurarla hai creato anche due blocchi secondari che impediranno pure il flusso via PR. Dettaglio:
+
+## Diagnosi
+
+Il repo ora è pubblico (`isPrivate: false`) e c'è una ruleset attiva "Default" sul branch di default con:
+
+```
+rules: deletion, non_fast_forward, required_status_checks,
+       required_linear_history, pull_request
+bypass_actors: []   ← nessuno può bypassarla, nemmeno tu admin
+```
+
+La regola `pull_request` impone che **ogni modifica a `main` passi da una pull request**: il push diretto del commit `12c3837 docs: aggiunta doc in init` viene rifiutato lato server (errore tipico: `GH013: Repository rule violations found` / "Changes must be made through a pull request"). Prima, da repo privato su piano Free, non potevi avere ruleset attive, quindi il push diretto funzionava.
+
+## Due problemi ulteriori che bloccherebbero anche le PR
+
+1. **`codeql` è tra i check obbligatori ma non gira mai sulle PR.** La ruleset richiede i contesti `quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`, `codeql`, `dependency-review`. Però `security.yml` ha solo trigger `schedule` (settimanale, per ADR-0005) e `workflow_dispatch` — **nessun `pull_request`**. Su ogni PR il check `codeql` non verrà mai riportato → required checks mai verdi → merge impossibile per sempre. (`dependency-review` invece gira su `pull_request`, quello è a posto.)
+    
+2. **`require_code_owner_review: true` + unico code owner = te stesso.** GitHub non permette di approvare la propria PR, quindi nessuna PR potrebbe mai soddisfare la regola. Con `bypass_actors` vuoto non puoi nemmeno forzare il merge da admin.
+    
+
+Bonus: `strict_required_status_checks_policy: true` significa anche "il branch deve essere aggiornato su main prima del merge" — lecito, ma aggiunge attrito.
+
+## Come sbloccarsi
+
+**Passo 1 — il commit fermo** (da eseguire tu, sono in modalità read-only):
+
+```
+git branch docs/init            # salva il commit su un branch
+git reset --hard origin/main    # main locale torna allineato (il commit è al sicuro sul branch)
+git push -u origin docs/init
+gh pr create --fill
+```
+
+**Passo 2 — sistemare la ruleset** (Settings → Rules → Rulesets → Default), due strade:
+
+- **Veloce (consigliata per maintainer singolo)**: aggiungi te stesso (o il ruolo _Repository admin_) alla **bypass list** con modalità _Always_. Il push diretto torna a funzionare subito e la ruleset resta attiva come difesa contro errori accidentali e PR esterne.
+- **Pulita**: togli `codeql` dalla lista dei required checks (resta comunque attivo settimanalmente da `security.yml`, coerente con ADR-0005) **oppure** aggiungi `pull_request:` ai trigger di `security.yml`; disattiva _Require review from Code Owners_ o porta le approvazioni a 0 finché lavori da solo; valuta se togliere la strict policy sui branch aggiornati.
+
+Nota finale: senza una delle due mosse il repo è di fatto congelato — nemmeno tu puoi modificare `main` in alcun modo. La bypass list è lo sblocco immediato; il resto è rifinitura del flusso PR per quando il progetto avrà contributori esterni.
