@@ -10,7 +10,7 @@ review (il docs guard ne verifica un sottoinsieme).
 | --- | --- | --- |
 | Node.js | vedi `.node-version` | `mise install` (consigliato) |
 | pnpm | vedi `packageManager` in `package.json` | `mise install` |
-| just | qualunque recente | [package manager di sistema](https://just.systems/man/en/packages.html) |
+| just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
 
 Senza mise: installa le stesse versioni con il tuo package manager. I tool

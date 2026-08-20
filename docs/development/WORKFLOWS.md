@@ -41,6 +41,11 @@ fissate a SHA completo; le permission di default sono read-only.
 | `security.yml` | PR, push su main, settimanale | CodeQL + scansione segreti su tutta la storia |
 | `scheduled.yml` | cron settimanale, manuale | guard (apre issue sui findings) + link esterni |
 
+> CodeQL (in `security.yml`) è gratuito sui repository pubblici; sui privati
+> richiede GitHub Advanced Security. Il job si auto-esclude sui repo privati:
+> abilita GHAS in *Settings → Code security* e rimuovi la condizione `if` per
+> attivarlo lì.
+
 ### Cosa devi fare tu (una tantum, sul repo GitHub)
 
 1. **Niente per far partire la CI**: i workflow partono da soli al primo push.

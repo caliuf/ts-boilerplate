@@ -10,6 +10,7 @@ colocato
 committare
 committato
 depcruise
+GHAS
 gitleaks
 greppabili
 idempotenza

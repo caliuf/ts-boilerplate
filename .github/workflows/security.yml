@@ -12,7 +12,11 @@ permissions:
   contents: read
 
 jobs:
+  # CodeQL code scanning is free on public repos; on private repos it requires
+  # GitHub Advanced Security. The job self-skips on private repos: enable GHAS
+  # (Settings → Code security) and remove the condition to activate it there.
   codeql:
+    if: github.event.repository.private == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
