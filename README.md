@@ -55,7 +55,7 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 
 ## Il modello: Guides, Gates, Guards
 
-1. **Guides** corte e vive (`AGENTS.md` < 200 righe, docs gerarchiche).
+1. **Guides** corte e vive (`AGENTS.md` < 200 righe come rule of thumb, non gate; docs gerarchiche).
 2. **Gates** deterministici a cricchetto: typecheck, lint type-aware,    formattazione, dead code, architettura, segreti, test, coverage — in locale    prima che in CI, mai aggirabili.
 3. **Guards** schedulati e report-only: creano task invece di codice.
 

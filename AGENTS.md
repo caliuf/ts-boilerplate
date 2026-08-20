@@ -36,6 +36,12 @@ Boilerplate placeholders to customize:
 - Do not introduce a product decision without a PDR, nor an architectural   decision without an ADR, in the same commit as the code.
 - Maintain `tmp/commit-message.md` with the proposed commit message for the   work in progress: reset it when starting from a clean `git status`,   integrate or fix it otherwise. `tmp/` is gitignored.
 
+## Documentation style
+
+- Write prose for human readability first; that is also what AI consumes best. Keep AGENTS.md terse, operational and instruction-oriented; let other docs fit their own purpose.
+- Never hard-wrap prose at a fixed column: it makes noisy diffs, pollutes git history and forces reflow toil on every edit. Use normal paragraphs separated by a blank line. No opposite dogmas either (mandatory one-sentence-per-line or similar): just good prose.
+- Keep AGENTS.md to the minimum operational content; add or change lines sparingly. "<200 lines" is a rule of thumb (SHOULD, not a gate): a signal that it is time to synthesize or move detail to the linked canonical docs, not a limit to hit.
+
 ## Architecture in one paragraph
 
 One use case = one file in `packages/<context>/src/application/`. CLI (`apps/cli`), HTTP API (`apps/api`), MCP (`apps/mcp`) and web UI (`apps/web`) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every surface and a row in the surface map of `docs/PROJECT.md`.

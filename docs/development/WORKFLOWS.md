@@ -52,10 +52,7 @@ Per cambiare frequenza: modifica il `cron` in `scheduled.yml` (<https://crontab.
 Con cadenza regolare (settimanale o a fine ciclo intenso), chiedi all'agente:
 
 ```text
-Esegui la retrospettiva di processo: analizza i gate falliti di recente, le
-istruzioni di AGENTS.md ignorate o ambigue, i workaround che hai tentato.
-Proponi in una PR: aggiornamenti mirati di AGENTS.md (resta <200 righe),
-regole da promuovere da guida a gate, regole morte da rimuovere.
+Esegui la retrospettiva di processo: analizza i gate falliti di recente, le istruzioni di AGENTS.md ignorate o ambigue, i workaround che hai tentato. Proponi in una PR: aggiornamenti mirati di AGENTS.md (rule of thumb: <200 righe, non un gate), regole da promuovere da guida a gate, regole morte da rimuovere.
 ```
 
 ## Tool opzionali (MAY, non installati)
