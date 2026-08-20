@@ -1,0 +1,12 @@
+# Pinned tool versions for this project.
+# `mise install` installs everything; `just doctor` verifies.
+# If you do not use mise, install the same versions with your package manager.
+[tools]
+node = "24.19.0"
+pnpm = "11.22.0"
+bun = "1.3.14"
+gitleaks = "8.30.1"
+actionlint = "1.7.12"
+zizmor = "1.29.0"
+lychee = "0.24.2"
+shellcheck = "0.11.0"

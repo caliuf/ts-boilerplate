@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "language": "en,it",
+  "import": ["@cspell/dict-it-it/cspell-ext.json"],
+  "dictionaries": ["it", "en", "typescript", "node", "npm", "project-words"],
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": "./tools/cspell/project-words.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "**/node_modules/**",
+    "pnpm-lock.yaml",
+    "docs/init/**",
+    "coverage/**",
+    "**/dist/**",
+    "agent-docs/**"
+  ]
+}

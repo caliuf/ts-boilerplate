@@ -1,0 +1,22 @@
+{
+  "name": "@project/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/app.ts"
+  },
+  "scripts": {
+    "dev": "node --watch src/main.ts",
+    "start": "node src/main.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.1",
+    "@project/adapter-pino": "workspace:*",
+    "@project/contracts": "workspace:*",
+    "@project/greetings": "workspace:*",
+    "hono": "4.13.3",
+    "zod": "4.4.3"
+  }
+}

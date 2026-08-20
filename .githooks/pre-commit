@@ -1,0 +1,3 @@
+#!/bin/sh
+# Versioned git hook (Vademecum §5). Hooks call just recipes only.
+exec just precommit

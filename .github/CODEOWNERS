@@ -1,0 +1,25 @@
+# META: replace @YOUR-GITHUB-USERNAME with the maintainer handle (or team).
+
+# Repository-wide default
+* @YOUR-GITHUB-USERNAME
+
+# Agent contract and product/architecture decisions
+/AGENTS.md @YOUR-GITHUB-USERNAME
+/CLAUDE.md @YOUR-GITHUB-USERNAME
+/GEMINI.md @YOUR-GITHUB-USERNAME
+/docs/architecture/ @YOUR-GITHUB-USERNAME
+/docs/product/ @YOUR-GITHUB-USERNAME
+/SECURITY.md @YOUR-GITHUB-USERNAME
+
+# CI/CD and automation
+/.github/ @YOUR-GITHUB-USERNAME
+
+# Gate-defining files (anti-circumvention, Vademecum §11)
+/justfile @YOUR-GITHUB-USERNAME
+/.githooks/ @YOUR-GITHUB-USERNAME
+/biome.json @YOUR-GITHUB-USERNAME
+/.oxlintrc.json @YOUR-GITHUB-USERNAME
+/knip.json @YOUR-GITHUB-USERNAME
+/dependency-cruiser.config.mjs @YOUR-GITHUB-USERNAME
+/coverage-thresholds.json @YOUR-GITHUB-USERNAME
+/tools/scripts/ @YOUR-GITHUB-USERNAME

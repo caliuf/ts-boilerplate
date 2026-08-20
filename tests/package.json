@@ -1,0 +1,21 @@
+{
+  "name": "@project/tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0",
+    "@project/cli": "workspace:*",
+    "@project/contracts": "workspace:*",
+    "@project/mcp": "workspace:*",
+    "@project/testkit": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@project/api": "workspace:*"
+  }
+}

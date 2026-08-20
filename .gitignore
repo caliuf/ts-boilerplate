@@ -2,7 +2,7 @@
 node_modules/
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
+# NOTE: pnpm-lock.yaml is committed on purpose (exact dependency pinning).
 
 # Environment variables
 .env
@@ -26,6 +26,12 @@ pnpm-debug.log*
 # Testing
 coverage/
 .nyc_output/
+playwright-report/
+test-results/
+blob-report/
+
+# Agent working files
+agent-docs/
 
 # IDEs and editors
 .idea/

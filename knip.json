@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["tools/scripts/**/*.ts"],
+      "project": ["tools/**/*.ts"],
+      "ignoreDependencies": [
+        "@biomejs/biome",
+        "cspell",
+        "dependency-cruiser",
+        "markdownlint-cli2",
+        "oxlint",
+        "oxlint-tsgolint"
+      ]
+    },
+    "tests": {
+      "entry": ["integration/**/*.test.ts", "e2e/**/*.spec.ts"]
+    }
+  }
+}

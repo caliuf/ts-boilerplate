@@ -1,0 +1,24 @@
+{
+  "name": "@project/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "project": "src/cli.ts"
+  },
+  "exports": {
+    "./registry": "./src/registry.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@project/adapter-pino": "workspace:*",
+    "@project/contracts": "workspace:*",
+    "@project/greetings": "workspace:*",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@project/testkit": "workspace:*"
+  }
+}

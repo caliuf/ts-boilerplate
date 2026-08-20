@@ -1,0 +1,7 @@
+{
+  "$comment": "Coverage ratchet (Vademecum §6): these thresholds may only go up. Raise them with `just coverage-raise`. Lowering them is gate circumvention and must block review. This file is protected by CODEOWNERS.",
+  "lines": 95,
+  "statements": 95,
+  "functions": 94,
+  "branches": 76
+}

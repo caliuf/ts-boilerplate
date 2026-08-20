@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tests"
+
+# dependency-cruiser needs the TypeScript compiler API, unpublished in TS 7
+# (ADR-0001). It gets TypeScript 6 affiancato until TS 7 support lands.
+packageExtensions:
+  dependency-cruiser:
+    dependencies:
+      typescript: 6.0.3

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/main/schema/markdownlint-cli2-config-schema.json",
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": { "allowed_elements": ["details", "summary", "br"] },
+    "MD041": false,
+    // MD060 (table column alignment in source) is off by design: it has zero
+    // rendering effect, no formatter enforces it, and it creates pure toil
+    // for agents editing tables. Deliberate rule selection, not a suppression.
+    "MD060": false
+  },
+  "ignores": [
+    "node_modules/**",
+    "**/node_modules/**",
+    "docs/init/**",
+    "coverage/**",
+    "**/dist/**",
+    ".codegraph/**",
+    "CHANGELOG.md"
+  ],
+  "globs": ["**/*.md"]
+}
