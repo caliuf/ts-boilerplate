@@ -24,6 +24,29 @@ setup:
     git config core.hooksPath .githooks
     pnpm --filter @project/tests exec playwright install chromium
 
+# Pull latest changes and keep the environment in sync (tools, deps, hooks)
+pull:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    git pull
+    changed=""
+    if git rev-parse --verify ORIG_HEAD >/dev/null 2>&1; then
+      changed=$(git diff --name-only ORIG_HEAD..HEAD || true)
+    fi
+    if grep -qE '^(\.mise\.toml|\.node-version)$' <<< "$changed"; then
+      if command -v mise >/dev/null 2>&1; then
+        mise install
+      else
+        echo "⚠️  mise not found — install the tools pinned in .mise.toml manually (see docs/development/GETTING-STARTED.md)"
+      fi
+    fi
+    if grep -qE '^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml)$' <<< "$changed"; then
+      pnpm install
+    fi
+    if grep -qE '^\.githooks/' <<< "$changed"; then
+      git config core.hooksPath .githooks
+    fi
+
 # Verify runtimes, tools and configuration
 doctor:
     node tools/scripts/doctor.ts

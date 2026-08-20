@@ -27,6 +27,12 @@ just setup
 
 Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`) e i browser Playwright (chromium).
 
+```sh
+just pull
+```
+
+Dopo aver integrato PR esterne (ad esempio Dependabot), aggiorna il branch corrente e sincronizza tool, dipendenze e hook solo se i file pertinenti sono cambiati.
+
 ## Sviluppo
 
 ```sh
@@ -45,6 +51,7 @@ Configurazione: copia `.env.example` in `.env` (opzionale, tutti i default funzi
 | Comando | Funzione |
 | --- | --- |
 | `just setup` | Installa dipendenze, tool e hook |
+| `just pull` | Pull e sincronizza tool/dipendenze/hook solo se cambiati |
 | `just doctor` | Verifica runtime, tool e configurazione |
 | `just dev` | Avvia lo sviluppo (API + web) |
 
