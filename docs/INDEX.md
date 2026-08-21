@@ -6,7 +6,7 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 
 1. [`PROJECT.md`](./PROJECT.md) — cosa è il sistema, cosa esiste, mappa delle superfici.
 2. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
-3. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando    il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
+3. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
 
 ## Architettura
 
@@ -34,4 +34,4 @@ Nessun runbook ancora: si creano in `docs/operations/runbooks/` quando esiste qu
 
 ## Blueprint
 
-- [`init/`](./init/) — il vademecum e le fonti da cui nasce questo boilerplate.   **Congelato**: non va modificato nello sviluppo ordinario e va rimosso nei   progetti derivati (vedi [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md)).
+- [`init/`](./init/) — il vademecum e le fonti da cui nasce questo boilerplate. **Congelato**: non va modificato nello sviluppo ordinario e va rimosso nei progetti derivati (vedi [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md)).

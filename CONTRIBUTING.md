@@ -9,8 +9,8 @@ Questo progetto è sviluppato tramite agenti AI con supervisione umana.
 ## Per gli umani
 
 1. Setup: `just setup`, poi `just doctor`.
-2. Ogni modifica passa da una PR; i gate locali (`precommit`/`prepush`)    girano in automatico via hook git.
-3. Le decisioni di prodotto nuove si registrano come PDR    (`docs/product/pdr/`), quelle architetturali come ADR    (`docs/architecture/adr/`) — nello stesso commit del codice.
+2. Ogni modifica passa da una PR; i gate locali (`precommit`/`prepush`) girano in automatico via hook git.
+3. Le decisioni di prodotto nuove si registrano come PDR (`docs/product/pdr/`), quelle architetturali come ADR (`docs/architecture/adr/`) — nello stesso commit del codice.
 4. Messaggi di commit: convenzione in
    [`docs/development/WORKFLOWS.md`](./docs/development/WORKFLOWS.md).
 

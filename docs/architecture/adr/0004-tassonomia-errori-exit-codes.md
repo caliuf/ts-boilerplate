@@ -28,13 +28,13 @@ MCP mappa su errori di tool (`isError: true` + payload JSON con lo stesso codice
 
 ## Options considered
 
-- **Tassonomia minima a cinque codici** (scelta) — pro: copre i casi reali di   un sistema senza auth/db; estendibile solo in aggiunta; contro: codici   generici richiedono `message` informative.
-- **Codici per-caso-d'uso** — rimandata: si aggiungono codici solo con casi   reali, mai in anticipo.
+- **Tassonomia minima a cinque codici** (scelta) — pro: copre i casi reali di un sistema senza auth/db; estendibile solo in aggiunta; contro: codici generici richiedono `message` informative.
+- **Codici per-caso-d'uso** — rimandata: si aggiungono codici solo con casi reali, mai in anticipo.
 
 ## Consequences
 
-- Nuovi codici: si aggiungono a `ERROR_CODES` con i tre mapping nello stesso   commit; l'exhaustive checking dei consumer (CLI, error-mapper) fallisce la   compilazione finché il mapping non è completo.
-- Gli exit code esistenti non cambiano mai significato (sono un'API per   script e agenti).
+- Nuovi codici: si aggiungono a `ERROR_CODES` con i tre mapping nello stesso commit; l'exhaustive checking dei consumer (CLI, error-mapper) fallisce la compilazione finché il mapping non è completo.
+- Gli exit code esistenti non cambiano mai significato (sono un'API per script e agenti).
 
 ## Enforcement
 

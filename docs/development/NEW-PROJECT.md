@@ -45,7 +45,7 @@ Aggiorna docs/PROJECT.md di conseguenza. Chiudi con `just ci` verde.
 
 Compila, anche a mano o dettandoli all'agente:
 
-1. `docs/PROJECT.md` — obiettivo, non-obiettivi, superfici reali, servizi    esterni. È il primo file che ogni agente legge.
+1. `docs/PROJECT.md` — obiettivo, non-obiettivi, superfici reali, servizi esterni. È il primo file che ogni agente legge.
 2. `docs/product/GLOSSARY.md` — le prime astrazioni di dominio.
 3. Prima PDR `proposed` se hai già regole di prodotto.
 
@@ -95,8 +95,8 @@ gh repo create <nome> --private --source . --push
 
 Poi, in *Settings* (o via API):
 
-1. **Code security**: abilita Dependabot alerts, Dependabot security updates,    secret scanning e push protection.
-2. **Rules → Rulesets** su `main`: require pull request, status check    obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`,    `bun-compatibility`, `e2e`), block force pushes, squash merge, require    review from Code Owners.
+1. **Code security**: abilita Dependabot alerts, Dependabot security updates, secret scanning e push protection.
+2. **Rules → Rulesets** su `main`: require pull request, status check obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`), block force pushes, squash merge, require review from Code Owners.
 3. Niente altro: i workflow partono da soli al primo push.
 
 Prompt pronto (l'agente userà `gh api` dove serve):

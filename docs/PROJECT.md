@@ -12,7 +12,7 @@ Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente t
 
 - Persistenza, autenticazione, multiutente: non esistono data store.
 - SSR, SEO: la UI è una SPA Vite.
-- Coprire ogni tool opzionale del vademecum (SonarQube, CodeCharta, ecc.):   documentati come MAY in `docs/development/WORKFLOWS.md`.
+- Coprire ogni tool opzionale del vademecum (SonarQube, CodeCharta, ecc.): documentati come MAY in `docs/development/WORKFLOWS.md`.
 
 ## Deployable esistenti
 
@@ -78,7 +78,7 @@ Aggiorna questa tabella a ogni nuovo caso d'uso (il docs guard verifica la coere
 ## Budget
 
 - Performance: nessun probe ancora (performance guard non applicabile).
-- Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI ≤ 10 min   (misurato dal testing guard).
+- Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI ≤ 10 min (misurato dal testing guard).
 - Coverage: cricchetto in `coverage-thresholds.json` (baseline 95/95/94/76).
 
 ## Stato delle funzionalità
