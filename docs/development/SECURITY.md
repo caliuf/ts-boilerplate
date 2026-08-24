@@ -12,7 +12,7 @@ Policy operative; la segnalazione di vulnerabilità è in
 
 ## Segreti
 
-- Mai committare segreti: `.env` reali sono gitignored; nel repo solo `.env.example` con valori finti ma strutturalmente validi.
+- Mai committare segreti: `.env` reali sono gitignored; nel repo solo `.env.example` con valori finti ma strutturalmente validi. La sessione OAuth CodeScene vive in `~/.config/codehealth-mcp/` (fuori dal git); niente `CS_ACCESS_TOKEN` nel repository.
 - Gitleaks è gate: staged in `precommit`, working tree in `prepush`/`ci`, storia completa in `security.yml`.
 - Niente segreti nei log (la redazione è responsabilità dell'adapter), nelle description/output dei tool MCP, negli eventi analytics.
 

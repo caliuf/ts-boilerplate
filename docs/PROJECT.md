@@ -73,6 +73,7 @@ Aggiorna questa tabella a ogni nuovo caso d'uso (il docs guard verifica la coere
 - [ADR-0003](./architecture/adr/0003-zod-validazione.md) — Zod come unica libreria di schema.
 - [ADR-0004](./architecture/adr/0004-tassonomia-errori-exit-codes.md) — tassonomia errori ed exit code.
 - [ADR-0005](./architecture/adr/0005-ci-consolidata.md) — CI consolidata in un workflow.
+- [ADR-0006](./architecture/adr/0006-codescene-mcp.md) — CodeScene MCP come autorità di Code Health per gli agenti.
 - [PDR-0001](./product/pdr/0001-superficie-hello-world.md) — superficie dimostrativa hello-world.
 
 ## Budget

@@ -24,7 +24,7 @@ Boilerplate placeholders to customize:
 - Keep the change limited to the requested scope. One task = one branch/worktree.
 - Before starting, check that gates are green (`just smoke` at minimum). Never start new work on a below-threshold codebase: restore health first, or report the blocker.
 - Work test-first: red → green → refactor. For a bug, the first commit is a failing regression test. A test you have never seen fail is suspect.
-- Leave the code you touch better than you found it, measured by the repo gates. Do NOT perform unrelated refactors or dependency upgrades.
+- Leave the code you touch better than you found it, measured by the repo gates and by CodeScene when the MCP is connected. Do NOT perform unrelated refactors or dependency upgrades.
 - Do not add a dependency unless necessary; significant ones require an ADR.
 - Preserve existing public APIs unless the task explicitly changes them.
 - Keep domain and application code independent from frameworks and runtimes.
@@ -45,6 +45,14 @@ Boilerplate placeholders to customize:
 ## Architecture in one paragraph
 
 One use case = one file in `packages/<context>/src/application/`. CLI (`apps/cli`), HTTP API (`apps/api`), MCP (`apps/mcp`) and web UI (`apps/web`) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every surface and a row in the surface map of `docs/PROJECT.md`.
+
+## CodeScene
+
+When the `codescene` MCP is connected, Code Health is authoritative for maintainability. Do not guess. Details: `docs/development/CODESCENE.md`.
+
+- File: `code_health_score` / `code_health_review`. Before commit of AI-touched code: `pre_commit_code_health_safeguard`. Before a PR: `analyze_change_set`.
+- Project: `list_technical_debt_hotspots_for_project` (this repo is pinned as Cloud project `83744`).
+- If Code Health regresses, refactor until restored. If the MCP is missing or unauthenticated, report the blocker — do not claim a CodeScene check passed.
 
 ## Gate circumvention — prohibited
 

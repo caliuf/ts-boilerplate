@@ -107,6 +107,8 @@ LOG_LEVEL=debug just dev
 
 I log sono JSON strutturato fuori dal TTY (leggibili da macchine e agenti) e pretty a colori nel TTY. Mai lasciare `console.log` o log temporanei: sono un gate rosso.
 
+Code Health (agenti, via MCP): [`CODESCENE.md`](./CODESCENE.md). Non sostituisce i gate `just`.
+
 ## Mappa delle cartelle
 
 ```text

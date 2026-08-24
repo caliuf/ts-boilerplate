@@ -3,8 +3,10 @@ actionlint
 calendarizzati
 Charta
 Codacy
+codehealth
 CodeCharta
 CodeMaat
+CodeScene
 colocati
 colocato
 committare
@@ -13,6 +15,7 @@ depcruise
 GHAS
 gitleaks
 greppabili
+hotspots
 idempotenza
 interoperabile
 justfile

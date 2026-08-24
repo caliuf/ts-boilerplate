@@ -13,7 +13,8 @@
       "!**/playwright-report",
       "!**/test-results",
       "!docs/init/**",
-      "!**/.codegraph/**"
+      "!**/.codegraph/**",
+      "!**/.codacy/**"
     ]
   },
   "formatter": {

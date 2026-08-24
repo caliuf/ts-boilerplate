@@ -48,3 +48,4 @@ L'elenco completo con i gate che le applicano: [`BOUNDARIES.md`](./BOUNDARIES.md
 | Zod unica libreria di schema | [ADR-0003](./adr/0003-zod-validazione.md) |
 | Tassonomia errori ed exit code | [ADR-0004](./adr/0004-tassonomia-errori-exit-codes.md) |
 | CI consolidata in un workflow | [ADR-0005](./adr/0005-ci-consolidata.md) |
+| CodeScene MCP per Code Health agent-facing | [ADR-0006](./adr/0006-codescene-mcp.md) |

@@ -140,4 +140,5 @@ feature applicative.
 - [ ] `hello-world` sostituito dal primo caso d'uso reale
 - [ ] repo GitHub creato, security settings e ruleset attivi
 - [ ] prima esecuzione di `scheduled.yml` verificata
+- [ ] CodeScene: progetto Cloud proprio e id aggiornato in `.kilo/kilo.jsonc` + `docs/development/CODESCENE.md` (non riusare `83744`)
 - [ ] questo file e `docs/init/` cancellati

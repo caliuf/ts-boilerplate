@@ -26,6 +26,7 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 - [`development/CODING.md`](./development/CODING.md) — regole di codice e convenzioni.
 - [`development/TESTING.md`](./development/TESTING.md) — strategia di test e coverage.
 - [`development/WORKFLOWS.md`](./development/WORKFLOWS.md) — gate, CI/CD, task schedulati.
+- [`development/CODESCENE.md`](./development/CODESCENE.md) — Code Health via MCP (ADR-0006).
 - [`development/SECURITY.md`](./development/SECURITY.md) — supply chain e segreti.
 
 ## Operazioni
