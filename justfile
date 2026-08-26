@@ -177,6 +177,18 @@ guards:
 
 # --- gates -----------------------------------------------------------------------
 
+# CodeScene Code Health gate on staged/modified files (local, fresh data)
+codescene-safeguard:
+    python3 .kilo/scripts/codescene-gate.py staged
+
+# CodeScene Code Health gate on the branch change-set vs a base ref (local, fresh data)
+codescene-changeset base="origin/main":
+    python3 .kilo/scripts/codescene-gate.py changeset --base-ref {{base}}
+
+# CodeScene Code Health ratchet gate (project-level Hotspot and Average floors)
+codescene-ratchet:
+    tools/scripts/codescene-ratchet.sh
+
 # Fast checks on staged/related files (pre-commit hook)
 precommit:
     #!/usr/bin/env bash
@@ -187,6 +199,7 @@ precommit:
       just workflows-check
       exit 0
     fi
+    just codescene-safeguard
     just format-check
     just lint
     just docs-check
@@ -215,6 +228,7 @@ prepush:
     just docs-check
     just workflows-check
     just secrets
+    just codescene-changeset
     just test-unit
     just test-integration
     just smoke

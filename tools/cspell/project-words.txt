@@ -9,6 +9,7 @@ CodeMaat
 CodeScene
 colocati
 colocato
+committando
 committare
 committato
 depcruise
@@ -27,6 +28,8 @@ mockare
 oxlint
 oxlintrc
 prepush
+pushando
+pushati
 # Project dictionary for cspell. One word per line.
 Qube
 ratchet
@@ -43,3 +46,4 @@ versionate
 versionati
 worktree
 zizmor
+scorable

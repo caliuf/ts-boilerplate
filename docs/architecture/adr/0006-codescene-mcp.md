@@ -19,14 +19,14 @@ I gate locali (`just precommit` / `just prepush`) misurano già format, lint, ar
 - Registrazione client: server `codescene` in `~/.config/kilo/kilo.jsonc` (globale) e pin di progetto in `.kilo/kilo.jsonc` (`CS_DEFAULT_PROJECT_ID=83744`).
 - Autenticazione interattiva: OAuth (`npx -y @codescene/codehealth-mcp auth` o tool MCP `login`). Nessun PAT nel repository.
 - Uso operativo: guida in `AGENTS.md`, dettaglio in [`docs/development/CODESCENE.md`](../../development/CODESCENE.md).
-- **Non** è un hook git né una recipe `just` bloccante. Resta un obbligo dell'agente quando l'MCP è connesso. Promuoverlo a gate deterministico richiede una ADR dedicata.
+- Gate automatici: vedi la sezione Enforcement (aggiornata). I gate di commit/push usano le analisi **locali** del server MCP, non la scansione Cloud.
 
 ## Options considered
 
 - **MCP CodeScene via `npx` nel client Kilo** (scelta) — pro: stesso binario dell'estensione VS Code, OAuth persistente in `~/.config/codehealth-mcp/`, tool locali (score/review/safeguard) e API di progetto (hotspot, goal, ownership); contro: dipende da Node/`npx` e da una sessione autenticata sulla macchina.
 - **Affidarsi solo all'estensione VS Code** — scartato: l'estensione espone l'MCP a Copilot, non a Kilo.
 - **Solo alternative gratuite (CodeMaat/CodeCharta)** — utili per hotspot da git history, ma non danno lo score Code Health né la review per-file che l'agente deve usare prima di un commit.
-- **Hook locale che blocca il commit sotto soglia** — rimandato: richiede soglie versionate, cricchetto e una recipe riproducibile in CI; oggi manca e non va improvvisata nello stesso passo dell'adozione MCP.
+- **Hook locale che blocca il commit sotto soglia** — inizialmente rimandato, poi adottato in forma locale (vedi Enforcement): `just codescene-safeguard` e `just codescene-changeset` eseguono `pre_commit_code_health_safeguard` / `analyze_change_set` sul working tree. Il ratchet progettuale via REST API (`just codescene-ratchet`) resta fuori dai gate perché legge la scansione Cloud, in ritardo rispetto ai commit locali.
 
 ## Consequences
 
@@ -37,8 +37,8 @@ I gate locali (`just precommit` / `just prepush`) misurano già format, lint, ar
 
 ## Enforcement
 
-Guida in `AGENTS.md`. Nessun gate automatico in questa ADR.
+Guida in `AGENTS.md`. Gate automatici locali (aggiunti in seguito): `just codescene-safeguard` nel pre-commit e `just codescene-changeset` nel pre-push, entrambi su analisi locale del working tree tramite `.kilo/scripts/codescene-gate.py`. Il ratchet progettuale `just codescene-ratchet` (REST API su scansione Cloud) è informativo e non bloccante nei gate, perché la scansione Cloud riflette `origin/main` e non i commit locali non ancora pushati.
 
 ## Migration / rollback
 
-Rollback: rimuovere il server `codescene` da `.kilo/kilo.jsonc` (e dalla config Kilo globale, se non serve ad altri repo), cancellare questa ADR e la sezione corrispondente in `AGENTS.md` / `docs/development/CODESCENE.md`.
+Rollback: rimuovere il server `codescene` da `.kilo/kilo.jsonc` (e dalla config Kilo globale, se non serve ad altri repo), cancellare questa ADR e la sezione corrispondente in `AGENTS.md` / `docs/development/CODESCENE.md`. Per i gate: togliere `just codescene-safeguard` da `precommit` e `just codescene-changeset` da `prepush` nel justfile.

@@ -15,7 +15,7 @@ Code Health tools used by AGENTS.md:
   - code_health_review
 
 Configuration (env):
-  CS_DEFAULT_PROJECT_ID  CodeScene Cloud project id (default: 83744)
+  CODESCENE_PROJECT_ID   CodeScene Cloud project id (default: 83744)
   REPO_PATH              Absolute path to the git repo (default: auto-detected)
 
 Usage:
@@ -75,6 +75,7 @@ def call_tool(proc, name: str, arguments: dict | None = None) -> dict:
 
 def run_server(repo: str, project_id: int, actions: list[dict]) -> dict:
     env = os.environ.copy()
+    # The external CodeScene MCP server expects the legacy env var name.
     env["CS_DEFAULT_PROJECT_ID"] = str(project_id)
 
     proc = subprocess.Popen(
@@ -127,7 +128,7 @@ def all_checks(repo: str, project_id: int) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description="CodeScene MCP fallback client")
     parser.add_argument("--repo", default=os.environ.get("REPO_PATH", _git_root()))
-    parser.add_argument("--project-id", type=int, default=int(os.environ.get("CS_DEFAULT_PROJECT_ID", DEFAULT_PROJECT_ID)))
+    parser.add_argument("--project-id", type=int, default=int(os.environ.get("CODESCENE_PROJECT_ID", os.environ.get("CS_DEFAULT_PROJECT_ID", DEFAULT_PROJECT_ID))))
     parser.add_argument("--tool", choices=[
         "all",
         "verify_installation",
