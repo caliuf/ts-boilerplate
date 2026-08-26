@@ -52,44 +52,55 @@ function justfileRecipes(): Set<string> {
 
 // --- docs guard ----------------------------------------------------------------
 
-function docsGuard(): void {
-  const recipes = justfileRecipes();
-  const files = [...listMarkdown("docs"), "README.md", "AGENTS.md", "CONTRIBUTING.md"].filter(
-    (file) => existsSync(file),
-  );
+function collectCitedRecipes(files: readonly string[], recipes: ReadonlySet<string>): Set<string> {
   const cited = new Set<string>();
   for (const file of files) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(/`just ([a-z][a-z0-9-]*)`/g)) {
-      if (match[1] !== undefined) {
-        cited.add(match[1]);
+      const recipe = match[1];
+      if (recipe === undefined) {
+        continue;
       }
-      if (match[1] !== undefined && !recipes.has(match[1])) {
+      cited.add(recipe);
+      if (!recipes.has(recipe)) {
         findings.push({
           guard: "docs",
-          message: `\`${file}\` cites \`just ${match[1]}\`, which does not exist in the justfile`,
+          message: `\`${file}\` cites \`just ${recipe}\`, which does not exist in the justfile`,
         });
       }
     }
   }
-  notes.push(`docs guard: checked ${String(cited.size)} cited recipes against the justfile`);
+  return cited;
+}
 
-  // Surface map freshness: every CLI command appears in docs/PROJECT.md.
-  const projectPath = "docs/PROJECT.md";
+function checkSurfaceMap(projectPath: string, registry: string): void {
   if (!existsSync(projectPath)) {
     findings.push({ guard: "docs", message: "docs/PROJECT.md is missing" });
     return;
   }
   const project = readFileSync(projectPath, "utf8");
-  const registry = readFileSync("apps/cli/src/registry.ts", "utf8");
   for (const match of registry.matchAll(/from "\.\/commands\/([a-z0-9-]+)\.ts"/g)) {
-    if (match[1] !== undefined && !project.includes(match[1])) {
+    const command = match[1];
+    if (command !== undefined && !project.includes(command)) {
       findings.push({
         guard: "docs",
-        message: `CLI command \`${match[1]}\` is missing from the surface map in docs/PROJECT.md`,
+        message: `CLI command \`${command}\` is missing from the surface map in docs/PROJECT.md`,
       });
     }
   }
+}
+
+function docsGuard(): void {
+  const recipes = justfileRecipes();
+  const files = [...listMarkdown("docs"), "README.md", "AGENTS.md", "CONTRIBUTING.md"].filter(
+    (file) => existsSync(file),
+  );
+  const cited = collectCitedRecipes(files, recipes);
+  notes.push(`docs guard: checked ${String(cited.size)} cited recipes against the justfile`);
+
+  // Surface map freshness: every CLI command appears in docs/PROJECT.md.
+  const registry = readFileSync("apps/cli/src/registry.ts", "utf8");
+  checkSurfaceMap("docs/PROJECT.md", registry);
 }
 
 // --- testing guard -------------------------------------------------------------

@@ -27,30 +27,44 @@ function git(args_: readonly string[]): string | undefined {
   }
 }
 
-function changedFiles(): string[] | undefined {
-  if (mode === "--staged") {
-    return git(["diff", "--cached", "--name-only", "--diff-filter=ACMR"])
-      ?.split("\n")
-      .filter(Boolean);
-  }
-  // --prepush: upstream range, then main/master merge-base, then give up (full).
+function parseGitLines(out: string | undefined): string[] | undefined {
+  return out?.split("\n").filter(Boolean);
+}
+
+function stagedFiles(): string[] | undefined {
+  return parseGitLines(git(["diff", "--cached", "--name-only", "--diff-filter=ACMR"]));
+}
+
+function upstreamFiles(): string[] | undefined {
   const upstream = git(["rev-parse", "--abbrev-ref", "@{upstream}"])?.trim();
-  if (upstream !== undefined && upstream !== "") {
-    const out = git(["diff", "--name-only", `${upstream}...HEAD`, "--diff-filter=ACMR"]);
-    if (out !== undefined) {
-      return out.split("\n").filter(Boolean);
-    }
+  if (!upstream) {
+    return undefined;
   }
+  return parseGitLines(git(["diff", "--name-only", `${upstream}...HEAD`, "--diff-filter=ACMR"]));
+}
+
+function mergeBaseFiles(): string[] | undefined {
   for (const base of ["origin/main", "origin/master", "main", "master"]) {
     const mergeBase = git(["merge-base", base, "HEAD"])?.trim();
-    if (mergeBase !== undefined && mergeBase !== "") {
-      const out = git(["diff", "--name-only", `${mergeBase}...HEAD`, "--diff-filter=ACMR"]);
-      if (out !== undefined) {
-        return out.split("\n").filter(Boolean);
-      }
+    if (!mergeBase) {
+      continue;
+    }
+    const files = parseGitLines(
+      git(["diff", "--name-only", `${mergeBase}...HEAD`, "--diff-filter=ACMR"]),
+    );
+    if (files !== undefined) {
+      return files;
     }
   }
   return undefined;
+}
+
+function changedFiles(): string[] | undefined {
+  if (mode === "--staged") {
+    return stagedFiles();
+  }
+  // --prepush: upstream range, then main/master merge-base, then give up (full).
+  return upstreamFiles() ?? mergeBaseFiles();
 }
 
 const files = changedFiles();
