@@ -33,7 +33,7 @@ Boilerplate placeholders to customize:
 - Do not use `any`, unchecked casts, `@ts-ignore`, non-null assertions or disable comments to make checks pass.
 - Do not edit generated files directly (`pnpm-lock.yaml`, coverage reports).
 - Before using a library API, verify it exists in the installed version (read its types/docs in `node_modules`); do not rely on memory.
-- Do not introduce a product decision without a PDR, nor an architectural decision without an ADR, in the same commit as the code.
+- Do not introduce a product decision without a PDR, nor an architectural decision without an ADR, in the same commit as the code. With Kilo use the `/create-adr` and `/create-pdr` commands; record directories are configured in `conventions.conf`.
 - Maintain `tmp/commit-message.md` with the proposed commit message for the work in progress: reset it when starting from a clean `git status`, integrate or fix it otherwise. `tmp/` is gitignored.
 
 ## Documentation style

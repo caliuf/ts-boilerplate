@@ -40,4 +40,5 @@ Dati immutabili, branded ID dove servono identità, discriminated union, `Result
 
 - Regola di prodotto nuova o ambigua → PDR `proposed` o domanda all'umano.
 - Decisione architetturale nuova o deroga a uno SHOULD → ADR nello stesso commit del codice.
+- Con Kilo le decision record si creano con i comandi `/create-adr` e `/create-pdr`; le directory sono configurate in `conventions.conf` e gli indici autorevoli sono i `README.md` delle rispettive cartelle.
 - Template: `docs/architecture/adr/0001-stack-tecnico.md` e `docs/product/pdr/0001-superficie-hello-world.md` fanno da esempio.

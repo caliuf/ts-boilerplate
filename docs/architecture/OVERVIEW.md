@@ -41,11 +41,4 @@ L'elenco completo con i gate che le applicano: [`BOUNDARIES.md`](./BOUNDARIES.md
 
 ## Decisioni attive
 
-| Decisione | ADR |
-| --- | --- |
-| Stack (Node 24 LTS, TS 7, pnpm, ESM, just, mise) | [ADR-0001](./adr/0001-stack-tecnico.md) |
-| Architettura ports & adapters | [ADR-0002](./adr/0002-architettura-porte-adapters.md) |
-| Zod unica libreria di schema | [ADR-0003](./adr/0003-zod-validazione.md) |
-| Tassonomia errori ed exit code | [ADR-0004](./adr/0004-tassonomia-errori-exit-codes.md) |
-| CI consolidata in un workflow | [ADR-0005](./adr/0005-ci-consolidata.md) |
-| CodeScene MCP per Code Health agent-facing | [ADR-0006](./adr/0006-codescene-mcp.md) |
+L'indice autorevole delle decisioni, con lo stato di ognuna, è [adr/README.md](./adr/README.md). I riferimenti inline in questo documento (es. ADR-0002 sopra) puntano alle decisioni che spiegano la struttura corrente.

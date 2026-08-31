@@ -188,12 +188,12 @@ Deno non è un target standard: supportare contemporaneamente tre runtime aument
 │   ├── architecture/
 │   │   ├── OVERVIEW.md
 │   │   ├── BOUNDARIES.md
-│   │   └── adr/
+│   │   └── adr/                        # path configurabile: ADR_PATH in conventions.conf
 │   ├── product/
 │   │   ├── OVERVIEW.md
 │   │   ├── GLOSSARY.md
 │   │   ├── VISION.md                   # opzionale
-│   │   └── pdr/
+│   │   └── pdr/                        # path configurabile: PDR_PATH in conventions.conf
 │   ├── development/
 │   │   ├── GETTING-STARTED.md
 │   │   ├── CODING.md
@@ -1014,7 +1014,8 @@ Convenzioni:
 - **una decisione per file**, nome `NNNN-titolo-breve.md`, numerazione monotona, ID mai riusati;
 - un’ADR `active` **non viene mai modificata**: una nuova ADR la sostituisce marcandola `superseded`;
 - l’ADR nasce **nello stesso commit** del codice che implementa la decisione;
-- le ADR sono anche l'**artefatto di review** per l'umano: più leggibili del diff riga per riga.
+- le ADR sono anche l'**artefatto di review** per l'umano: più leggibili del diff riga per riga;
+- la directory delle ADR è configurabile nel `conventions.conf` in radice (`ADR_PATH`, default `docs/adr`); con Kilo la creazione passa dal comando `/create-adr`, che mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e dello stato delle decisioni.
 
 Quando serve un’ADR: nuova dipendenza significativa, strategia di storage, astrazione
 core, pattern cross-cutting, deroga a uno SHOULD di questo vademecum.
@@ -1063,6 +1064,11 @@ dalla dimensione del lavoro (un'epica può non introdurre nulla di nuovo, una pi
 storia può introdurre un pattern importante). Non serve per pattern già consolidati.
 Un agente non deve inventare autonomamente una nuova regola di prodotto in presenza
 di ambiguità: apre una PDR `proposed` o chiede.
+
+La directory delle PDR è configurabile nel `conventions.conf` in radice (`PDR_PATH`,
+default `docs/pdr`); con Kilo la creazione passa dal comando `/create-pdr`, che
+mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e
+dello stato delle decisioni.
 
 Formato:
 

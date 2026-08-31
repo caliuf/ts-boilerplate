@@ -12,13 +12,13 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 
 - [`architecture/OVERVIEW.md`](./architecture/OVERVIEW.md) — struttura e decisioni attive.
 - [`architecture/BOUNDARIES.md`](./architecture/BOUNDARIES.md) — regole di dipendenza e loro gate.
-- [`architecture/adr/`](./architecture/adr/) — decisioni tecniche (una per file).
+- [`architecture/adr/`](./architecture/adr/) — decisioni tecniche (una per file); indice autorevole nel [README](./architecture/adr/README.md) della cartella.
 
 ## Prodotto
 
 - [`product/OVERVIEW.md`](./product/OVERVIEW.md) — scope e decisioni di prodotto attive.
 - [`product/GLOSSARY.md`](./product/GLOSSARY.md) — astrazioni di dominio.
-- [`product/pdr/`](./product/pdr/) — decisioni di prodotto (una per file).
+- [`product/pdr/`](./product/pdr/) — decisioni di prodotto (una per file); indice autorevole nel [README](./product/pdr/README.md) della cartella.
 
 ## Sviluppo
 
