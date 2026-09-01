@@ -23,7 +23,7 @@ Boilerplate placeholders to customize:
 ## Working rules
 
 - At the start of every task, read `docs/memory/project.md` and `docs/memory/environment.md` to load project context; update them when you make durable decisions, corrections, or discover significant facts.
-- Keep the change limited to the requested scope. One task = one branch/worktree.
+- Keep the change limited to the requested scope. One task = one branch/worktree (branch naming, PR flow and worktree rules: `docs/development/WORKFLOWS.md` § Branching, PR e worktree).
 - Before starting, check that gates are green (`just smoke` at minimum). Never start new work on a below-threshold codebase: restore health first, or report the blocker.
 - Work test-first: red → green → refactor. For a bug, the first commit is a failing regression test. A test you have never seen fail is suspect.
 - Leave the code you touch better than you found it, measured by the repo gates and by CodeScene when the MCP is connected. Do NOT perform unrelated refactors or dependency upgrades.
