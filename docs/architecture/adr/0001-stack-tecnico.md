@@ -36,6 +36,8 @@ Dettagli:
 
 `.node-version`, `packageManager`, `engines` in `package.json`, `just doctor` verifica le versioni; `erasableSyntaxOnly` in `tsconfig.base.json`; `just bun-smoke` in CI.
 
+`.github/dependabot.yml` ignora le major di `@types/node` per evitare PR automatiche fuori sincrono col runtime. Quando si eseguirà il bump major di Node, rimuovere quell'`ignore` nello stesso commit che aggiorna `.node-version`, `.mise.toml`, `engines` e `@types/node`.
+
 ## Migration / rollback
 
 Non rilevante al bootstrap. Rollback del runtime: PR dedicata che abbassa `.node-version` dopo aver rieseguito l'intera suite.

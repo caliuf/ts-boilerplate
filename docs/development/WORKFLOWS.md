@@ -35,7 +35,8 @@ I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-c
 
 1. **Niente per far partire la CI**: i workflow partono da soli al primo push.
 2. Abilita in *Settings → Code security*: Dependabot alerts, security updates, secret scanning, push protection.
-3. Crea il ruleset di `main` (*Settings → Rules → Rulesets*): require PR, status check obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`), no force push, squash merge, Code Owner review. Vedi la checklist con i prompt pronti in
+3. Abilita **Dependency graph** in *Settings → Code security → Dependency graph* (richiesto dal job `dependency-review` in `ci.yml`; senza di esso il check fallisce in pochi secondi).
+4. Crea il ruleset di `main` (*Settings → Rules → Rulesets*): require PR, status check obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`), no force push, squash merge, Code Owner review. Vedi la checklist con i prompt pronti in
    [`NEW-PROJECT.md`](./NEW-PROJECT.md).
 
 ## Task schedulati (guards)
