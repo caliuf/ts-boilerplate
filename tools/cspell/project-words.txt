@@ -61,3 +61,7 @@ Kronvex
 Memstate
 kilocode
 documentativo
+committati
+stagiare
+staggare
+subshell

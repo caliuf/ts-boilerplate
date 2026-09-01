@@ -5,6 +5,14 @@
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
+# Make the mise-pinned toolchain visible to every recipe, even in shells without
+# the mise hook (agents, CI subshells, blocked direnv in worktrees). mise keeps a
+# shim per installed tool in ~/.local/share/mise/shims; each shim resolves the
+# version from the .mise.toml found walking up from the recipe cwd. If the
+# directory does not exist (tools installed by hand) the extra PATH entry is a
+# no-op and recipes fall back to the ambient PATH.
+export PATH := env_var('HOME') / ".local/share/mise/shims" + ":" + env_var('PATH')
+
 # Docs-only fast path (Vademecum §5): the exact, complete list of path
 # patterns. Protected by CODEOWNERS. A mixed diff always takes the full path.
 DOCS_ONLY_PATTERNS := "^docs/ ^README\\.md$ ^AGENTS\\.md$ ^CLAUDE\\.md$ ^GEMINI\\.md$ ^CONTRIBUTING\\.md$ ^SECURITY\\.md$ ^CHANGELOG\\.md$ ^\\.github/workflows/ ^\\.githooks/"
