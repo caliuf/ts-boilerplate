@@ -1267,6 +1267,22 @@ Le istruzioni path-specific vanno aggiunte solo quando esistono regole realmente
 
 Non trasformare `AGENTS.md` in un manuale completo: deve indirizzare verso le fonti canoniche senza consumare inutilmente il contesto dell’agente.
 
+### Memoria a breve-medio termine (Kilo Memory + repository memory bank)
+
+Gli agenti perdono il contesto a ogni nuova sessione. Per mitigare il problema esistono due meccanismi complementari:
+
+1. **Kilo Memory nativa** (`/memory` in Kilo Code). È project-scoped e salvata nella directory dati globale del client (`~/.local/share/kilo/memory/`). Quando è attiva, viene iniettata automaticamente all’avvio della sessione. È comoda, ma è opt-in, client-specifica e non versionabile in Git.
+2. **Repository-local memory bank** in `docs/memory/`. È un fallback portabile e versionabile: contiene fatti operativi, decisioni attive, vincoli, correzioni esplicite e digest di sessione rilevanti. Ogni progetto derivato dal boilerplate DOVREBBE mantenere questa directory.
+
+Regole:
+
+- All’avvio di ogni task l’agente legge `docs/memory/project.md` e `docs/memory/environment.md` (oltre a `AGENTS.md` e `docs/PROJECT.md`).
+- Quando si fa una decisione, una correzione o si scopre un vincolo significativo, si aggiorna il file appropriato in `docs/memory/` nello stesso commit del codice (o in un commit docs dedicato).
+- I fatti che stabilizzano e meritano una traccia formale vanno in un ADR/PDR; `docs/memory/` ne riporta solo il riferimento e una riga di sintesi.
+- I session digest vanno in `docs/memory/sessions/` e devono essere rilevanti, non un log di ogni conversazione.
+
+In questo modo il contesto operativo sopravvive anche quando Kilo Memory non è attiva, quando si clona il repo su un’altra macchina, o quando un altro membro del team apre il progetto con un client diverso.
+
 ---
 
 ## 9. Failure modes degli agenti e contromisure

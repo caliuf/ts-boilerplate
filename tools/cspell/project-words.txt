@@ -52,3 +52,9 @@ versionati
 worktree
 zizmor
 scorable
+versionabile
+versionabili
+Kronvex
+Memstate
+kilocode
+documentativo
