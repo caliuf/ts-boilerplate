@@ -13,6 +13,7 @@ Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: 
 | just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
 | direnv | vedi `.mise.toml` | `mise install` (richiesto per i wrapper in `bin/`) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
+| codegraph | ≥ 1.5 | `npm install -g @colbymchenry/codegraph` (non gestito da mise) |
 
 Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning.
 
@@ -28,13 +29,13 @@ just doctor
 just setup
 ```
 
-Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`), autorizza il `.envrc` con direnv e i browser Playwright (chromium).
+Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`), autorizza il `.envrc` con direnv, i browser Playwright (chromium) e inizializza l'indice CodeGraph (`codegraph init` + `codegraph index`, saltato con warning se il binario non è installato).
 
 ```sh
 just pull
 ```
 
-Dopo aver integrato PR esterne (ad esempio Dependabot), aggiorna il branch corrente e sincronizza tool, dipendenze e hook solo se i file pertinenti sono cambiati.
+Dopo aver integrato PR esterne (ad esempio Dependabot), aggiorna il branch corrente e sincronizza tool, dipendenze e hook solo se i file pertinenti sono cambiati. Se il repository è indicizzato, aggiorna anche l'indice CodeGraph (`codegraph sync`).
 
 ## Sviluppo
 
@@ -53,8 +54,8 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 
 | Comando | Funzione |
 | --- | --- |
-| `just setup` | Installa dipendenze, tool e hook |
-| `just pull` | Pull e sincronizza tool/dipendenze/hook solo se cambiati |
+| `just setup` | Installa dipendenze, tool, hook e indice CodeGraph |
+| `just pull` | Pull e sincronizza tool/dipendenze/hook solo se cambiati; aggiorna l'indice CodeGraph |
 | `just doctor` | Verifica runtime, tool e configurazione |
 | `just dev` | Avvia lo sviluppo (API + web) |
 

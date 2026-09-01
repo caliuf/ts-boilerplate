@@ -6,6 +6,7 @@ Tool-specific paths, commands, and quirks for this project.
 
 - bun.smoke :: `just bun-smoke` esegue solo il core portabile sotto Bun (Zod, sayHello/greet, logger in-memory), non avvia CLI/API/MCP/web.
 - bun.pin :: Bun 1.3.14 pinnato in `.mise.toml`; CI job `bun-compatibility` è gate obbligatorio.
+- codegraph.enforcement :: `just setup` runs `codegraph init` + `codegraph index` (warning if the binary is missing), `just pull` runs `codegraph sync` when `.codegraph/` exists; the CLI is installed globally via npm (`@colbymchenry/codegraph`), not mise-managed.
 - codescene.project :: Progetto CodeScene Cloud `ts-boilerplate`, id `83744`; pin in `.kilo/kilo.jsonc` (`CS_DEFAULT_PROJECT_ID=83744`).
 - kilo.memory_path :: `~/.local/share/kilo/memory/ts-boilerplate-0636824f8fd8/` (locale, non nel repo).
 - kilo.memory_diagnose :: `tools/scripts/kilo-memory-diagnose.sh` stampa lo stato del binding Kilo Memory, dell'auto-inject e delle dimensioni del repository memory bank.

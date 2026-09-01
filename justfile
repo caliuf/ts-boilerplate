@@ -19,7 +19,7 @@ DOCS_ONLY_PATTERNS := "^docs/ ^README\\.md$ ^AGENTS\\.md$ ^CLAUDE\\.md$ ^GEMINI\
 
 # --- lifecycle -----------------------------------------------------------------
 
-# Install dependencies, tools and git hooks
+# Install dependencies, tools and git hooks (idempotent)
 setup:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -36,6 +36,12 @@ setup:
     fi
     git config core.hooksPath .githooks
     pnpm --filter @project/tests exec playwright install chromium
+    if command -v codegraph >/dev/null 2>&1; then
+      codegraph init
+      codegraph index
+    else
+      echo "⚠️  codegraph not found — skipping repo index (install codegraph to enable CodeGraph, see docs/development/GETTING-STARTED.md)"
+    fi
 
 # Pull latest changes and keep the environment in sync (tools, deps, hooks)
 pull:
@@ -58,6 +64,9 @@ pull:
     fi
     if grep -qE '^\.githooks/' <<< "$changed"; then
       git config core.hooksPath .githooks
+    fi
+    if [ -d .codegraph ] && command -v codegraph >/dev/null 2>&1; then
+      codegraph sync
     fi
 
 # Verify runtimes, tools and configuration
