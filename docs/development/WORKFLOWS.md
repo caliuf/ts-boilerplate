@@ -100,3 +100,7 @@ Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità cont
 ## Messaggi di commit
 
 Convenzione (guida, non gate): prefisso conventional (`feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`), una riga riassuntiva, riga vuota, lista puntata Markdown col dettaglio. L'agente mantiene la bozza in `tmp/commit-message.md` (gitignored).
+
+## Automazione del flusso
+
+Gli script in `tools/scripts/` tolgono il lavoro ripetitivo: `agent-briefing.sh` (contesto in un colpo a inizio task), `gh-prs.sh` (PR e contenuto), `finish-task.sh` (commit → push → PR, senza rilanciare i gate che gli hook già eseguono). Dettagli e regole in [`AGENT-AUTOMATION.md`](./AGENT-AUTOMATION.md).

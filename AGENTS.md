@@ -37,6 +37,7 @@ Boilerplate placeholders to customize:
 - Before using a library API, verify it exists in the installed version (read its types/docs in `node_modules`); do not rely on memory.
 - Do not introduce a product decision without a PDR, nor an architectural decision without an ADR, in the same commit as the code. With Kilo use the `/create-adr` and `/create-pdr` commands; record directories are configured in `conventions.conf`.
 - Maintain `tmp/commit-message.md` with the proposed commit message for the work in progress: reset it when starting from a clean `git status`, integrate or fix it otherwise. `tmp/` is gitignored.
+- Use the automation scripts in `tools/scripts/` to avoid repetitive round-trips: `agent-briefing.sh` at task start (full context in one shot), `gh-prs.sh` for PR inspection, `finish-task.sh` to commit+push+open the PR. Do not run `just precommit`/`just prepush` by hand before commit/push: the git hooks already run them. Never ignore a "tool not found" warning — fix the PATH instead (see `docs/development/AGENT-AUTOMATION.md`).
 
 ## Documentation style
 
