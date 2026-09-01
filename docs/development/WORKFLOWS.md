@@ -23,6 +23,10 @@ Fast path docs-only: se il diff tocca solo docs/markdown/workflow/hook, i gate s
 
 Il flusso di default è: **un task = un branch = una PR**. Il push diretto su `main` resta possibile per l'owner (bypass del ruleset, auditato da GitHub) ma è riservato alle urgenze o alle micro-modifiche per cui l'utente lo chiede esplicitamente (vedi `GITHUB-CLI.md`).
 
+### Workspace di sviluppo principale
+
+Quando `realpath $(pwd)` corrisponde a `/home/dati/workspace/ts-boilerplate` e l'utente non richiede esplicitamente un branch/PR, il flusso di default non è il modello branch + PR, ma l'applicazione diretta delle modifiche sul working tree corrente — in genere `main` — con il commit lasciato all'utente. L'agente non crea branch autonomi né apre PR; se serve un task isolato, l'utente lo richiede esplicitamente o si usa un worktree gestito da Agent Manager. Il modello un task = un branch = una PR resta valido per lavoro strutturato, autonomo o in parallelo.
+
 ### Naming dei branch
 
 ```text
