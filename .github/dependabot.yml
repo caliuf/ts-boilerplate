@@ -11,6 +11,12 @@ updates:
       # Compatible updates batched; major updates always get explicit review.
       patch-and-minor:
         update-types: ["patch", "minor"]
+    ignore:
+      # ADR-0001 pins Node 24 as the authoritative runtime. Keep @types/node
+      # aligned with the runtime major; upgrade it only in the dedicated Node
+      # migration PR, never via an automated patch-and-minor batch.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
