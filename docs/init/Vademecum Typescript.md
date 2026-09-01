@@ -623,7 +623,7 @@ solo in `.env` e `.envrc.local` (gitignored).
 |Container/IaC|Hadolint e Trivy, se applicabili|
 |Qualità continua e quality gate|MAY: SonarQube — vedi *Code health e hotspot*|
 |Hotspot e analisi git-history|MAY: CodeCharta o CodeMaat, nel health guard (§ 10) — vedi *Code health e hotspot*|
-|Code health pro|MAY, solo su progetti maturi: Codacy o CodeScene (a pagamento su repo privati), esposti all'agente via MCP|
+|Code health pro|MAY, solo su progetti maturi: CodeScene (testato). Codacy è escluso per TypeScript: codacy-cli-v2 non include il parser TypeScript e genera errori di parsing sui file `.ts`/`.tsx` (verificato 2026-09-01).|
 
 Biome rimane il formatter autorevole; Oxlint è il linter autorevole. Non duplicare sistematicamente le stesse regole nei due strumenti.
 
