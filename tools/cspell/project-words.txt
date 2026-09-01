@@ -3,15 +3,24 @@ actionlint
 calendarizzati
 Charta
 Codacy
+codehealth
 CodeCharta
 CodeMaat
+CodeScene
 colocati
 colocato
+committando
 committare
 committato
 depcruise
+direnv
+dotenv
+envrc
+footgun
+GHAS
 gitleaks
 greppabili
+hotspots
 idempotenza
 interoperabile
 justfile
@@ -22,10 +31,14 @@ microservizi
 mockare
 oxlint
 oxlintrc
+pipefail
 prepush
+pushando
+pushati
 # Project dictionary for cspell. One word per line.
 Qube
 ratchet
+riaggiungere
 rieseguilo
 rieseguire
 Semgrep
@@ -38,3 +51,4 @@ versionate
 versionati
 worktree
 zizmor
+scorable

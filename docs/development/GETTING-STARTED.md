@@ -1,8 +1,6 @@
 # Getting started
 
-Onboarding tecnico del progetto. Ogni comando citato qui esiste nel
-`justfile`: un comando inventato o rinominato è un docs bug bloccante in
-review (il docs guard ne verifica un sottoinsieme).
+Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: un comando inventato o rinominato è un docs bug bloccante in review (il docs guard ne verifica un sottoinsieme).
 
 ## Prerequisiti
 
@@ -10,12 +8,11 @@ review (il docs guard ne verifica un sottoinsieme).
 | --- | --- | --- |
 | Node.js | vedi `.node-version` | `mise install` (consigliato) |
 | pnpm | vedi `packageManager` in `package.json` | `mise install` |
-| just | qualunque recente | [package manager di sistema](https://just.systems/man/en/packages.html) |
+| just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
+| direnv | vedi `.mise.toml` | `mise install` (richiesto per i wrapper in `bin/`) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
 
-Senza mise: installa le stesse versioni con il tuo package manager. I tool
-mancanti degradano le recipe corrispondenti a warning in locale, ma restano
-**bloccanti in CI** — non abituarti ai warning.
+Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning.
 
 Verifica sempre con:
 
@@ -29,8 +26,13 @@ just doctor
 just setup
 ```
 
-Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`) e i
-browser Playwright (chromium).
+Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`), autorizza il `.envrc` con direnv e i browser Playwright (chromium).
+
+```sh
+just pull
+```
+
+Dopo aver integrato PR esterne (ad esempio Dependabot), aggiorna il branch corrente e sincronizza tool, dipendenze e hook solo se i file pertinenti sono cambiati.
 
 ## Sviluppo
 
@@ -39,19 +41,18 @@ just dev          # API (:3100) + web (:5100) in parallelo
 node apps/cli/src/cli.ts hello-world --name Ada
 ```
 
-Configurazione: copia `.env.example` in `.env` (opzionale, tutti i default
-funzionano). L'environment è validato all'avvio da ogni composition root.
+Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per la catena di caricamento di `.env.default`, `.env` e `.envrc.local`. L'environment è validato all'avvio da ogni composition root.
 
 ## Recipe
 
-`just` è l'unica interfaccia operativa: gli script in `package.json` sono
-dettagli implementativi, non chiamarli direttamente.
+`just` è l'unica interfaccia operativa: gli script in `package.json` sono dettagli implementativi, non chiamarli direttamente.
 
 ### Ciclo di vita
 
 | Comando | Funzione |
 | --- | --- |
 | `just setup` | Installa dipendenze, tool e hook |
+| `just pull` | Pull e sincronizza tool/dipendenze/hook solo se cambiati |
 | `just doctor` | Verifica runtime, tool e configurazione |
 | `just dev` | Avvia lo sviluppo (API + web) |
 
@@ -68,6 +69,7 @@ dettagli implementativi, non chiamarli direttamente.
 | `just docs-check` | Markdown, spelling, link locali |
 | `just workflows-check` | actionlint e zizmor |
 | `just secrets` | Gitleaks sul working tree |
+| `just shell-check` | Shellcheck sui wrapper in `bin/` |
 
 ### Test
 
@@ -92,9 +94,7 @@ dettagli implementativi, non chiamarli direttamente.
 | `just prepush` | Static analysis e integration principali | ≤ 60s |
 | `just ci` | Esatta pipeline CI in locale | ≤ 10min |
 
-Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile
-`DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai
-controlli pertinenti (`docs-check`, `workflows-check`).
+Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check`).
 
 ## Test e debug
 
@@ -107,13 +107,17 @@ LOG_LEVEL=debug node apps/cli/src/cli.ts hello-world --name Ada 2>&1
 LOG_LEVEL=debug just dev
 ```
 
-I log sono JSON strutturato fuori dal TTY (leggibili da macchine e agenti) e
-pretty a colori nel TTY. Mai lasciare `console.log` o log temporanei: sono un
-gate rosso.
+I log sono JSON strutturato fuori dal TTY (leggibili da macchine e agenti) e pretty a colori nel TTY. Mai lasciare `console.log` o log temporanei: sono un gate rosso.
+
+Code Health (agenti, via MCP): [`CODESCENE.md`](./CODESCENE.md). Non sostituisce i gate `just`.
 
 ## Mappa delle cartelle
 
 ```text
+bin/            Wrapper bash per il PATH globale (`<bin>-<comando>`)
+.envrc          direnv del repo (carica `.env.default`, `.env`, `.envrc.local`)
+.env.default    Floor di environment committato (mai segreti)
+.env.example    Template per `.env` (non caricato)
 apps/cli        CLI (un bin, subcommand in src/commands/<nome>.ts)
 apps/api        API HTTP (Hono; route in src/routes/)
 apps/mcp        server MCP stdio (tool in src/tools/)

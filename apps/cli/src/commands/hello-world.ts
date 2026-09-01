@@ -17,6 +17,13 @@ export const meta: Command["meta"] = {
   examples: ["project hello-world", "project hello-world --name Ada", "project hello-world --json"],
 };
 
+function envName(): string | undefined {
+  const value = process.env["HELLO_WORLD_NAME"];
+  if (value === undefined) return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 export async function run(args: readonly string[], ctx: CommandContext): Promise<CommandResult> {
   let values: { name?: string | undefined };
   try {
@@ -35,7 +42,8 @@ export async function run(args: readonly string[], ctx: CommandContext): Promise
     };
   }
 
-  const parsed = helloWorldInputSchema.safeParse(values);
+  const name = values.name ?? envName();
+  const parsed = helloWorldInputSchema.safeParse({ name });
   if (!parsed.success) {
     const message = parsed.error.issues
       .map((issue) => `${issue.path.join(".") || "input"}: ${issue.message}`)

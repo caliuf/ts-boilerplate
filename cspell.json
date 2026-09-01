@@ -16,8 +16,10 @@
     "**/node_modules/**",
     "pnpm-lock.yaml",
     "docs/init/**",
+    "tmp/**",
     "coverage/**",
     "**/dist/**",
-    "agent-docs/**"
+    "agent-docs/**",
+    ".github/instructions/**"
   ]
 }

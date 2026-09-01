@@ -14,9 +14,11 @@
     "node_modules/**",
     "**/node_modules/**",
     "docs/init/**",
+    "tmp/**",
     "coverage/**",
     "**/dist/**",
     ".codegraph/**",
+    ".github/instructions/**",
     "CHANGELOG.md"
   ],
   "globs": ["**/*.md"]

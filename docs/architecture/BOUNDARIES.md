@@ -1,8 +1,6 @@
 # Confini e regole di dipendenza
 
-Tutte le regole qui sotto sono **gate** (`just arch`, dependency-cruiser), non
-convenzioni: principio gate-first del vademecum. File di configurazione:
-`dependency-cruiser.config.mjs` (protetto da CODEOWNERS).
+Tutte le regole qui sotto sono **gate** (`just arch`, dependency-cruiser), non convenzioni: principio gate-first del vademecum. File di configurazione: `dependency-cruiser.config.mjs` (protetto da CODEOWNERS).
 
 ## Direzione delle dipendenze
 
@@ -25,10 +23,8 @@ domain  ←  application + ports  ←  adapters  ←  apps (composition root)
 
 Regole correlate applicate da altri gate:
 
-- niente `console.log` fuori da `tools/scripts` e `apps/web` → Oxlint
-  `no-console` (`just lint`);
-- niente `any`, `@ts-ignore`, non-null assertion fuori dai test → Oxlint
-  (`just lint`);
+- niente `console.log` fuori da `tools/scripts` e `apps/web` → Oxlint `no-console` (`just lint`);
+- niente `any`, `@ts-ignore`, non-null assertion fuori dai test → Oxlint (`just lint`);
 - codice morto (file, export, dipendenze) → Knip (`just dead-code`);
 - segreti → Gitleaks (`just secrets`).
 
@@ -36,5 +32,4 @@ Regole correlate applicate da altri gate:
 
 1. Esprimila in `dependency-cruiser.config.mjs` (o Oxlint/Biome se più adatto).
 2. Se è una deroga o una decisione nuova: ADR nello stesso commit.
-3. Se non è esprimibile come gate, va in `AGENTS.md` come guida — ma è la
-   seconda scelta, non la prima.
+3. Se non è esprimibile come gate, va in `AGENTS.md` come guida — ma è la seconda scelta, non la prima.
