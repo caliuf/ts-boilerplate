@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-exec just precommit
+if command -v mise >/dev/null 2>&1; then
+  exec mise exec -- just precommit
+else
+  exec just precommit
+fi

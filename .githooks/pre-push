@@ -1,3 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Versioned git hook (Vademecum §5). Hooks call just recipes only.
-exec just prepush
+set -euo pipefail
+if command -v mise >/dev/null 2>&1; then
+  exec mise exec -- just prepush
+else
+  exec just prepush
+fi
