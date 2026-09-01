@@ -60,6 +60,8 @@ Esegui la retrospettiva di processo: analizza i gate falliti di recente, le istr
 
 **Adottato:** CodeScene via MCP come autorità di Code Health per gli agenti (ADR-0006). Non è un hook git: uso operativo in [`CODESCENE.md`](./CODESCENE.md).
 
+**Adottato:** repository-local memory bank in `docs/memory/` come fallback portatile e versionabile della Kilo Memory nativa (ADR-0008). Gli agenti leggono `docs/memory/project.md` e `docs/memory/environment.md` all'avvio e aggiornano i file quando emergono fatti o correzioni duraturi.
+
 Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità continua, duplicazione), CodeCharta/CodeMaat (hotspot da git history, nel health guard), lizard (gate di complessità), Semgrep CE (SAST). Codacy non è usato: codacy-cli-v2 non supporta TypeScript in locale (parser assente, ESLint fallisce su `.ts`/`.tsx`; verificato 2026-09-01). Riferimenti: vademecum §4 in `docs/init/`.
 
 ## Messaggi di commit

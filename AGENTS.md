@@ -15,12 +15,14 @@ Boilerplate placeholders to customize:
 ## Start here
 
 1. Read `docs/PROJECT.md` and `docs/INDEX.md`.
-2. Read the README of every package you will modify.
-3. Read the relevant active ADRs (`docs/architecture/adr/`) and PDRs (`docs/product/pdr/`).
-4. Use only root-level `just` recipes to build, test and validate changes (canonical table: `docs/development/GETTING-STARTED.md`).
+2. Read `docs/memory/project.md` and `docs/memory/environment.md` for durable project context (Kilo Memory may or may not be active in the current client).
+3. Read the README of every package you will modify.
+4. Read the relevant active ADRs (`docs/architecture/adr/`) and PDRs (`docs/product/pdr/`).
+5. Use only root-level `just` recipes to build, test and validate changes (canonical table: `docs/development/GETTING-STARTED.md`).
 
 ## Working rules
 
+- At the start of every task, read `docs/memory/project.md` and `docs/memory/environment.md` to load project context; update them when you make durable decisions, corrections, or discover significant facts.
 - Keep the change limited to the requested scope. One task = one branch/worktree.
 - Before starting, check that gates are green (`just smoke` at minimum). Never start new work on a below-threshold codebase: restore health first, or report the blocker.
 - Work test-first: red → green → refactor. For a bug, the first commit is a failing regression test. A test you have never seen fail is suspect.
