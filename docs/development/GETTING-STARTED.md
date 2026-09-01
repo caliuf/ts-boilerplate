@@ -1,5 +1,7 @@
 # Getting started
 
+<!-- META(boilerplate): this is the onboarding for the boilerplate itself. When adopting it for a new project, rewrite the project-specific sections (prerequisites, setup, recipe, folder map) to describe your system, while keeping the justfile contract and gate structure. -->
+
 Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: un comando inventato o rinominato è un docs bug bloccante in review (il docs guard ne verifica un sottoinsieme).
 
 ## Prerequisiti

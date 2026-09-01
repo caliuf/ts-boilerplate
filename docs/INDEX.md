@@ -5,8 +5,10 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 ## Da leggere per primi
 
 1. [`PROJECT.md`](./PROJECT.md) — cosa è il sistema, cosa esiste, mappa delle superfici.
-2. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
-3. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
+2. [`memory/project.md`](./memory/project.md) — contesto operativo del progetto (fatti, decisioni attive, vincoli).
+3. [`memory/environment.md`](./memory/environment.md) — comandi e path specifici del progetto.
+4. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
+5. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
 
 ## Architettura
 

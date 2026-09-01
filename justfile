@@ -129,7 +129,8 @@ shell-check:
     #!/usr/bin/env bash
     set -euo pipefail
     if command -v shellcheck >/dev/null 2>&1; then
-      shellcheck -x bin/*
+      # Exclude unused check
+      shellcheck -e SC2329 -x bin/* tools/scripts/*.sh
     else
       echo "⚠️  shellcheck not found — skipping shell lint (blocking in CI; run \`mise install\`)"
     fi

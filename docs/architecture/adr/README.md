@@ -11,3 +11,4 @@ Decisioni architetturali del progetto, create con il comando `/create-adr`.
 | [0005](0005-ci-consolidata.md) | CI consolidata: un solo workflow per push/PR, security in slow lane settimanale | active |
 | [0006](0006-codescene-mcp.md) | CodeScene MCP come autorità di Code Health per gli agenti | active |
 | [0007](0007-wrapper-cli-bin-direnv.md) | Wrapper CLI in bin/ e gestione environment con direnv | active |
+| [0008](0008-memory-bank-locale.md) | Repository-local memory bank come fallback a Kilo Memory | active |

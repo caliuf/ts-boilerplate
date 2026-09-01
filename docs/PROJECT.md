@@ -75,6 +75,7 @@ Gli indici autorevoli, con lo stato di ogni decisione, sono [`architecture/adr/R
 - [ADR-0001](./architecture/adr/0001-stack-tecnico.md) — stack: Node 24 LTS, TS 7, pnpm, ESM, just, mise.
 - [ADR-0002](./architecture/adr/0002-architettura-porte-adapters.md) — modular monolith, ports & adapters.
 - [ADR-0006](./architecture/adr/0006-codescene-mcp.md) — CodeScene MCP come autorità di Code Health per gli agenti.
+- [ADR-0008](./architecture/adr/0008-memory-bank-locale.md) — repository-local memory bank come fallback a Kilo Memory.
 - [PDR-0001](./product/pdr/0001-superficie-hello-world.md) — superficie dimostrativa hello-world.
 
 ## Budget
