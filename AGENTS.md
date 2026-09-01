@@ -76,6 +76,10 @@ When the `codescene` MCP is connected, Code Health is authoritative for maintain
 - If a required command cannot run, report the exact reason.
 - Never claim a check passed unless you executed it successfully; quote the actual command output in the final report.
 
+## GitHub CLI
+
+Before any operation on PRs, issues, checks or repository settings via the GitHub CLI, read `docs/development/GITHUB-CLI.md` for the patterns, gotchas and permission rules specific to this repository.
+
 ## Git safety
 
 - Do not use destructive Git commands.
