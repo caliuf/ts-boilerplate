@@ -19,6 +19,39 @@ Mai saltare gli hook (`--no-verify` è vietato; vedi `AGENTS.md`). Se un gate fa
 
 Fast path docs-only: se il diff tocca solo docs/markdown/workflow/hook, i gate si riducono a `docs-check` + `workflows-check`. La lista dei path è la variabile `DOCS_ONLY_PATTERNS` nel justfile, protetta da CODEOWNERS. Un diff misto percorre sempre il percorso completo.
 
+## Branching, PR e worktree
+
+Il flusso di default è: **un task = un branch = una PR**. Il push diretto su `main` resta possibile per l'owner (bypass del ruleset, auditato da GitHub) ma è riservato alle urgenze o alle micro-modifiche per cui l'utente lo chiede esplicitamente (vedi `GITHUB-CLI.md`).
+
+### Naming dei branch
+
+```text
+<tipo>/<issue>-<slug>     feat/42-rate-limiting
+<tipo>/<slug>             fix/typo-readme          (solo task troppo piccoli per un'issue)
+```
+
+I tipi sono quelli dei conventional commit: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`. Il numero dell'issue GitHub è il progressivo univoco e condiviso fra tutti i tipi: esiste prima del branch, sopravvive alla sua cancellazione e dà tracciabilità issue → branch → PR (con `Closes #N` nel body la PR chiude l'issue al merge). Niente contatori manuali nel nome (es. `B-0001`): con agenti in parallelo generano race condition e non lasciano traccia dopo il merge — il log lineare e i numeri PR sono già l'ordinamento storico.
+
+### Review e merge con un solo maintainer
+
+Il ruleset di `main` richiede review approvante di un code owner, ma GitHub non consente di approvare la propria PR. La politica è:
+
+- **PR aperte da un agente remoto** (es. Kilo Cloud Agent con la sua GitHub App): l'autore è l'app, quindi il maintainer può — e deve — fare la review. Il ruleset funziona come progettato.
+- **PR aperte dal maintainer in locale**: dopo CI verde il merge avviene con bypass owner consapevole (l'evento resta auditato). Non aggirare i check: il bypass salta solo la review, non gli status check.
+
+Merge sempre con squash (ruleset): la storia di `main` resta lineare e un commit per PR.
+
+### Worktree in locale (Kilo Agent Manager)
+
+Per lavoro parallelo in locale si usano i worktree git gestiti da Agent Manager (sidebar di VS Code): ogni task vive in `.kilo/worktrees/<nome>` con branch dedicato e sessione isolata; a fine lavoro si integra con Apply, merge del branch o PR direttamente dalla UI. Non serve una seconda finestra di VS Code, a meno di voler editare a mano dentro un worktree.
+
+Regole pratiche:
+
+- Alla creazione del worktree gira `.kilo/setup-script.sh` (installazione dipendenze via pnpm store condiviso, copia di `.envrc.local`).
+- Non usare `git stash` per spostare lavoro: lo stash è condiviso fra tutti i worktree.
+- Dev server in parallelo (es. `apps/api`, `apps/web`): derivare le porte da `WORKTREE_PATH` per evitare collisioni.
+- Dopo il merge della PR: rimuovere il worktree (dalla UI o `git worktree remove`) ed eliminare il branch remoto.
+
 ## CI (GitHub Actions)
 
 I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-check` (actionlint + zizmor). Tutte le action esterne sono fissate a SHA completo; le permission di default sono read-only.

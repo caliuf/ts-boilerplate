@@ -16,6 +16,9 @@
 
 - runtime.dual_vs_switch :: Non dual-runtime configurabile Node+Bun e non switch completo ora: tenere Node per esecuzione/tooling e Bun solo come smoke del core; switch solo con spike reale e ADR che supersede ADR-0001.
 - memory.repo_bank :: Mantenere un memory bank nel repository (`docs/memory/`) come fallback visibile e portabile della Kilo Memory nativa; vedi ADR-0008.
+- github.branch_pr_flow :: Flusso di default: un task = un branch = una PR, merge squash. Push diretto su `main` (bypass owner) solo per urgenze o micro-modifiche su richiesta esplicita. Convenzioni in `docs/development/WORKFLOWS.md` § Branching, PR e worktree.
+- github.branch_naming :: Naming branch `<tipo>/<issue>-<slug>` (tipi = conventional commit); il numero issue GitHub è il progressivo univoco, niente contatori manuali nel nome (race condition con agenti paralleli).
+- github.review_solo_maintainer :: Con un solo code owner la review obbligatoria del ruleset non è self-approvabile: le PR locali del maintainer si mergiano con bypass owner a CI verde (auditato); le PR degli agenti remoti (GitHub App) vanno in review reale.
 
 ## Constraints
 

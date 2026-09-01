@@ -50,6 +50,9 @@ vademecum
 versionate
 versionati
 worktree
+worktrees
+auditato
+mergiano
 zizmor
 scorable
 versionabile
