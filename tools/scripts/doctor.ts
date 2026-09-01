@@ -108,7 +108,15 @@ try {
 // --- external gate tools -----------------------------------------------------
 // These are blocking in CI. Locally a missing tool downgrades its recipe to a
 // warning, but do not let that become an habit: install them via mise.
-const externalTools = ["bun", "gitleaks", "actionlint", "zizmor", "lychee", "shellcheck"];
+const externalTools = [
+  "bun",
+  "gitleaks",
+  "actionlint",
+  "zizmor",
+  "lychee",
+  "shellcheck",
+  "codegraph",
+];
 for (const tool of externalTools) {
   const path = hasBinary(tool);
   if (path) {
