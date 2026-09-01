@@ -103,7 +103,7 @@ Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità cont
 
 ## Messaggi di commit
 
-Convenzione (guida, non gate): prefisso conventional (`feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`), una riga riassuntiva, riga vuota, lista puntata Markdown col dettaglio. L'agente mantiene la bozza in `tmp/commit-message.md` (gitignored).
+Convenzione (guida, non gate): prefisso conventional (`feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`), una riga riassuntiva, riga vuota, lista puntata Markdown col dettaglio. I messaggi sono scritti nella lingua del progetto (italiano tecnico-informatico; vedi AGENTS.md § Language). L'agente mantiene la bozza in `tmp/commit-message.md` (gitignored).
 
 ## Automazione del flusso
 

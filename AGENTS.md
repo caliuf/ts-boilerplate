@@ -46,6 +46,13 @@ Boilerplate placeholders to customize:
 - Never hard-wrap prose at a fixed column: it makes noisy diffs, pollutes git history and forces reflow toil on every edit. Use normal paragraphs separated by a blank line. No opposite dogmas either (mandatory one-sentence-per-line or similar): just good prose.
 - Keep AGENTS.md to the minimum operational content; add or change lines sparingly. "<200 lines" is a rule of thumb (SHOULD, not a gate): a signal that it is time to synthesize or move detail to the linked canonical docs, not a limit to hit.
 
+## Language
+
+- The project language is technical-IT Italian (italiano tecnico-informatico). Commit messages are written in the project language.
+- Code identifiers (functions, variables, types, file names) stay in English: they are more concise and expressive.
+- Comments and documentation are written in Italian; heavy use of English domain-specific terms is fine when a translation would sound weird.
+- Exceptions: a file already in English stays in English; files under `docs/memory/` stay in English.
+
 ## Architecture in one paragraph
 
 One use case = one file in `packages/<context>/src/application/`. CLI (`apps/cli`), HTTP API (`apps/api`), MCP (`apps/mcp`) and web UI (`apps/web`) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every surface and a row in the surface map of `docs/PROJECT.md`.
@@ -89,7 +96,7 @@ Before any operation on PRs, issues, checks or repository settings via the GitHu
 - Do not use destructive Git commands.
 - Do not rewrite existing commits or force-push unless explicitly requested.
 - Do not delete unrelated or untracked files.
-- Commit message convention (guide, not a gate): `docs/development/WORKFLOWS.md`.
+- Commit message convention (guide, not a gate): `docs/development/WORKFLOWS.md`. Messages are written in the project language (§ Language).
 
 ## Final report
 
