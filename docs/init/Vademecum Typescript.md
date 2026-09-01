@@ -188,12 +188,12 @@ Deno non è un target standard: supportare contemporaneamente tre runtime aument
 │   ├── architecture/
 │   │   ├── OVERVIEW.md
 │   │   ├── BOUNDARIES.md
-│   │   └── adr/
+│   │   └── adr/                        # path configurabile: ADR_PATH in conventions.conf
 │   ├── product/
 │   │   ├── OVERVIEW.md
 │   │   ├── GLOSSARY.md
 │   │   ├── VISION.md                   # opzionale
-│   │   └── pdr/
+│   │   └── pdr/                        # path configurabile: PDR_PATH in conventions.conf
 │   ├── development/
 │   │   ├── GETTING-STARTED.md
 │   │   ├── CODING.md
@@ -592,7 +592,11 @@ Il progetto seleziona una sola libreria di schema tramite ADR. Tipi TypeScript e
 
 Per la configurazione: i file `.env` reali sono sempre gitignored; nel repository
 vive un `.env.example` con valori finti ma strutturalmente validi, e l'environment
-viene validato all'avvio tramite lo schema scelto.
+viene validato all'avvio tramite lo schema scelto. Questo boilerplate aggiunge un
+`.env.default` committato come floor caricato sia dal `.envrc` del repo sia dai
+wrapper in `bin/`, un `.envrc` committato che carica `.env.default`, `.env` e
+`.envrc.local`, e wrapper PATH-globali che richiedono direnv. I segreti stanno
+solo in `.env` e `.envrc.local` (gitignored).
 
 ---
 
@@ -614,11 +618,12 @@ viene validato all'avvio tramite lo schema scelto.
 |Markdown|markdownlint|
 |Ortografia|cspell, con glossario di progetto|
 |Link|lychee, preferibilmente nella slow lane|
+|Environment per-directory|direnv (richiesto per i wrapper in `bin/`)|
 |Shell|ShellCheck, se esistono script shell|
 |Container/IaC|Hadolint e Trivy, se applicabili|
 |Qualità continua e quality gate|MAY: SonarQube — vedi *Code health e hotspot*|
 |Hotspot e analisi git-history|MAY: CodeCharta o CodeMaat, nel health guard (§ 10) — vedi *Code health e hotspot*|
-|Code health pro|MAY, solo su progetti maturi: Codacy o CodeScene (a pagamento su repo privati), esposti all'agente via MCP|
+|Code health pro|MAY, solo su progetti maturi: CodeScene (testato). Codacy è escluso per TypeScript: codacy-cli-v2 non include il parser TypeScript e genera errori di parsing sui file `.ts`/`.tsx` (verificato 2026-09-01).|
 
 Biome rimane il formatter autorevole; Oxlint è il linter autorevole. Non duplicare sistematicamente le stesse regole nei due strumenti.
 
@@ -1014,7 +1019,8 @@ Convenzioni:
 - **una decisione per file**, nome `NNNN-titolo-breve.md`, numerazione monotona, ID mai riusati;
 - un’ADR `active` **non viene mai modificata**: una nuova ADR la sostituisce marcandola `superseded`;
 - l’ADR nasce **nello stesso commit** del codice che implementa la decisione;
-- le ADR sono anche l'**artefatto di review** per l'umano: più leggibili del diff riga per riga.
+- le ADR sono anche l'**artefatto di review** per l'umano: più leggibili del diff riga per riga;
+- la directory delle ADR è configurabile nel `conventions.conf` in radice (`ADR_PATH`, default `docs/adr`); con Kilo la creazione passa dal comando `/create-adr`, che mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e dello stato delle decisioni.
 
 Quando serve un’ADR: nuova dipendenza significativa, strategia di storage, astrazione
 core, pattern cross-cutting, deroga a uno SHOULD di questo vademecum.
@@ -1063,6 +1069,11 @@ dalla dimensione del lavoro (un'epica può non introdurre nulla di nuovo, una pi
 storia può introdurre un pattern importante). Non serve per pattern già consolidati.
 Un agente non deve inventare autonomamente una nuova regola di prodotto in presenza
 di ambiguità: apre una PDR `proposed` o chiede.
+
+La directory delle PDR è configurabile nel `conventions.conf` in radice (`PDR_PATH`,
+default `docs/pdr`); con Kilo la creazione passa dal comando `/create-pdr`, che
+mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e
+dello stato delle decisioni.
 
 Formato:
 

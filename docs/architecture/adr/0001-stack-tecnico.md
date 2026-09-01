@@ -16,21 +16,21 @@ Primo bootstrap del boilerplate. Il vademecum prescrive: ultima Node Active LTS,
 
 Dettagli:
 
-- esecuzione TypeScript senza build step: type stripping nativo di Node 24   (solo sintassi eliminabile, `erasableSyntaxOnly`);
-- dependency-cruiser richiede la compiler API, non pubblica in TS 7: gli viene   affiancato TypeScript 6.0.3 via `packageExtensions` in   `pnpm-workspace.yaml` (caso previsto dal vademecum §2);
+- esecuzione TypeScript senza build step: type stripping nativo di Node 24 (solo sintassi eliminabile, `erasableSyntaxOnly`);
+- dependency-cruiser richiede la compiler API, non pubblica in TS 7: gli viene affiancato TypeScript 6.0.3 via `packageExtensions` in `pnpm-workspace.yaml` (caso previsto dal vademecum §2);
 - Bun 1.3.14 come compatibility target (`just bun-smoke`), mai nel dominio;
-- tool di sistema (gitleaks, actionlint, zizmor, lychee, shellcheck, bun)   fissati in `.mise.toml`; le recipe degradano a warning in locale se assenti,   restano bloccanti in CI.
+- tool di sistema (gitleaks, actionlint, zizmor, lychee, shellcheck, bun) fissati in `.mise.toml`; le recipe degradano a warning in locale se assenti, restano bloccanti in CI.
 
 ## Options considered
 
-- **Node 24 LTS + type stripping** (scelta): zero build step per CLI/API/MCP —   pro: semplicità, debug diretto; contro: richiede disciplina sulla sintassi   eliminabile (garantita da `erasableSyntaxOnly` e Oxlint).
-- **Build con tsc/tsup**: pro: compatibilità runtime ampia; contro: passo di   build e artefatti da governare, ingiustificati per questo perimetro.
-- **ESLint+Prettier**: scartata dal vademecum (Biome+Oxlint coprono il   fabbisogno senza duplicazioni).
+- **Node 24 LTS + type stripping** (scelta): zero build step per CLI/API/MCP — pro: semplicità, debug diretto; contro: richiede disciplina sulla sintassi eliminabile (garantita da `erasableSyntaxOnly` e Oxlint).
+- **Build con tsc/tsup**: pro: compatibilità runtime ampia; contro: passo di build e artefatti da governare, ingiustificati per questo perimetro.
+- **ESLint+Prettier**: scartata dal vademecum (Biome+Oxlint coprono il fabbisogno senza duplicazioni).
 
 ## Consequences
 
-- Upgrade di major (Node, TS) solo tramite PR dedicata con compatibility suite   completa, mai mescolati a feature.
-- Quando dependency-cruiser supporterà TS 7, rimuovere il `packageExtensions`   (rivalutare a ogni bump di dependency-cruiser).
+- Upgrade di major (Node, TS) solo tramite PR dedicata con compatibility suite completa, mai mescolati a feature.
+- Quando dependency-cruiser supporterà TS 7, rimuovere il `packageExtensions` (rivalutare a ogni bump di dependency-cruiser).
 
 ## Enforcement
 

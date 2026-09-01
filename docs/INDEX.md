@@ -6,26 +6,28 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 
 1. [`PROJECT.md`](./PROJECT.md) — cosa è il sistema, cosa esiste, mappa delle superfici.
 2. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
-3. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando    il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
+3. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
 
 ## Architettura
 
 - [`architecture/OVERVIEW.md`](./architecture/OVERVIEW.md) — struttura e decisioni attive.
 - [`architecture/BOUNDARIES.md`](./architecture/BOUNDARIES.md) — regole di dipendenza e loro gate.
-- [`architecture/adr/`](./architecture/adr/) — decisioni tecniche (una per file).
+- [`architecture/adr/`](./architecture/adr/) — decisioni tecniche (una per file); indice autorevole nel [README](./architecture/adr/README.md) della cartella.
 
 ## Prodotto
 
 - [`product/OVERVIEW.md`](./product/OVERVIEW.md) — scope e decisioni di prodotto attive.
 - [`product/GLOSSARY.md`](./product/GLOSSARY.md) — astrazioni di dominio.
-- [`product/pdr/`](./product/pdr/) — decisioni di prodotto (una per file).
+- [`product/pdr/`](./product/pdr/) — decisioni di prodotto (una per file); indice autorevole nel [README](./product/pdr/README.md) della cartella.
 
 ## Sviluppo
 
 - [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — onboarding tecnico.
+- [`development/ENVIRONMENT.md`](./development/ENVIRONMENT.md) — gestione environment, direnv e wrapper `bin/`.
 - [`development/CODING.md`](./development/CODING.md) — regole di codice e convenzioni.
 - [`development/TESTING.md`](./development/TESTING.md) — strategia di test e coverage.
 - [`development/WORKFLOWS.md`](./development/WORKFLOWS.md) — gate, CI/CD, task schedulati.
+- [`development/CODESCENE.md`](./development/CODESCENE.md) — Code Health via MCP (ADR-0006).
 - [`development/SECURITY.md`](./development/SECURITY.md) — supply chain e segreti.
 
 ## Operazioni
@@ -34,4 +36,4 @@ Nessun runbook ancora: si creano in `docs/operations/runbooks/` quando esiste qu
 
 ## Blueprint
 
-- [`init/`](./init/) — il vademecum e le fonti da cui nasce questo boilerplate.   **Congelato**: non va modificato nello sviluppo ordinario e va rimosso nei   progetti derivati (vedi [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md)).
+- [`init/`](./init/) — il vademecum e le fonti da cui nasce questo boilerplate. **Congelato**: non va modificato nello sviluppo ordinario e va rimosso nei progetti derivati (vedi [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md)).

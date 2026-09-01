@@ -16,14 +16,14 @@ Ogni dato esterno (HTTP, environment, file, output LLM, risposte API) va validat
 
 ## Options considered
 
-- **Zod v4** (scelta) — pro: Standard Schema compliant (interoperabile con il   MCP SDK), inferenza eccellente, ecosistema AI-tooling maturo; contro: bundle   non minuscolo lato web (irrilevante a questo perimetro).
-- **Valibot** — pro: footprint minimo, Standard Schema; contro: ecosistema più   giovane. Resta la rivale designata se il bundle size diventasse un requisito.
+- **Zod v4** (scelta) — pro: Standard Schema compliant (interoperabile con il MCP SDK), inferenza eccellente, ecosistema AI-tooling maturo; contro: bundle non minuscolo lato web (irrilevante a questo perimetro).
+- **Valibot** — pro: footprint minimo, Standard Schema; contro: ecosistema più giovane. Resta la rivale designata se il bundle size diventasse un requisito.
 - **TypeBox/ArkType** — non valutate a fondo: nessun requisito le richiede.
 
 ## Consequences
 
-- Nuovo dato esterno ⇒ nuovo schema Zod in `contracts` (o nel composition root   per l'environment), mai `as T` su `JSON.parse`.
-- L'MCP SDK v2 accetta Standard Schema: gli schemi Zod sono riusati così come   sono nei tool.
+- Nuovo dato esterno ⇒ nuovo schema Zod in `contracts` (o nel composition root per l'environment), mai `as T` su `JSON.parse`.
+- L'MCP SDK v2 accetta Standard Schema: gli schemi Zod sono riusati così come sono nei tool.
 - Cambiare libreria richiede una nuova ADR che sostituisce questa.
 
 ## Enforcement

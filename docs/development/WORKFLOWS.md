@@ -12,8 +12,8 @@ Guida per chi non ha familiarità con CI/CD: cosa gira, dove, e perché.
 
 Gli hook versionati in `.githooks/` (attivati da `just setup`) chiamano solo:
 
-- `just precommit` a ogni `git commit` (≤ 10s): format, lint, docs, segreti sullo staged, test correlati ai file in stage.
-- `just prepush` a ogni `git push` (≤ 60s): static analysis completa, integration, smoke, coverage.
+- `just precommit` a ogni `git commit` (≤ 10s): format, lint, shell-check sui wrapper, docs, segreti sullo staged, test correlati ai file in stage.
+- `just prepush` a ogni `git push` (≤ 60s): static analysis completa (incluso shell-check), integration, smoke, coverage.
 
 Mai saltare gli hook (`--no-verify` è vietato; vedi `AGENTS.md`). Se un gate fallisce e non sai rimediare: fermati e riporta il fallimento esatto.
 
@@ -55,9 +55,11 @@ Con cadenza regolare (settimanale o a fine ciclo intenso), chiedi all'agente:
 Esegui la retrospettiva di processo: analizza i gate falliti di recente, le istruzioni di AGENTS.md ignorate o ambigue, i workaround che hai tentato. Proponi in una PR: aggiornamenti mirati di AGENTS.md (rule of thumb: <200 righe, non un gate), regole da promuovere da guida a gate, regole morte da rimuovere.
 ```
 
-## Tool opzionali (MAY, non installati)
+## Tool opzionali (MAY)
 
-Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità continua, duplicazione), CodeCharta/CodeMaat (hotspot da git history, nel health guard), lizard (gate di complessità), Semgrep CE (SAST). Tool pro (Codacy, CodeScene) solo a regime. Riferimenti: vademecum §4 in `docs/init/`.
+**Adottato:** CodeScene via MCP come autorità di Code Health per gli agenti (ADR-0006). Non è un hook git: uso operativo in [`CODESCENE.md`](./CODESCENE.md).
+
+Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità continua, duplicazione), CodeCharta/CodeMaat (hotspot da git history, nel health guard), lizard (gate di complessità), Semgrep CE (SAST). Codacy non è usato: codacy-cli-v2 non supporta TypeScript in locale (parser assente, ESLint fallisce su `.ts`/`.tsx`; verificato 2026-09-01). Riferimenti: vademecum §4 in `docs/init/`.
 
 ## Messaggi di commit
 
