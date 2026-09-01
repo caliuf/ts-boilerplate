@@ -23,6 +23,7 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 ## Sviluppo
 
 - [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — onboarding tecnico.
+- [`development/ENVIRONMENT.md`](./development/ENVIRONMENT.md) — gestione environment, direnv e wrapper `bin/`.
 - [`development/CODING.md`](./development/CODING.md) — regole di codice e convenzioni.
 - [`development/TESTING.md`](./development/TESTING.md) — strategia di test e coverage.
 - [`development/WORKFLOWS.md`](./development/WORKFLOWS.md) — gate, CI/CD, task schedulati.

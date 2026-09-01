@@ -12,14 +12,16 @@ Il caso d'uso dimostrativo è `hello-world`, esposto identico su ogni superficie
 ## Avvio rapido
 
 ```sh
-just setup        # tool (mise), dipendenze (pnpm), hook git, browser Playwright
+just setup        # tool (mise), dipendenze (pnpm), hook git, direnv allow, browser Playwright
 just doctor       # verifica che tutto sia a posto
 just dev          # API su :3100 + web su :5100
 node apps/cli/src/cli.ts hello-world --name Ada
 just ci           # l'intera pipeline, in locale
 ```
 
-Prerequisiti: `just` e `mise` (o le versioni equivalenti installate a mano — vedi [`docs/development/GETTING-STARTED.md`](./docs/development/GETTING-STARTED.md)).
+Dopo `just setup` puoi anche aggiungere `bin/` al PATH e chiamare `project-hello-world` da qualsiasi directory; vedi [`docs/development/ENVIRONMENT.md`](./docs/development/ENVIRONMENT.md).
+
+Prerequisiti: `just`, `mise` e `direnv` (o le versioni equivalenti installate a mano — vedi [`docs/development/GETTING-STARTED.md`](./docs/development/GETTING-STARTED.md)).
 
 ## Adottare il boilerplate per un nuovo progetto
 
@@ -34,6 +36,7 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Come contribuire (umani e agenti) |
 | [`SECURITY.md`](./SECURITY.md) | Segnalazione vulnerabilità |
 | [`justfile`](./justfile) | Unica interfaccia operativa (task runner) |
+| [`bin/`](./bin/) | Wrapper bash per l'uso da PATH globale |
 | [`docs/INDEX.md`](./docs/INDEX.md) | Indice della documentazione |
 | [`docs/PROJECT.md`](./docs/PROJECT.md) | Cos'è il sistema: il primo file che un agente legge |
 | [`docs/architecture/`](./docs/architecture/) | Overview, confini (gate) e ADR |

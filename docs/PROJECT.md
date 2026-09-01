@@ -20,6 +20,8 @@ Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente t
 | --- | --- | --- | --- |
 | CLI | `apps/cli` | `project <subcommand>` (bin) | Un bin, albero di subcommand |
 | API HTTP | `apps/api` | `pnpm --filter @project/api start` | Hono su Node |
+
+La CLI ha anche wrapper bash in `bin/` (`project-*` oggi, `<nome>-*` dopo l'adozione) per l'uso da PATH globale; vedi [`docs/development/ENVIRONMENT.md`](./development/ENVIRONMENT.md).
 | Server MCP | `apps/mcp` | `pnpm --filter @project/mcp start` | Trasporto stdio |
 | Web UI | `apps/web` | `pnpm --filter @project/web dev` | React + Vite |
 

@@ -592,7 +592,11 @@ Il progetto seleziona una sola libreria di schema tramite ADR. Tipi TypeScript e
 
 Per la configurazione: i file `.env` reali sono sempre gitignored; nel repository
 vive un `.env.example` con valori finti ma strutturalmente validi, e l'environment
-viene validato all'avvio tramite lo schema scelto.
+viene validato all'avvio tramite lo schema scelto. Questo boilerplate aggiunge un
+`.env.default` committato come floor caricato sia dal `.envrc` del repo sia dai
+wrapper in `bin/`, un `.envrc` committato che carica `.env.default`, `.env` e
+`.envrc.local`, e wrapper PATH-globali che richiedono direnv. I segreti stanno
+solo in `.env` e `.envrc.local` (gitignored).
 
 ---
 
@@ -614,6 +618,7 @@ viene validato all'avvio tramite lo schema scelto.
 |Markdown|markdownlint|
 |Ortografia|cspell, con glossario di progetto|
 |Link|lychee, preferibilmente nella slow lane|
+|Environment per-directory|direnv (richiesto per i wrapper in `bin/`)|
 |Shell|ShellCheck, se esistono script shell|
 |Container/IaC|Hadolint e Trivy, se applicabili|
 |Qualità continua e quality gate|MAY: SonarQube — vedi *Code health e hotspot*|

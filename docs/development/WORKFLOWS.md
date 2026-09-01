@@ -12,8 +12,8 @@ Guida per chi non ha familiarità con CI/CD: cosa gira, dove, e perché.
 
 Gli hook versionati in `.githooks/` (attivati da `just setup`) chiamano solo:
 
-- `just precommit` a ogni `git commit` (≤ 10s): format, lint, docs, segreti sullo staged, test correlati ai file in stage.
-- `just prepush` a ogni `git push` (≤ 60s): static analysis completa, integration, smoke, coverage.
+- `just precommit` a ogni `git commit` (≤ 10s): format, lint, shell-check sui wrapper, docs, segreti sullo staged, test correlati ai file in stage.
+- `just prepush` a ogni `git push` (≤ 60s): static analysis completa (incluso shell-check), integration, smoke, coverage.
 
 Mai saltare gli hook (`--no-verify` è vietato; vedi `AGENTS.md`). Se un gate fallisce e non sai rimediare: fermati e riporta il fallimento esatto.
 

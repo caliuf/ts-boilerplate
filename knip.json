@@ -4,6 +4,7 @@
     ".": {
       "entry": ["tools/scripts/**/*.ts"],
       "project": ["tools/**/*.ts"],
+      "ignoreBinaries": ["direnv"],
       "ignoreDependencies": [
         "@biomejs/biome",
         "cspell",
@@ -14,7 +15,8 @@
       ]
     },
     "tests": {
-      "entry": ["integration/**/*.test.ts", "e2e/**/*.spec.ts"]
+      "entry": ["integration/**/*.test.ts", "e2e/**/*.spec.ts"],
+      "ignoreBinaries": ["direnv"]
     }
   }
 }

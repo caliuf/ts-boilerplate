@@ -15,6 +15,7 @@ Il boilerplate deve dimostrare — con il minimo contenuto possibile — il patt
 
 - Il caso d'uso `sayHello` accetta un nome opzionale (stringa, senza spazi ai bordi, 1–100 caratteri; default `world`) e restituisce `{ message: "Hello, <name>!" }`.
 - Superfici e naming parallelo: `project hello-world [--name]` (CLI), `GET /api/hello-world?name=` (API), tool `hello_world` (MCP, read-only), pagina greeting con `useHelloWorld` (UI).
+- Sul CLI il default del nome segue la precedenza: `--name` > variabile d'ambiente `HELLO_WORLD_NAME` > default `world` dello schema Zod. Una variabile vuota o solo-spazi conta come assente.
 - Errori: input non valido → `VALIDATION` (exit 2 / HTTP 400 Problem Details / tool error).
 - La UI è interamente usabile da tastiera (Invio nel campo = submit).
 
@@ -31,6 +32,8 @@ Il boilerplate deve dimostrare — con il minimo contenuto possibile — il patt
 ## Acceptance criteria
 
 - [x] `project hello-world` stampa `Hello, world!` (JSON su stdout in pipe).
+- [x] `project hello-world` onora l'ordine di precedenza `--name` > `HELLO_WORLD_NAME` > default `world`.
+- [x] `bin/project-hello-world` funziona da qualsiasi directory, con env caricato via direnv, ed è coperto da integration test.
 - [x] `GET /api/hello-world` risponde 200 con il greeting; input invalido → 400 `application/problem+json`.
 - [x] Il tool MCP `hello_world` restituisce `structuredContent` con il greeting.
 - [x] La pagina web mostra il greeting via API, usabile da tastiera.

@@ -21,6 +21,11 @@ setup:
       echo "⚠️  mise not found — install the tools pinned in .mise.toml manually (see docs/development/GETTING-STARTED.md)"
     fi
     pnpm install
+    if command -v direnv >/dev/null 2>&1; then
+      direnv allow .
+    else
+      echo "⚠️  direnv not found — authorize the .envrc manually after installing it (see docs/development/ENVIRONMENT.md)"
+    fi
     git config core.hooksPath .githooks
     pnpm --filter @project/tests exec playwright install chromium
 
@@ -119,6 +124,16 @@ secrets:
       echo "⚠️  gitleaks not found — skipping secrets scan (blocking in CI; run \`mise install\`)"
     fi
 
+# Shell script lint (blocking in CI). -x follows sourced files from bin/.
+shell-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v shellcheck >/dev/null 2>&1; then
+      shellcheck -x bin/*
+    else
+      echo "⚠️  shellcheck not found — skipping shell lint (blocking in CI; run \`mise install\`)"
+    fi
+
 # --- tests -----------------------------------------------------------------------
 
 # Small specialist unit suite
@@ -202,6 +217,7 @@ precommit:
     just codescene-safeguard
     just format-check
     just lint
+    just shell-check
     just docs-check
     if command -v gitleaks >/dev/null 2>&1; then
       gitleaks git --staged --redact --no-banner .
@@ -222,6 +238,7 @@ prepush:
     fi
     just format-check
     just lint
+    just shell-check
     just typecheck
     just dead-code
     just arch
@@ -235,7 +252,7 @@ prepush:
     just coverage
 
 # Exact local replica of the CI pipeline
-ci: format-check lint typecheck dead-code arch docs-check workflows-check secrets
+ci: format-check lint shell-check typecheck dead-code arch docs-check workflows-check secrets
     just test-unit
     just test-integration
     just coverage

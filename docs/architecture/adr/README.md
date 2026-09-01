@@ -10,3 +10,4 @@ Decisioni architetturali del progetto, create con il comando `/create-adr`.
 | [0004](0004-tassonomia-errori-exit-codes.md) | Tassonomia errori condivisa ed exit code della CLI | active |
 | [0005](0005-ci-consolidata.md) | CI consolidata: un solo workflow per push/PR, security in slow lane settimanale | active |
 | [0006](0006-codescene-mcp.md) | CodeScene MCP come autorità di Code Health per gli agenti | active |
+| [0007](0007-wrapper-cli-bin-direnv.md) | Wrapper CLI in bin/ e gestione environment con direnv | active |

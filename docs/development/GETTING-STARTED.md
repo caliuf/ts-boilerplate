@@ -9,6 +9,7 @@ Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: 
 | Node.js | vedi `.node-version` | `mise install` (consigliato) |
 | pnpm | vedi `packageManager` in `package.json` | `mise install` |
 | just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
+| direnv | vedi `.mise.toml` | `mise install` (richiesto per i wrapper in `bin/`) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
 
 Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning.
@@ -25,7 +26,7 @@ just doctor
 just setup
 ```
 
-Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`) e i browser Playwright (chromium).
+Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`), autorizza il `.envrc` con direnv e i browser Playwright (chromium).
 
 ```sh
 just pull
@@ -40,7 +41,7 @@ just dev          # API (:3100) + web (:5100) in parallelo
 node apps/cli/src/cli.ts hello-world --name Ada
 ```
 
-Configurazione: copia `.env.example` in `.env` (opzionale, tutti i default funzionano). L'environment è validato all'avvio da ogni composition root.
+Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per la catena di caricamento di `.env.default`, `.env` e `.envrc.local`. L'environment è validato all'avvio da ogni composition root.
 
 ## Recipe
 
@@ -68,6 +69,7 @@ Configurazione: copia `.env.example` in `.env` (opzionale, tutti i default funzi
 | `just docs-check` | Markdown, spelling, link locali |
 | `just workflows-check` | actionlint e zizmor |
 | `just secrets` | Gitleaks sul working tree |
+| `just shell-check` | Shellcheck sui wrapper in `bin/` |
 
 ### Test
 
@@ -112,6 +114,10 @@ Code Health (agenti, via MCP): [`CODESCENE.md`](./CODESCENE.md). Non sostituisce
 ## Mappa delle cartelle
 
 ```text
+bin/            Wrapper bash per il PATH globale (`<bin>-<comando>`)
+.envrc          direnv del repo (carica `.env.default`, `.env`, `.envrc.local`)
+.env.default    Floor di environment committato (mai segreti)
+.env.example    Template per `.env` (non caricato)
 apps/cli        CLI (un bin, subcommand in src/commands/<nome>.ts)
 apps/api        API HTTP (Hono; route in src/routes/)
 apps/mcp        server MCP stdio (tool in src/tools/)

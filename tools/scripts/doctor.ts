@@ -87,6 +87,24 @@ try {
   fail("git hooks", "core.hooksPath not set — run `just setup`");
 }
 
+// --- direnv ------------------------------------------------------------------
+const direnvPath = hasBinary("direnv");
+if (!direnvPath) {
+  fail(
+    "direnv",
+    "not found — required by bin/ wrappers; run `mise install` or see docs/development/ENVIRONMENT.md",
+  );
+} else {
+  ok("direnv", versionOf("direnv version"));
+}
+
+try {
+  execFileSync("direnv", ["exec", ".", "true"], { encoding: "utf8", stdio: "pipe" });
+  ok(".envrc", "allowed");
+} catch {
+  warn(".envrc", "blocked — run `direnv allow`");
+}
+
 // --- external gate tools -----------------------------------------------------
 // These are blocking in CI. Locally a missing tool downgrades its recipe to a
 // warning, but do not let that become an habit: install them via mise.
