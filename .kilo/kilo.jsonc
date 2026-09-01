@@ -1,0 +1,13 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "codescene": {
+      "type": "local",
+      "command": ["npx", "-y", "@codescene/codehealth-mcp"],
+      "enabled": true,
+      "environment": {
+        "CS_DEFAULT_PROJECT_ID": "83744"
+      }
+    }
+  }
+}

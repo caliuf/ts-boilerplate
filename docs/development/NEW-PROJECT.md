@@ -31,21 +31,29 @@ grep -rln "@project" --include="*.json" --include="*.ts" . | grep -v node_module
 
 Cose da rinominare (prompt pronto):
 
+- scope npm `@project` → `@<nome>` in package.json e import;
+- bin della CLI `project` → `<nome>` (`apps/cli/package.json`, help in `cli.ts`);
+- prefisso URN `urn:project:` in `packages/contracts`;
+- nome del server MCP in `apps/mcp/src/create-server.ts`;
+- titolo in `apps/web/index.html` e `name` nel `package.json` radice;
+- prefisso dei wrapper in `bin/` (`project-*` → `<nome>-*`) e commento `META` nello script.
+
 ```text
 Adotta il boilerplate per il progetto "<NOME>": rinomina lo scope npm
 `@project` in `@<nome>` in tutti i package.json e import, il bin della CLI da
 `project` a `<nome>` (apps/cli/package.json, help in cli.ts), il prefisso URN
 `urn:project:` in packages/contracts, il nome del server MCP in
 apps/mcp/src/create-server.ts, il titolo in apps/web/index.html e il name nel
-package.json radice. Risolvi tutti i commenti `META:` che riguardano nomi.
-Aggiorna docs/PROJECT.md di conseguenza. Chiudi con `just ci` verde.
+package.json radice, e i file in `bin/` da `project-*` a `<nome>-*`. Risolvi tutti
+i commenti `META:` che riguardano nomi. Aggiorna docs/PROJECT.md di conseguenza.
+Chiudi con `just ci` verde.
 ```
 
 ## 3. Descrivi il TUO progetto (la parte che decide l'umano)
 
 Compila, anche a mano o dettandoli all'agente:
 
-1. `docs/PROJECT.md` — obiettivo, non-obiettivi, superfici reali, servizi    esterni. È il primo file che ogni agente legge.
+1. `docs/PROJECT.md` — obiettivo, non-obiettivi, superfici reali, servizi esterni. È il primo file che ogni agente legge.
 2. `docs/product/GLOSSARY.md` — le prime astrazioni di dominio.
 3. Prima PDR `proposed` se hai già regole di prodotto.
 
@@ -95,8 +103,8 @@ gh repo create <nome> --private --source . --push
 
 Poi, in *Settings* (o via API):
 
-1. **Code security**: abilita Dependabot alerts, Dependabot security updates,    secret scanning e push protection.
-2. **Rules → Rulesets** su `main`: require pull request, status check    obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`,    `bun-compatibility`, `e2e`), block force pushes, squash merge, require    review from Code Owners.
+1. **Code security**: abilita Dependabot alerts, Dependabot security updates, secret scanning e push protection.
+2. **Rules → Rulesets** su `main`: require pull request, status check obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`), block force pushes, squash merge, require review from Code Owners.
 3. Niente altro: i workflow partono da soli al primo push.
 
 Prompt pronto (l'agente userà `gh api` dove serve):
@@ -134,10 +142,11 @@ feature applicative.
 ## Checklist finale di adozione
 
 - [ ] `just doctor` tutto ✅
-- [ ] placeholder rinominati (`@project`, `project`, `urn:project:`, `META:`)
+- [ ] placeholder rinominati (`@project`, `project`, `urn:project:`, `bin/project-*`, `META:`)
 - [ ] `docs/PROJECT.md` descrive il TUO progetto
 - [ ] app/superflue rimosse; `just ci` verde
 - [ ] `hello-world` sostituito dal primo caso d'uso reale
 - [ ] repo GitHub creato, security settings e ruleset attivi
 - [ ] prima esecuzione di `scheduled.yml` verificata
+- [ ] CodeScene: progetto Cloud proprio e id aggiornato in `.kilo/kilo.jsonc` + `docs/development/CODESCENE.md` (non riusare `83744`)
 - [ ] questo file e `docs/init/` cancellati

@@ -6,20 +6,22 @@ Il caso d'uso dimostrativo è `hello-world`, esposto identico su ogni superficie
 
 ## Per chi è
 
-- **Umani** che iniziano un progetto TypeScript (script, CLI, servizi, web   app) e vogliono delegare l'implementazione ad agenti AI senza perdere il   controllo sulla qualità nel tempo.
-- **Agenti AI**, che trovano qui istruzioni machine-oriented (`AGENTS.md`),   confini applicati da gate deterministici e documentazione gerarchica.
+- **Umani** che iniziano un progetto TypeScript (script, CLI, servizi, web app) e vogliono delegare l'implementazione ad agenti AI senza perdere il controllo sulla qualità nel tempo.
+- **Agenti AI**, che trovano qui istruzioni machine-oriented (`AGENTS.md`), confini applicati da gate deterministici e documentazione gerarchica.
 
 ## Avvio rapido
 
 ```sh
-just setup        # tool (mise), dipendenze (pnpm), hook git, browser Playwright
+just setup        # tool (mise), dipendenze (pnpm), hook git, direnv allow, browser Playwright
 just doctor       # verifica che tutto sia a posto
 just dev          # API su :3100 + web su :5100
 node apps/cli/src/cli.ts hello-world --name Ada
 just ci           # l'intera pipeline, in locale
 ```
 
-Prerequisiti: `just` e `mise` (o le versioni equivalenti installate a mano — vedi [`docs/development/GETTING-STARTED.md`](./docs/development/GETTING-STARTED.md)).
+Dopo `just setup` puoi anche aggiungere `bin/` al PATH e chiamare `project-hello-world` da qualsiasi directory; vedi [`docs/development/ENVIRONMENT.md`](./docs/development/ENVIRONMENT.md).
+
+Prerequisiti: `just`, `mise` e `direnv` (o le versioni equivalenti installate a mano — vedi [`docs/development/GETTING-STARTED.md`](./docs/development/GETTING-STARTED.md)).
 
 ## Adottare il boilerplate per un nuovo progetto
 
@@ -34,6 +36,7 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Come contribuire (umani e agenti) |
 | [`SECURITY.md`](./SECURITY.md) | Segnalazione vulnerabilità |
 | [`justfile`](./justfile) | Unica interfaccia operativa (task runner) |
+| [`bin/`](./bin/) | Wrapper bash per l'uso da PATH globale |
 | [`docs/INDEX.md`](./docs/INDEX.md) | Indice della documentazione |
 | [`docs/PROJECT.md`](./docs/PROJECT.md) | Cos'è il sistema: il primo file che un agente legge |
 | [`docs/architecture/`](./docs/architecture/) | Overview, confini (gate) e ADR |
@@ -56,7 +59,7 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 ## Il modello: Guides, Gates, Guards
 
 1. **Guides** corte e vive (`AGENTS.md` < 200 righe come rule of thumb, non gate; docs gerarchiche).
-2. **Gates** deterministici a cricchetto: typecheck, lint type-aware,    formattazione, dead code, architettura, segreti, test, coverage — in locale    prima che in CI, mai aggirabili.
+2. **Gates** deterministici a cricchetto: typecheck, lint type-aware, formattazione, dead code, architettura, segreti, test, coverage — in locale prima che in CI, mai aggirabili.
 3. **Guards** schedulati e report-only: creano task invece di codice.
 
 L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**. Le regole complete: [`docs/init/Vademecum Typescript.md`](./docs/init/Vademecum%20Typescript.md) (blueprint di origine; nei progetti derivati basta `AGENTS.md` + `docs/`).

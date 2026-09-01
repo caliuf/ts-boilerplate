@@ -16,15 +16,15 @@ Il vademecum suggerisce workflow separati (`ci.yml`, `e2e.yml`, `security.yml`).
 
 ## Options considered
 
-- **Workflow unico + security settimanale** (scelta) — pro: un run per evento,   status check più semplici da configurare nel ruleset, nessun minuto sprecato   su job che si auto-escludono; contro: un fallimento E2E flaky marca rossa   l'intera CI (mitigato dai retry di Playwright in CI).
-- **Struttura separata del vademecum** — pro: rerun isolato dell'E2E, blast   radius minimo tra workflow; contro: tre run per push, rumore e costo su un   progetto piccolo.
-- **Tenere security.yml su push/PR** — scartato: i segreti sono già gate in   pre-commit/prepush (staged e working tree); la storia non cambia a ogni   push in modo rilevante.
+- **Workflow unico + security settimanale** (scelta) — pro: un run per evento, status check più semplici da configurare nel ruleset, nessun minuto sprecato su job che si auto-escludono; contro: un fallimento E2E flaky marca rossa l'intera CI (mitigato dai retry di Playwright in CI).
+- **Struttura separata del vademecum** — pro: rerun isolato dell'E2E, blast radius minimo tra workflow; contro: tre run per push, rumore e costo su un progetto piccolo.
+- **Tenere security.yml su push/PR** — scartato: i segreti sono già gate in pre-commit/prepush (staged e working tree); la storia non cambia a ogni push in modo rilevante.
 
 ## Consequences
 
-- I nomi dei job richiesti dal ruleset non cambiano (`e2e` resta `e2e`,   ora dentro `ci.yml`).
-- Quando il progetto cresce (E2E lunghi, flaky o matrice browser), valutare il   ritorno a un `e2e.yml` separato con una nuova ADR.
-- Su repo pubblico o con GHAS: rimuovere le condizioni `if` su `codeql` e   `dependency-review` per attivarli a pieno regime.
+- I nomi dei job richiesti dal ruleset non cambiano (`e2e` resta `e2e`, ora dentro `ci.yml`).
+- Quando il progetto cresce (E2E lunghi, flaky o matrice browser), valutare il ritorno a un `e2e.yml` separato con una nuova ADR.
+- Su repo pubblico o con GHAS: rimuovere le condizioni `if` su `codeql` e `dependency-review` per attivarli a pieno regime.
 
 ## Enforcement
 

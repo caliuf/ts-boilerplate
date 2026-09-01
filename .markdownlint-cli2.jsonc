@@ -18,6 +18,7 @@
     "coverage/**",
     "**/dist/**",
     ".codegraph/**",
+    ".github/instructions/**",
     "CHANGELOG.md"
   ],
   "globs": ["**/*.md"]

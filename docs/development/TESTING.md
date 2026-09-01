@@ -19,21 +19,21 @@ Ogni test è: isolato, deterministico, veloce, comportamentale (comportamento os
 | E2E (pochi, alto valore) | `tests/e2e/` | `just test-e2e` |
 | Live (servizi reali/LLM) | `tests/live/` (quando esistono) | `just test-live` |
 
-- Integration: casi d'uso attraverso l'API pubblica, con adapter reali; mock   solo ai confini esterni (qui: nessuno — il `Logger` ha un adapter in-memory   in `testkit`). La suite `cli-contract.test.ts` itera il registry e verifica   `--help`, `--json`, exit code e separazione degli stream per OGNI comando:   i comandi nuovi la ereditano gratis.
-- UI: non mockare la UI; renderizzare flussi reali, interazioni da tastiera,   HTTP al più finto al confine (MSW/fake server).
-- E2E: journey critici; Playwright conserva trace/screenshot solo sui   fallimenti.
+- Integration: casi d'uso attraverso l'API pubblica, con adapter reali; mock solo ai confini esterni (qui: nessuno — il `Logger` ha un adapter in-memory in `testkit`). La suite `cli-contract.test.ts` itera il registry e verifica `--help`, `--json`, exit code e separazione degli stream per OGNI comando: i comandi nuovi la ereditano gratis.
+- UI: non mockare la UI; renderizzare flussi reali, interazioni da tastiera, HTTP al più finto al confine (MSW/fake server).
+- E2E: journey critici; Playwright conserva trace/screenshot solo sui fallimenti.
 
 ## Coverage: guardrail a cricchetto
 
 - Soglie versionate in `coverage-thresholds.json` (protetto da CODEOWNERS).
-- Possono solo **salire**: `just coverage-raise` le allinea al valore corrente   dopo un miglioramento. Abbassarle è aggiramento del gate.
-- Esclusioni documentate in `vitest.config.ts` (composition root: coperti da   test a subprocess; web: coperto da E2E).
+- Possono solo **salire**: `just coverage-raise` le allinea al valore corrente dopo un miglioramento. Abbassarle è aggiramento del gate.
+- Esclusioni documentate in `vitest.config.ts` (composition root: coperti da test a subprocess; web: coperto da E2E).
 - Niente test senza valore per coprire una riga.
 
 ## Regole per feature e bug fix
 
-- Feature: happy path, errori previsti, boundary case, permessi,   retry/idempotenza dove rilevanti.
-- Bug fix: riproduci con test fallente → fix → verifica il caso originale e   quelli adiacenti. Zero-bugs policy: i bug hanno priorità sulle feature.
+- Feature: happy path, errori previsti, boundary case, permessi, retry/idempotenza dove rilevanti.
+- Bug fix: riproduci con test fallente → fix → verifica il caso originale e quelli adiacenti. Zero-bugs policy: i bug hanno priorità sulle feature.
 
 ## Prompt di esempio
 

@@ -19,6 +19,7 @@
     "tmp/**",
     "coverage/**",
     "**/dist/**",
-    "agent-docs/**"
+    "agent-docs/**",
+    ".github/instructions/**"
   ]
 }

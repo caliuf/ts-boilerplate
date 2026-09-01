@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# META: `project` is the placeholder CLI bin name for this boilerplate.
+# This wrapper follows the convention `<bin-cli>-<command>` and will be renamed
+# alongside the other placeholders when the boilerplate is adopted.
+
+# Resolve the script path, following symlinks portably (no GNU readlink -f).
+script_path="$0"
+while [ -L "$script_path" ]; do
+  link_dir=$(cd "$(dirname "$script_path")" && pwd)
+  script_path=$(readlink "$script_path")
+  case "$script_path" in
+    /*) ;;
+    *) script_path="$link_dir/$script_path" ;;
+  esac
+done
+repo_root=$(cd "$(dirname "$script_path")/.." && pwd)
+
+require_binary() {
+  local name="$1"
+  local hint="$2"
+  if ! command -v "$name" >/dev/null 2>&1; then
+    echo "Error: '$name' is required but not found in PATH." >&2
+    echo "Install the pinned toolchain with: mise install" >&2
+    echo "Or see: $hint" >&2
+    exit 1
+  fi
+}
+
+require_binary "node" "docs/development/ENVIRONMENT.md"
+require_binary "direnv" "docs/development/ENVIRONMENT.md"
+
+# Apply the committed environment floor before delegating to direnv.
+set -a
+# shellcheck source=.env.default
+source "$repo_root/.env.default"
+set +a
+
+# Preflight: ensure direnv can load the caller's directory (walk-up envrc/env).
+if ! direnv exec "$PWD" true >/dev/null 2>&1; then
+  echo "Error: direnv cannot load the environment for $(pwd)." >&2
+  echo "If the directory has an .envrc, authorize it with: direnv allow $(pwd)" >&2
+  echo "See: docs/development/ENVIRONMENT.md" >&2
+  exit 1
+fi
+
+exec direnv exec "$PWD" node "$repo_root/apps/cli/src/cli.ts" hello-world "$@"

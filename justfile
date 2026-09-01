@@ -21,6 +21,11 @@ setup:
       echo "⚠️  mise not found — install the tools pinned in .mise.toml manually (see docs/development/GETTING-STARTED.md)"
     fi
     pnpm install
+    if command -v direnv >/dev/null 2>&1; then
+      direnv allow .
+    else
+      echo "⚠️  direnv not found — authorize the .envrc manually after installing it (see docs/development/ENVIRONMENT.md)"
+    fi
     git config core.hooksPath .githooks
     pnpm --filter @project/tests exec playwright install chromium
 
@@ -119,6 +124,16 @@ secrets:
       echo "⚠️  gitleaks not found — skipping secrets scan (blocking in CI; run \`mise install\`)"
     fi
 
+# Shell script lint (blocking in CI). -x follows sourced files from bin/.
+shell-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v shellcheck >/dev/null 2>&1; then
+      shellcheck -x bin/*
+    else
+      echo "⚠️  shellcheck not found — skipping shell lint (blocking in CI; run \`mise install\`)"
+    fi
+
 # --- tests -----------------------------------------------------------------------
 
 # Small specialist unit suite
@@ -177,6 +192,18 @@ guards:
 
 # --- gates -----------------------------------------------------------------------
 
+# CodeScene Code Health gate on staged/modified files (local, fresh data)
+codescene-safeguard:
+    python3 .kilo/scripts/codescene-gate.py staged
+
+# CodeScene Code Health gate on the branch change-set vs a base ref (local, fresh data)
+codescene-changeset base="origin/main":
+    python3 .kilo/scripts/codescene-gate.py changeset --base-ref {{base}}
+
+# CodeScene Code Health ratchet gate (project-level Hotspot and Average floors)
+codescene-ratchet:
+    tools/scripts/codescene-ratchet.sh
+
 # Fast checks on staged/related files (pre-commit hook)
 precommit:
     #!/usr/bin/env bash
@@ -187,8 +214,10 @@ precommit:
       just workflows-check
       exit 0
     fi
+    just codescene-safeguard
     just format-check
     just lint
+    just shell-check
     just docs-check
     if command -v gitleaks >/dev/null 2>&1; then
       gitleaks git --staged --redact --no-banner .
@@ -209,19 +238,21 @@ prepush:
     fi
     just format-check
     just lint
+    just shell-check
     just typecheck
     just dead-code
     just arch
     just docs-check
     just workflows-check
     just secrets
+    just codescene-changeset
     just test-unit
     just test-integration
     just smoke
     just coverage
 
 # Exact local replica of the CI pipeline
-ci: format-check lint typecheck dead-code arch docs-check workflows-check secrets
+ci: format-check lint shell-check typecheck dead-code arch docs-check workflows-check secrets
     just test-unit
     just test-integration
     just coverage
