@@ -11,11 +11,21 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 # version from the .mise.toml found walking up from the recipe cwd. If the
 # directory does not exist (tools installed by hand) the extra PATH entry is a
 # no-op and recipes fall back to the ambient PATH.
+
 export PATH := env_var('HOME') / ".local/share/mise/shims" + ":" + env_var('PATH')
 
 # Docs-only fast path (Vademecum §5): the exact, complete list of path
 # patterns. Protected by CODEOWNERS. A mixed diff always takes the full path.
+
 DOCS_ONLY_PATTERNS := "^docs/ ^README\\.md$ ^AGENTS\\.md$ ^CLAUDE\\.md$ ^GEMINI\\.md$ ^CONTRIBUTING\\.md$ ^SECURITY\\.md$ ^CHANGELOG\\.md$ ^\\.github/workflows/ ^\\.githooks/"
+
+# Flags colore per i tool che ignorano FORCE_COLOR, attivi solo quando
+# tools/scripts/run-checks.sh esporta RUN_CHECKS_COLORS=1 (gate su terminale
+# interattivo senza NO_COLOR). Valutati dai just annidati dei gate; nelle
+# esecuzioni standalone la variabile non c'è e il TTY basta da solo.
+
+BIOME_COLORS := if env_var_or_default("RUN_CHECKS_COLORS", "") == "1" { "--colors=force" } else { "" }
+TSC_PRETTY := if env_var_or_default("RUN_CHECKS_COLORS", "") == "1" { "--pretty" } else { "" }
 
 # --- lifecycle -----------------------------------------------------------------
 
@@ -73,6 +83,36 @@ pull:
 doctor:
     node tools/scripts/doctor.ts
 
+# Run a command with the pinned Node toolchain from .mise.toml. Use this
+# when a recipe or script must invoke node deterministically. mise exec
+# resolves the shim from .mise.toml; in environments without mise (CI
+# images, scratch containers) the recipe falls back to the node already
+# in PATH and asserts it matches the pinned major. Misalignment fails
+# loudly instead of silently running a different runtime.
+[positional-arguments]
+node *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    pinned=$(awk -F'=' '/^node[[:space:]]*=/{gsub(/[" ]/,"",$2); print $2; exit}' .mise.toml)
+    if [ -z "$pinned" ]; then
+      echo "❌ no `node` pin found in .mise.toml" >&2
+      exit 1
+    fi
+    pinned_major="${pinned%%.*}"
+    if command -v mise >/dev/null 2>&1; then
+      exec mise exec -- node "$@"
+    fi
+    if ! command -v node >/dev/null 2>&1; then
+      echo "❌ node not found in PATH and mise is not installed — install one of them (see docs/development/GETTING-STARTED.md)" >&2
+      exit 1
+    fi
+    actual_major=$(node -p 'process.versions.node.split(".")[0]')
+    if [ "$actual_major" != "$pinned_major" ]; then
+      echo "❌ node $actual_major in PATH but .mise.toml pins $pinned (major mismatch) — install mise or the matching Node" >&2
+      exit 1
+    fi
+    exec node "$@"
+
 # Start API + web dev servers
 dev:
     pnpm --parallel --filter @project/api --filter @project/web run dev
@@ -85,11 +125,14 @@ fix:
 
 # Verify formatting and import organization
 format-check:
-    pnpm exec biome check .
+    pnpm exec biome check {{ BIOME_COLORS }} .
 
-# Full typecheck
+# Full typecheck (TSC_PRETTY vale solo per il typecheck di root; l'output
+# per-package via pnpm -r resta plain, come già prima dei gate paralleli,
+
+# perché pnpm lo incapsula in pipe)
 typecheck:
-    pnpm exec tsc -p tsconfig.json
+    pnpm exec tsc -p tsconfig.json {{ TSC_PRETTY }}
     pnpm -r --if-present run typecheck
 
 # Type-aware lint
@@ -139,6 +182,16 @@ secrets:
       gitleaks dir --redact --no-banner .
     else
       echo "⚠️  gitleaks not found — skipping secrets scan (blocking in CI; run \`mise install\`)"
+    fi
+
+# Secrets scan of the staged diff only (pre-commit hook)
+secrets-staged:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v gitleaks >/dev/null 2>&1; then
+      gitleaks git --staged --redact --no-banner .
+    else
+      echo "⚠️  gitleaks not found — skipping staged secrets scan (blocking in CI; run \`mise install\`)"
     fi
 
 # Shell script lint (blocking in CI). -x follows sourced files from bin/.
@@ -209,6 +262,16 @@ guards:
     node tools/scripts/guards.ts
 
 # --- gates -----------------------------------------------------------------------
+# precommit/prepush eseguono i check via tools/scripts/run-checks.sh:
+# - con GNU parallel i check girano in parallelo ma stdout/stderr restano
+#   raggruppati per comando nell'ordine originale; senza, tornano sequenziali
+#   (parallel è un'accelerazione opzionale, non pinnabile via mise);
+# - fail-late: tutti i check girano sempre anche dopo un fallimento e il gate
+#   fallisce alla fine, così un solo giro riporta tutti i problemi;
+# - su terminale interattivo i colori dei tool sono forzati (FORCE_COLOR,
+#   JUST_COLOR, RUN_CHECKS_COLORS); con NO_COLOR settata o output su pipe
+#   l'output resta plain (meno ANSI, meno token per gli agenti);
+# - su whoami=caio i check girano sotto nice -n 19 (mai in CI).
 
 # CodeScene Code Health gate on staged/modified files (local, fresh data)
 codescene-safeguard:
@@ -216,7 +279,7 @@ codescene-safeguard:
 
 # CodeScene Code Health gate on the branch change-set vs a base ref (local, fresh data)
 codescene-changeset base="origin/main":
-    python3 .kilo/scripts/codescene-gate.py changeset --base-ref {{base}}
+    python3 .kilo/scripts/codescene-gate.py changeset --base-ref {{ base }}
 
 # CodeScene Code Health ratchet gate (project-level Hotspot and Average floors)
 codescene-ratchet:
@@ -226,48 +289,55 @@ codescene-ratchet:
 precommit:
     #!/usr/bin/env bash
     set -euo pipefail
-    scope=$(node tools/scripts/diff-scope.ts --staged {{DOCS_ONLY_PATTERNS}})
+    scope=$(node tools/scripts/diff-scope.ts --staged {{ DOCS_ONLY_PATTERNS }})
     if [ "$scope" = "docs-only" ]; then
-      just docs-check
-      just workflows-check
+      tools/scripts/run-checks.sh "just docs-check" "just workflows-check"
       exit 0
     fi
-    just codescene-safeguard
-    just format-check
-    just lint
-    just shell-check
-    just docs-check
-    if command -v gitleaks >/dev/null 2>&1; then
-      gitleaks git --staged --redact --no-banner .
-    else
-      echo "⚠️  gitleaks not found — skipping staged secrets scan (blocking in CI; run \`mise install\`)"
-    fi
-    just test-related
+    # Tutti i check sono read-only: nessun ordine di dipendenza, solo ordine di stampa.
+    tools/scripts/run-checks.sh \
+      "just codescene-safeguard" \
+      "just format-check" \
+      "just lint" \
+      "just shell-check" \
+      "just docs-check" \
+      "just secrets-staged" \
+      "just test-related"
 
 # Static analysis and main integration suites (pre-push hook)
 prepush:
     #!/usr/bin/env bash
     set -euo pipefail
-    scope=$(node tools/scripts/diff-scope.ts --prepush {{DOCS_ONLY_PATTERNS}})
+    scope=$(node tools/scripts/diff-scope.ts --prepush {{ DOCS_ONLY_PATTERNS }})
     if [ "$scope" = "docs-only" ]; then
-      just docs-check
-      just workflows-check
+      tools/scripts/run-checks.sh "just docs-check" "just workflows-check"
       exit 0
     fi
-    just format-check
-    just lint
-    just shell-check
-    just typecheck
-    just dead-code
-    just arch
-    just docs-check
-    just workflows-check
-    just secrets
-    just codescene-changeset
-    just test-unit
-    just test-integration
-    just smoke
-    just coverage
+    # Fail-late anche fra le onde: se l'analisi statica fallisce le suite di
+    # test girano comunque, così un solo giro riporta tutti i problemi.
+    rc=0
+    # Onda 1: analisi statica, tutta read-only (biome, oxlint, shellcheck, tsc
+    # --noEmit, knip, depcruise, markdownlint, cspell, lychee, actionlint,
+    # zizmor, gitleaks, CodeScene).
+    tools/scripts/run-checks.sh \
+      "just format-check" \
+      "just lint" \
+      "just shell-check" \
+      "just typecheck" \
+      "just dead-code" \
+      "just arch" \
+      "just docs-check" \
+      "just workflows-check" \
+      "just secrets" \
+      "just codescene-changeset" || rc=1
+    # Onda 2: suite vitest in parallelo fra loro, ma separate dall'onda statica
+    # per non contendere CPU con le scansioni whole-repo (tsc, knip, depcruise).
+    tools/scripts/run-checks.sh \
+      "just test-unit" \
+      "just test-integration" \
+      "just smoke" \
+      "just coverage" || rc=1
+    exit "$rc"
 
 # Exact local replica of the CI pipeline
 ci: format-check lint shell-check typecheck dead-code arch docs-check workflows-check secrets

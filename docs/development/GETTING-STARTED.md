@@ -14,8 +14,9 @@ Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: 
 | direnv | vedi `.mise.toml` | `mise install` (richiesto per i wrapper in `bin/`) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
 | codegraph | ≥ 1.5 | `npm install -g @colbymchenry/codegraph` (non gestito da mise) |
+| GNU parallel | qualunque recente | package manager di sistema (es. `apt install parallel`); opzionale, non gestito da mise |
 
-Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning.
+Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning. GNU parallel è l'unica eccezione: è un'accelerazione opzionale di `precommit`/`prepush` e la sua assenza non produce warning, solo un'esecuzione sequenziale.
 
 Verifica sempre con:
 
@@ -72,6 +73,7 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | `just docs-check` | Markdown, spelling, link locali |
 | `just workflows-check` | actionlint e zizmor |
 | `just secrets` | Gitleaks sul working tree |
+| `just secrets-staged` | Gitleaks sul solo diff in stage (pre-commit hook) |
 | `just shell-check` | Shellcheck sui wrapper in `bin/` |
 
 ### Test
@@ -98,6 +100,8 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | `just ci` | Esatta pipeline CI in locale | ≤ 10min |
 
 Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check`).
+
+I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: con GNU parallel installato sono eseguiti in parallelo (uno slot per core) ma stdout/stderr restano raggruppati per comando nell'ordine originale della lista; senza, tornano sequenziali. I gate sono fail-late: tutti i check girano sempre, anche dopo un fallimento, e il gate fallisce alla fine — un solo giro mostra tutti i problemi. Su terminale interattivo i colori dei tool sono forzati (`FORCE_COLOR`, `JUST_COLOR`, più i flag dedicati di biome e tsc); con `NO_COLOR` settata (anche vuota, es. `NO_COLOR= just prepush`) o con output su pipe/redirect l'output resta plain, senza ANSI — consigliato agli agenti per risparmiare token. Sulla macchina di sviluppo principale (`whoami` = caio) i check girano sotto `nice -n 19`; in CI mai. `RUN_CHECKS_SEQUENTIAL=1` forza il percorso sequenziale anche con parallel installato.
 
 ## Test e debug
 
@@ -131,7 +135,7 @@ packages/adapter-pino adapter Logger → pino
 packages/testkit      doppioni di test (mai in produzione)
 tests/integration     suite principale (contratto CLI, API, MCP, smoke)
 tests/e2e             flussi Playwright
-tools/scripts         doctor, diff-scope, coverage-raise, guards, bun-smoke
+tools/scripts         doctor, diff-scope, coverage-raise, guards, bun-smoke, run-checks
 .githooks/            hook versionati (chiamano solo just)
 docs/                 documentazione (questa)
 docs/init/            blueprint congelato (non toccare, rimuovere all'adozione)

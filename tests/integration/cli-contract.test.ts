@@ -20,8 +20,15 @@ type RunResult = {
 
 async function runCli(args: readonly string[]): Promise<RunResult> {
   return new Promise((resolve, reject) => {
+    // Isola l'env del child dal contesto del test runner: rimuoviamo
+    // esplicitamente NO_COLOR e FORCE_COLOR per evitare il warning
+    // "NO_COLOR is ignored due to FORCE_COLOR being set" di Node 24.x
+    // quando entrambe sono presenti nell'env ereditato. Il contratto
+    // stderr è "JSON puro quando --json" e deve valere indipendentemente
+    // da come il test runner è stato invocato (TTY umano, agent, CI).
+    const { NO_COLOR: _nc, FORCE_COLOR: _fc, ...cleanEnv } = process.env;
     const child = spawn(process.execPath, [cliPath, ...args], {
-      env: { ...process.env, LOG_LEVEL: "error", NO_COLOR: "1" },
+      env: { ...cleanEnv, LOG_LEVEL: "error" },
     });
     let stdout = "";
     let stderr = "";

@@ -16,10 +16,17 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]).optional(),
 });
 
-/** Logs always go to stderr: stdout is data-only (agent-first contract). */
-function createLogger(env: NodeJS.ProcessEnv): Logger {
+/**
+ * Logs always go to stderr: stdout is data-only (agent-first contract).
+ * In modalità JSON stderr è parte del payload di contratto: niente pretty,
+ * livello minimo error, niente log diagnostici che mischierebbero col JSON.
+ */
+function createLogger(env: NodeJS.ProcessEnv, json: boolean): Logger {
   const isTTY = process.stderr.isTTY ?? false;
   const { LOG_LEVEL } = envSchema.parse(env);
+  if (json) {
+    return createPinoLogger({ level: LOG_LEVEL ?? "error", pretty: false, fd: 2 });
+  }
   return createPinoLogger({ level: LOG_LEVEL ?? (isTTY ? "debug" : "info"), pretty: isTTY, fd: 2 });
 }
 
@@ -91,7 +98,7 @@ async function main(argv: readonly string[]): Promise<number> {
 
   const json = wantsJson(jsonFlag, process.stdout.isTTY ?? false);
   const ctx: CommandContext = {
-    logger: createLogger(process.env),
+    logger: createLogger(process.env, json),
     json,
     stdout: (text) => process.stdout.write(`${text}\n`),
     stderr: (text) => process.stderr.write(`${text}\n`),
