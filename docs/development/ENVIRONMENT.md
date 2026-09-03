@@ -37,6 +37,8 @@ just setup            # also runs `direnv allow .` for the repo .envrc
 direnv allow .        # only needed if you skipped `just setup`
 ```
 
+Su Debian/Ubuntu, `just install` prepara i prerequisiti di sistema e la toolchain mise; `just setup` completa invece l’installazione specifica del repository (dipendenze pnpm, hook, Chromium e indice CodeGraph). La distinzione e la regola di manutenzione dell’inventario sono documentate in [`GETTING-STARTED.md`](./GETTING-STARTED.md#manutenzione-dei-prerequisiti).
+
 Make sure your shell has the direnv hook installed (`direnv hook bash`, `direnv hook zsh`, etc.); otherwise the interactive shell will not auto-load `.envrc` when you `cd` into the repository.
 
 ## `bin/` wrappers

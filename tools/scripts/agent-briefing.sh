@@ -53,7 +53,7 @@ git --no-pager log --oneline -5
 
 section "Gates tooling"
 missing=0
-for tool in node pnpm just direnv gitleaks actionlint zizmor lychee shellcheck; do
+for tool in node pnpm just mise direnv gitleaks actionlint zizmor lychee shellcheck parallel; do
   if command -v "$tool" >/dev/null 2>&1; then
     printf '  ok   %s\n' "$tool"
   else

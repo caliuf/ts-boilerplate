@@ -29,6 +29,35 @@ TSC_PRETTY := if env_var_or_default("RUN_CHECKS_COLORS", "") == "1" { "--pretty"
 
 # --- lifecycle -----------------------------------------------------------------
 
+# Install Debian/Ubuntu system prerequisites, then the pinned mise toolchain.
+# This is intentionally separate from `setup`: it changes the host, while setup
+# changes only the repository environment.
+install:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v apt-get >/dev/null 2>&1; then
+      echo "❌ apt-get not found — just install supports Debian-based distributions only" >&2
+      exit 1
+    fi
+    if [ "$(id -u)" -eq 0 ]; then
+      apt-get update
+      apt-get install -y bash ca-certificates coreutils curl findutils gawk git grep gh jq parallel python3 sed tar unzip xz-utils build-essential
+    elif command -v sudo >/dev/null 2>&1; then
+      sudo apt-get update
+      sudo apt-get install -y bash ca-certificates coreutils curl findutils gawk git grep gh jq parallel python3 sed tar unzip xz-utils build-essential
+    else
+      echo "❌ install needs root or sudo to install Debian packages" >&2
+      exit 1
+    fi
+    if ! command -v mise >/dev/null 2>&1; then
+      echo "Installing mise with the official installer..."
+      curl https://mise.run | sh
+      export PATH="$HOME/.local/bin:$PATH"
+    fi
+    mise install
+    npm install --global dotenv-cli
+    npm install --global @colbymchenry/codegraph
+
 # Install dependencies, tools and git hooks (idempotent)
 setup:
     #!/usr/bin/env bash

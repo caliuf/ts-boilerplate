@@ -24,6 +24,18 @@ function hasBinary(name: string): string | undefined {
   }
 }
 
+function checkBinaries(tools: readonly string[], status: "fail" | "warn", detail: string): void {
+  for (const tool of tools) {
+    if (hasBinary(tool)) {
+      ok(tool, versionOf(`${tool} --version`));
+    } else if (status === "fail") {
+      fail(tool, `${detail} — run \`just install\` or see docs/development/GETTING-STARTED.md`);
+    } else {
+      warn(tool, `${detail} — see docs/development/GETTING-STARTED.md`);
+    }
+  }
+}
+
 function versionOf(command: string): string | undefined {
   try {
     return execFileSync("bash", ["-c", `${command} 2>/dev/null | head -1`], {
@@ -67,6 +79,48 @@ if (!pnpmPath) {
     ok("pnpm", actualPnpm);
   }
 }
+
+// --- mise ------------------------------------------------------------------
+if (hasBinary("mise")) {
+  ok("mise", versionOf("mise --version"));
+} else {
+  warn(
+    "mise",
+    "not found — versions in .mise.toml cannot be installed reproducibly; run `just install`",
+  );
+}
+
+if (hasBinary("just")) {
+  ok("just", versionOf("just --version"));
+} else {
+  fail("just", "not found — install the pinned task runner with `just install` or `mise install`");
+}
+
+// --- system commands -------------------------------------------------------
+checkBinaries(
+  [
+    "bash",
+    "git",
+    "curl",
+    "npm",
+    "npx",
+    "dotenv",
+    "python3",
+    "jq",
+    "awk",
+    "grep",
+    "sed",
+    "find",
+    "xargs",
+    "stat",
+    "realpath",
+    "readlink",
+    "nice",
+    "whoami",
+  ],
+  "fail",
+  "required system command not found",
+);
 
 // --- install state ---------------------------------------------------------
 if (existsSync("node_modules")) {
@@ -125,6 +179,11 @@ for (const tool of externalTools) {
     warn(tool, "not found — locally its gate is skipped; in CI it is blocking. Run `mise install`");
   }
 }
+
+// GNU parallel accelerates the fail-late gate but the sequential fallback is valid.
+checkBinaries(["parallel"], "warn", "optional GNU parallel accelerator not found");
+// GitHub CLI is used only by local PR helpers and agent briefing.
+checkBinaries(["gh"], "warn", "optional GitHub CLI not found");
 
 // --- report ------------------------------------------------------------------
 const icons = { ok: "✅", warn: "⚠️ ", fail: "❌" } as const;

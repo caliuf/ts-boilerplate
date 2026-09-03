@@ -95,6 +95,8 @@ Esegui la retrospettiva di processo: analizza i gate falliti di recente, le istr
 
 ## Tool opzionali (MAY)
 
+La presenza dei prerequisiti viene mantenuta da `just doctor`; su Debian/Ubuntu la loro installazione è raccolta in `just install`. Quando un recipe, script, wrapper o workflow introduce un nuovo comando esterno, aggiornare nello stesso cambiamento il doctor, la lista apt e la documentazione di `GETTING-STARTED.md`. Le versioni dei tool cross-platform restano invece in `.mise.toml`, così il controllo di presenza e quello di riproducibilità non vengono confusi.
+
 **Adottato:** CodeScene via MCP come autorità di Code Health per gli agenti (ADR-0006). Non è un hook git: uso operativo in [`CODESCENE.md`](./CODESCENE.md).
 
 **Adottato:** repository-local memory bank in `docs/memory/` come fallback portatile e versionabile della Kilo Memory nativa (ADR-0008). Gli agenti leggono `docs/memory/project.md` e `docs/memory/environment.md` all'avvio e aggiornano i file quando emergono fatti o correzioni duraturi.

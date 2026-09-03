@@ -13,8 +13,12 @@ Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: 
 | just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
 | direnv | vedi `.mise.toml` | `mise install` (richiesto per i wrapper in `bin/`) |
 | bun, gitleaks, actionlint, zizmor, lychee, shellcheck | vedi `.mise.toml` | `mise install` |
+| npm, npx | inclusi nella toolchain Node | `mise install` |
+| dotenv | versione compatibile | `npm install -g dotenv-cli` |
 | codegraph | ≥ 1.5 | `npm install -g @colbymchenry/codegraph` (non gestito da mise) |
 | GNU parallel | qualunque recente | package manager di sistema (es. `apt install parallel`); opzionale, non gestito da mise |
+
+Per una macchina Debian/Ubuntu si può installare l’insieme dei prerequisiti OS con `just install`. La recipe installa anche `mise` se manca, esegue `mise install` per i tool pinnati in `.mise.toml` e installa CodeGraph tramite npm; non installa le dipendenze JavaScript del repository, gli hook o Chromium, che restano responsabilità di `just setup`. L’installer di mise è quello ufficiale (`https://mise.run`) e viene usato solo quando `mise` non è già presente.
 
 Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning. GNU parallel è l'unica eccezione: è un'accelerazione opzionale di `precommit`/`prepush` e la sua assenza non produce warning, solo un'esecuzione sequenziale.
 
@@ -56,6 +60,7 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | Comando | Funzione |
 | --- | --- |
 | `just setup` | Installa dipendenze, tool, hook e indice CodeGraph |
+| `just install` | Installa i prerequisiti OS Debian-based e la toolchain pinnata via mise |
 | `just pull` | Pull e sincronizza tool/dipendenze/hook solo se cambiati; aggiorna l'indice CodeGraph |
 | `just doctor` | Verifica runtime, tool e configurazione |
 | `just dev` | Avvia lo sviluppo (API + web) |
@@ -101,7 +106,13 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 
 Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check`).
 
-I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: con GNU parallel installato sono eseguiti in parallelo (uno slot per core) ma stdout/stderr restano raggruppati per comando nell'ordine originale della lista; senza, tornano sequenziali. I gate sono fail-late: tutti i check girano sempre, anche dopo un fallimento, e il gate fallisce alla fine — un solo giro mostra tutti i problemi. Su terminale interattivo i colori dei tool sono forzati (`FORCE_COLOR`, `JUST_COLOR`, più i flag dedicati di biome e tsc); con `NO_COLOR` settata (anche vuota, es. `NO_COLOR= just prepush`) o con output su pipe/redirect l'output resta plain, senza ANSI — consigliato agli agenti per risparmiare token. Sulla macchina di sviluppo principale (`whoami` = caio) i check girano sotto `nice -n 19`; in CI mai. `RUN_CHECKS_SEQUENTIAL=1` forza il percorso sequenziale anche con parallel installato.
+I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: con GNU parallel installato sono eseguiti in parallelo (uno slot per core) ma stdout/stderr restano raggruppati per comando nell’ordine originale della lista; senza, tornano sequenziali. I gate sono fail-late: tutti i check girano sempre, anche dopo un fallimento, e il gate fallisce alla fine — un solo giro mostra tutti i problemi. Su terminale interattivo i colori dei tool sono forzati (`FORCE_COLOR`, `JUST_COLOR`, più i flag dedicati di biome e tsc); con `NO_COLOR` settata (anche vuota, es. `NO_COLOR= just prepush`) o con output su pipe/redirect l’output resta plain, senza ANSI — consigliato agli agenti per risparmiare token. Sulla macchina di sviluppo principale (`whoami` = caio) i check girano sotto `nice -n 19`; in CI mai. `RUN_CHECKS_SEQUENTIAL=1` forza il percorso sequenziale anche con parallel installato.
+
+## Manutenzione dei prerequisiti
+
+`just doctor` è il controllo autorevole della presenza: verifica runtime e tool versionati, `mise`, i comandi di sistema usati direttamente da recipe e script, e le integrazioni locali (`codegraph`, `gh`, `parallel`). I comandi necessari alla suite sono errori; `parallel`, `gh`, `codegraph` e gli strumenti usati solo per accelerazione o automazione locale sono warning. Ogni nuovo comando esterno introdotto in `justfile`, `tools/scripts/`, `bin/` o nei workflow deve essere aggiunto al controllo appropriato del doctor e alla lista Debian di `just install` se è un pacchetto OS.
+
+`.mise.toml` è la fonte autorevole per versioni e tool cross-platform gestiti da mise. `just install` è invece la fonte operativa per i pacchetti Debian/Ubuntu e deve restare limitata a prerequisiti di sistema (shell, utilità POSIX, Git, Python, JSON, archivi e build tool). Dopo ogni modifica all’inventario, aggiornare insieme `.mise.toml`, `tools/scripts/doctor.ts`, `justfile` e questa tabella, quindi eseguire `just doctor`, `just smoke` e i gate previsti dal task. La documentazione di questi ruoli vive qui; `docs/development/ENVIRONMENT.md` resta il riferimento per direnv e il caricamento dell’environment.
 
 ## Test e debug
 
