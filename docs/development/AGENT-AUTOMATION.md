@@ -5,7 +5,7 @@ Script che tolgono il lavoro ripetitivo dal flusso "un task = un branch = una PR
 | Script | Quando | Cosa fa |
 |---|---|---|
 | `tools/scripts/agent-briefing.sh` | a inizio task | Dump unico del contesto: repo/worktree, git status, ultime commit, stato dei tool dei gate, memoria di progetto, draft di commit, PR e issue aperte. Read-only. `--no-prs` salta la parte GitHub. |
-| `tools/scripts/gh-prs.sh` | per orientarsi sulle PR | `list` (aperte + branch + autore), `all` (anche chiuse), `view <n>...` (body, file, check di una o più PR), `content` (contenuto di tutte le aperte). Read-only; per comment/close/merge vedi `GITHUB-CLI.md`. |
+| `tools/scripts/gh-prs.sh` | per orientarsi sulle PR | `list` (aperte + branch + autore), `all` (anche chiuse), `dependabot` (PR aperte dall'applicazione Dependabot), `view <n>...` (body, file, check di una o più PR), `content` (contenuto di tutte le aperte). Read-only; per comment/close/merge vedi `GITHUB-CLI.md`. |
 | `tools/scripts/finish-task.sh` | a fine task | `commit` → `push -u` → apre la PR **solo se il branch non ne ha già una**. `--all` staggia tutto prima; `-m "msg"` usa un messaggio al posto di `tmp/commit-message.md`. |
 
 ## Perché `finish-task.sh` non lancia `just precommit` / `just prepush`
