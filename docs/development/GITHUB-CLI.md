@@ -15,17 +15,17 @@ Per operazioni di scrittura (commenti, chiusura PR, modifiche a issue/impostazio
 
 ## Trovare le PR di Dependabot
 
-Il filtro `--author dependabot` non restituisce risultati su questo repo. Usa la ricerca testuale:
+Usa il filtro nativo `--app dependabot` per limitare i risultati alle PR aperte dall'applicazione GitHub di Dependabot:
 
 ```bash
-gh pr list --search "dependabot" --state open --limit 100 \
+gh pr list --app dependabot --state open --limit 100 \
   --json number,title,headRefName,url,createdAt,state,statusCheckRollup
 ```
 
 Per vedere anche quelle chiuse:
 
 ```bash
-gh pr list --search "dependabot" --state all --limit 100 \
+gh pr list --app dependabot --state all --limit 100 \
   --json number,title,headRefName,url,createdAt,state,statusCheckRollup
 ```
 
@@ -74,10 +74,10 @@ gh pr comment 2 --body 'Chiusa in favore della configurazione repo-level in .git
 ### Chiudere
 
 ```bash
-gh pr close <numero>
+gh pr close <numero> --comment 'Motivo della chiusura.'
 ```
 
-Il flag `--comment` non esiste: commenta prima o dopo la chiusura.
+Il commento è opzionale; senza `--comment` la PR viene chiusa senza aggiungere una nota.
 
 ### Eliminare un commento proprio
 

@@ -4,6 +4,7 @@
 # Usage:
 #   tools/scripts/gh-prs.sh                 list open PRs with checks rollup
 #   tools/scripts/gh-prs.sh all             include closed/merged PRs
+#   tools/scripts/gh-prs.sh dependabot      list Dependabot PRs
 #   tools/scripts/gh-prs.sh view <n> [<m>]  full content of PR(s): body, files, checks
 #   tools/scripts/gh-prs.sh content         content of every open PR (careful: verbose)
 #
@@ -49,6 +50,11 @@ case "$mode" in
       --json number,title,state,author,headRefName,updatedAt \
       --template '{{range .}}#{{.number}} [{{.state}}] {{.title}} ({{.headRefName}}, by {{.author.login}}){{"\n"}}{{end}}'
     ;;
+  dependabot)
+    gh pr list --app dependabot --state open --limit 50 \
+      --json number,title,headRefName,updatedAt \
+      --template '{{range .}}#{{.number}} {{.title}} ({{.headRefName}}, updated {{timeago .updatedAt}}){{"\n"}}{{end}}'
+    ;;
   view)
     shift
     if [ "$#" -eq 0 ]; then
@@ -71,7 +77,7 @@ case "$mode" in
     ;;
   *)
     echo "Unknown mode: $mode" >&2
-    echo "Usage: $0 [list|all|view <n>...|content]" >&2
+    echo "Usage: $0 [list|all|dependabot|view <n>...|content]" >&2
     exit 2
     ;;
 esac
