@@ -12,7 +12,5 @@
   "dependencies": {
     "@project/contracts": "workspace:*"
   },
-  "devDependencies": {
-    "@project/testkit": "workspace:*"
-  }
+  "devDependencies": {}
 }

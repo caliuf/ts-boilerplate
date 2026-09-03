@@ -7,5 +7,6 @@ export {
 } from "./errors.ts";
 export type { HelloWorldInput, HelloWorldOutput } from "./hello-world.ts";
 export { helloWorldInputSchema, helloWorldOutputSchema } from "./hello-world.ts";
+export type { Logger, LogLevel } from "./logger.ts";
 export type { ProblemDetailsDto } from "./problem-details.ts";
 export { problemDetailsSchema } from "./problem-details.ts";

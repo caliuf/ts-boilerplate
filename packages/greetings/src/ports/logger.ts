@@ -1,16 +1,8 @@
 /**
- * Ports: interfaces towards the outside world, owned by the bounded context.
- * Adapters (pino, browser console, in-memory test doubles) implement them.
- * The domain never sees a logger; the application layer decides what to log.
+ * Porta di logging del bounded context. I tipi `Logger` e `LogLevel` vivono in
+ * `@project/contracts` perché sono parte del linguaggio condiviso dell'ecosistema
+ * (adapter, testkit, app). Questo file le riusa per non rompere l'import
+ * storico `from "@project/greetings"`.
  */
 
-export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
-
-export type Logger = {
-  readonly level: LogLevel;
-  trace(context: Record<string, unknown>, message: string): void;
-  debug(context: Record<string, unknown>, message: string): void;
-  info(context: Record<string, unknown>, message: string): void;
-  warn(context: Record<string, unknown>, message: string): void;
-  error(context: Record<string, unknown>, message: string): void;
-};
+export type { Logger, LogLevel } from "@project/contracts";

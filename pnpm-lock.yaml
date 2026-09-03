@@ -162,16 +162,12 @@ importers:
       '@project/contracts':
         specifier: workspace:*
         version: link:../contracts
-    devDependencies:
-      '@project/testkit':
-        specifier: workspace:*
-        version: link:../testkit
 
   packages/testkit:
     dependencies:
-      '@project/greetings':
+      '@project/contracts':
         specifier: workspace:*
-        version: link:../greetings
+        version: link:../contracts
 
   tests:
     dependencies:

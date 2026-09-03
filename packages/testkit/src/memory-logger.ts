@@ -1,4 +1,4 @@
-import type { Logger, LogLevel } from "@project/greetings";
+import type { Logger, LogLevel } from "@project/contracts";
 
 export type LogEntry = {
   readonly level: LogLevel;
