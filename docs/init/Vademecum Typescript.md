@@ -3,18 +3,13 @@
 > Documento riutilizzabile come base per nuovi repository.
 > **MUST** = requisito standard; **SHOULD** = default derogabile tramite ADR; **MAY** = facoltativo o dipendente dal progetto.
 >
-> Questa versione integra il Vademecum originale con il workflow *Guides, Gates, Guards*
-> (sintesi degli articoli Refactoring in `docs/init/Refactoring/`) e con le contromisure
-> ai failure modes tipici dello sviluppo interamente affidato ad agenti AI.
-> Date e versioni citate sono point-in-time: **riverificarle a ogni bootstrap**.
+> Questa versione integra il Vademecum originale con il workflow *Guides, Gates, Guards* (sintesi degli articoli Refactoring in `docs/init/Refactoring/`) e con le contromisure ai failure modes tipici dello sviluppo interamente affidato ad agenti AI. Date e versioni citate sono point-in-time: **riverificarle a ogni bootstrap**.
 
 ---
 
 ## 1. Modello operativo: Guides, Gates, Guards (3G)
 
-Tutto ciò che governa il lavoro dell'agente è di tre tipi. Questo modello è la chiave
-di lettura dell'intero documento: ogni regola SHOULD essere classificabile in una delle
-tre categorie, e il criterio guida è **spostare il più possibile dalle guide ai gate**.
+Tutto ciò che governa il lavoro dell'agente è di tre tipi. Questo modello è la chiave di lettura dell'intero documento: ogni regola SHOULD essere classificabile in una delle tre categorie, e il criterio guida è **spostare il più possibile dalle guide ai gate**.
 
 | Tipo | Cosa è | Quando agisce | Affidabilità |
 |------|--------|---------------|--------------|
@@ -24,28 +19,13 @@ tre categorie, e il criterio guida è **spostare il più possibile dalle guide a
 
 ### Principi operativi
 
-1. **Gate-first.** Se una regola può essere espressa come controllo automatico bloccante,
-   non deve vivere solo come istruzione testuale. Le regole architetturali stanno in
-   `dependency-cruiser`, non solo nei README.
-2. **Soglie a cricchetto (ratchet).** Le soglie di qualità (coverage, code health, budget
-   di tempo) possono solo **salire**, mai scendere. Dopo ogni miglioramento della salute
-   del codebase, l'agente alza la soglia nello stesso lavoro o in uno dedicato.
-3. **Divieto di aggiramento.** Un agente che fallisce ripetutamente un gate senza saper
-   rimediare cerca workaround: salta test, abbassa soglie, estende ignore-list, usa
-   `--no-verify`. Questo è il failure mode più pericoloso: i divieti devono essere
-   espliciti nelle guide (§ 8), i file che definiscono i gate devono essere protetti
-   (§ 11) e le guide devono insegnare **il rimedio**, non solo il divieto (TDD,
-   procedure di fix, § 6).
-4. **Mai lavorare sotto soglia.** Non si inizia lavoro nuovo su un codebase con gate
-   rossi: prima si ripristina la salute, poi si sviluppa la feature.
-5. **Loop engineering > prompt engineering.** L'intero processo è un loop da
-   ingegnerizzare: retrospettive che aggiornano le guide, guard che creano task,
-   cricchetti che alzano i gate. L'obiettivo non è la velocità iniziale ma
-   **non degradare nel tempo**.
-6. **L'umano decide** le tre cose ad alto leverage: *cosa* costruire, *come* lato
-   prodotto, *cosa è abbastanza buono*. Tutto il resto è automatizzabile.
-7. **Bias verso il progresso.** Meglio rilasciare ciò che è utile anche se imperfetto
-   e iterare sul feedback reale, che inseguire la prima versione perfetta.
+1. **Gate-first.** Se una regola può essere espressa come controllo automatico bloccante, non deve vivere solo come istruzione testuale. Le regole architetturali stanno in `dependency-cruiser`, non solo nei README.
+2. **Soglie a cricchetto (ratchet).** Le soglie di qualità (coverage, code health, budget di tempo) possono solo **salire**, mai scendere. Dopo ogni miglioramento della salute del codebase, l'agente alza la soglia nello stesso lavoro o in uno dedicato.
+3. **Divieto di aggiramento.** Un agente che fallisce ripetutamente un gate senza saper rimediare cerca workaround: salta test, abbassa soglie, estende ignore-list, usa `--no-verify`. Questo è il failure mode più pericoloso: i divieti devono essere espliciti nelle guide (§ 8), i file che definiscono i gate devono essere protetti (§ 11) e le guide devono insegnare **il rimedio**, non solo il divieto (TDD, procedure di fix, § 6).
+4. **Mai lavorare sotto soglia.** Non si inizia lavoro nuovo su un codebase con gate rossi: prima si ripristina la salute, poi si sviluppa la feature.
+5. **Loop engineering > prompt engineering.** L'intero processo è un loop da ingegnerizzare: retrospettive che aggiornano le guide, guard che creano task, cricchetti che alzano i gate. L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**.
+6. **L'umano decide** le tre cose ad alto leverage: *cosa* costruire, *come* lato prodotto, *cosa è abbastanza buono*. Tutto il resto è automatizzabile.
+7. **Bias verso il progresso.** Meglio rilasciare ciò che è utile anche se imperfetto e iterare sul feedback reale, che inseguire la prima versione perfetta.
 
 ---
 
@@ -263,15 +243,12 @@ Non creare cartelle vuote o deployable ipotetici. Se non c’è una UI, `apps/we
 
 ### `docs/development/GETTING-STARTED.md`
 
-È il documento di onboarding tecnico, linkato da `docs/INDEX.md` e richiamato da
-`docs/PROJECT.md`. Deve contenere:
+È il documento di onboarding tecnico, linkato da `docs/INDEX.md` e richiamato da `docs/PROJECT.md`. Deve contenere:
 
-- prerequisiti (runtime, package manager, tool esterni) e come verificarli con
-  `just doctor`;
+- prerequisiti (runtime, package manager, tool esterni) e come verificarli con `just doctor`;
 - setup iniziale tramite `just setup`;
 - rimando alla tabella delle recipe (§ 5) invece di duplicarla;
-- come eseguire test e debug, incluso il riesame di un flusso con
-  `LOG_LEVEL=debug` (§ 3, *Logging e observability*);
+- come eseguire test e debug, incluso il riesame di un flusso con `LOG_LEVEL=debug` (§ 3, *Logging e observability*);
 - mappa commentata delle cartelle principali.
 
 Vincolo di freschezza: ogni comando citato deve esistere davvero nel justfile;
@@ -279,11 +256,7 @@ un comando inventato o rinominato è un docs bug bloccante in review.
 
 ### Documenti di recap come *viste*
 
-`docs/INDEX.md`, gli `OVERVIEW.md` e gli eventuali `ARCHITECTURE.md`/`ABSTRACTIONS.md`
-sono **viste sullo stato corrente**: riportano solo le decisioni *attive*, in forma
-sintetica. Evitano all'agente di rileggere decine di ADR/PDR per ricostruire l'esistente;
-i decision record servono per lo zoom-in storico. Regola: una decisione `superseded`
-sparisce dalle viste di recap e resta solo nei record.
+`docs/INDEX.md`, gli `OVERVIEW.md` e gli eventuali `ARCHITECTURE.md`/`ABSTRACTIONS.md` sono **viste sullo stato corrente**: riportano solo le decisioni *attive*, in forma sintetica. Evitano all'agente di rileggere decine di ADR/PDR per ricostruire l'esistente; i decision record servono per lo zoom-in storico. Regola: una decisione `superseded` sparisce dalle viste di recap e resta solo nei record.
 
 ### README dei package
 
@@ -317,26 +290,21 @@ apps / composition root
 - `application` orchestra il dominio attraverso porte.
 - gli adapter implementano le porte.
 - gli entrypoint compongono l’applicazione.
-- gli adapter di ingresso (CLI, HTTP, MCP, UI) non contengono logica: parsing →
-  validazione → caso d’uso → mappatura del risultato (§ 3, *Superfici di ingresso*).
+- gli adapter di ingresso (CLI, HTTP, MCP, UI) non contengono logica: parsing → validazione → caso d’uso → mappatura del risultato (§ 3, *Superfici di ingresso*).
 - i bounded context comunicano solo tramite API pubbliche e contratti espliciti.
 - il codice di produzione non può importare `testkit`.
 - niente dipendenze circolari.
 - niente cartelle generiche `utils`, `helpers` o `common`.
 - niente service locator, dependency-injection container o reflection senza ADR.
 - niente grandi oggetti mutabili con stato nascosto.
-- logging e observability sono porte: il dominio non conosce il logger e niente
-  `console.log` nel codice di libreria (regola di lint; dettagli in
-  § 3, *Logging e observability*).
+- logging e observability sono porte: il dominio non conosce il logger e niente `console.log` nel codice di libreria (regola di lint; dettagli in § 3, *Logging e observability*).
 
 Preferire:
 
 - dati immutabili;
 - branded ID;
 - discriminated union;
-- errori tipizzati: gli errori di dominio sono valori (union discriminate o tipo
-  `Result`); le eccezioni restano per errori del programmatore e per il confine
-  del processo;
+- errori tipizzati: gli errori di dominio sono valori (union discriminate o tipo `Result`); le eccezioni restano per errori del programmatore e per il confine del processo;
 - funzioni di transizione;
 - exhaustive checking con `never`;
 - dipendenze esplicite;
@@ -346,12 +314,7 @@ Tutte queste regole devono essere codificate in `dependency-cruiser`, non affida
 
 ### Superfici di ingresso: CLI, API, MCP, UI
 
-**Un caso d'uso, molte superfici.** Ogni capability del sistema esiste **una sola
-volta**, come caso d'uso nell'application layer di un bounded context. CLI, API HTTP,
-server MCP e UI web sono **adapter di ingresso (driving)** intercambiabili che
-proiettano lo stesso caso d'uso su canali diversi. La duplicazione tra superfici è il
-sintomo di un caso d'uso mancante: se due entrypoint contengono la stessa logica,
-questa va spostata nell'application layer, mai copiata.
+**Un caso d'uso, molte superfici.** Ogni capability del sistema esiste **una sola volta**, come caso d'uso nell'application layer di un bounded context. CLI, API HTTP, server MCP e UI web sono **adapter di ingresso (driving)** intercambiabili che proiettano lo stesso caso d'uso su canali diversi. La duplicazione tra superfici è il sintomo di un caso d'uso mancante: se due entrypoint contengono la stessa logica, questa va spostata nell'application layer, mai copiata.
 
 Ogni entrypoint ha la stessa anatomia, e **nient'altro**:
 
@@ -359,20 +322,10 @@ Ogni entrypoint ha la stessa anatomia, e **nient'altro**:
 parse input → valida (schema condiviso) → chiama il caso d'uso → mappa il risultato sul canale
 ```
 
-- Niente logica di dominio o di orchestrazione negli entrypoint. È un **gate**
-  dependency-cruiser: `apps/**` importa solo le API pubbliche dei package, mai gli
-  internals di `domain/` o degli adapter.
-- Il wiring (costruzione di config, adapter e casi d'uso) vive nel **composition
-  root** dell'app: un `main.ts`/`cli.ts`/`server.ts` sottile che fa solo startup e
-  dispatch. La policy specifica di un comando vive nel file del comando, non accumulata
-  nell'entrypoint.
-- Input e output dei casi d'uso sono DTO definiti in `packages/contracts`, insieme agli
-  schemi di validazione e alla **tassonomia degli errori condivisa**: stessa fonte per
-  CLI, API, MCP e frontend, nessuna ridefinizione manuale.
-- **Naming parallelo**: lo stesso caso d'uso ha lo stesso nome su ogni canale —
-  `user create` in CLI, `POST /users` in API, tool `user_create` in MCP, mutation
-  `useCreateUser` nella UI. La corrispondenza è documentata nella mappa delle
-  superfici di `docs/PROJECT.md`.
+- Niente logica di dominio o di orchestrazione negli entrypoint. È un **gate** dependency-cruiser: `apps/**` importa solo le API pubbliche dei package, mai gli internals di `domain/` o degli adapter.
+- Il wiring (costruzione di config, adapter e casi d'uso) vive nel **composition root** dell'app: un `main.ts`/`cli.ts`/`server.ts` sottile che fa solo startup e dispatch. La policy specifica di un comando vive nel file del comando, non accumulata nell'entrypoint.
+- Input e output dei casi d'uso sono DTO definiti in `packages/contracts`, insieme agli schemi di validazione e alla **tassonomia degli errori condivisa**: stessa fonte per CLI, API, MCP e frontend, nessuna ridefinizione manuale.
+- **Naming parallelo**: lo stesso caso d'uso ha lo stesso nome su ogni canale — `user create` in CLI, `POST /users` in API, tool `user_create` in MCP, mutation `useCreateUser` nella UI. La corrispondenza è documentata nella mappa delle superfici di `docs/PROJECT.md`.
 
 Anatomia delle app:
 
@@ -406,42 +359,24 @@ apps/
 
 #### CLI
 
-Default: **un solo bin con albero di subcommand** (`<progetto> <gruppo> <verbo>`).
-Comandi separati solo quando audience, lifecycle di deploy o bounded context sono
-genuinamente disgiunti; la scelta è un'ADR. In entrambi i casi ogni bin resta un
-composition root sottile sugli stessi package.
+Default: **un solo bin con albero di subcommand** (`<progetto> <gruppo> <verbo>`). Comandi separati solo quando audience, lifecycle di deploy o bounded context sono genuinamente disgiunti; la scelta è un'ADR. In entrambi i casi ogni bin resta un composition root sottile sugli stessi package.
 
-- **Un file per subcommand**, con path che rispecchia il comando
-  (`commands/user/create.ts` → `cli user create`): l'albero dei file è la tabella di
-  routing, greppabile e navigabile dagli agenti.
-- Framework: fino a ~5 comandi può bastare `node:util.parseArgs`; oltre, default
-  consigliato **commander** (o `cac` se si privilegia il footprint); **oclif** o
-  **clipanion** quando servono routing file-based, plugin o help molto ricco. Il
-  framework resta confinato in `apps/cli`: i casi d'uso non lo conoscono.
-- **Contratto agent-first** — la CLI sarà operata anche da agenti AI, quindi l'output
-  è un'API a tutti gli effetti:
+- **Un file per subcommand**, con path che rispecchia il comando (`commands/user/create.ts` → `cli user create`): l'albero dei file è la tabella di routing, greppabile e navigabile dagli agenti.
+- Framework: fino a ~5 comandi può bastare `node:util.parseArgs`; oltre, default consigliato **commander** (o `cac` se si privilegia il footprint); **oclif** o **clipanion** quando servono routing file-based, plugin o help molto ricco. Il framework resta confinato in `apps/cli`: i casi d'uso non lo conoscono.
+- **Contratto agent-first** — la CLI sarà operata anche da agenti AI, quindi l'output è un'API a tutti gli effetti:
   - stdout porta **solo dati**; spinner, progress, warning e log vanno su stderr;
-  - ogni comando supporta `--json`; in contesto non-TTY (pipe) l'output JSON è il
-    default, la tabella leggibile resta per l'uso interattivo;
-  - errori strutturati (`{"error": "...", "message": "..."}`) su stderr anche in
-    modalità JSON;
-  - tassonomia di exit code fissata in ADR (es. `0` ok, `1` errore interno, `2` input
-    non valido, `3` auth, `4` non trovato, `5` conflitto), mappata dalla stessa
-    tassonomia di errori dei contratti;
-  - `--dry-run` e `--yes` per le operazioni distruttive; operazioni idempotenti dove
-    possibile (gli agenti ritentano);
+  - ogni comando supporta `--json`; in contesto non-TTY (pipe) l'output JSON è il default, la tabella leggibile resta per l'uso interattivo;
+  - errori strutturati (`{"error": "...", "message": "..."}`) su stderr anche in modalità JSON;
+  - tassonomia di exit code fissata in ADR (es. `0` ok, `1` errore interno, `2` input non valido, `3` auth, `4` non trovato, `5` conflitto), mappata dalla stessa tassonomia di errori dei contratti;
+  - `--dry-run` e `--yes` per le operazioni distruttive; operazioni idempotenti dove possibile (gli agenti ritentano);
   - `--help` completo con esempi: è il meccanismo con cui un agente esplora la CLI;
   - rispettare `NO_COLOR`; niente codici ANSI su stream non-TTY.
-- Il contratto è un **gate**: una integration suite itera il registry e verifica per
-  ogni comando `--help`, `--json`, exit code e separazione degli stream.
+- Il contratto è un **gate**: una integration suite itera il registry e verifica per ogni comando `--help`, `--json`, exit code e separazione degli stream.
 
 #### API HTTP
 
-- Un handler per caso d'uso: valida l'input con lo schema condiviso, chiama il caso
-  d'uso, mappa il risultato. Niente logica nei controller.
-- Framework preferibilmente basato su Web Standard API (`Request`/`Response`, es.
-  Hono) per la portabilità tra runtime (§ 2, policy Bun); alternative (Fastify,
-  Express) tramite ADR. Il framework non esce da `apps/api`.
+- Un handler per caso d'uso: valida l'input con lo schema condiviso, chiama il caso d'uso, mappa il risultato. Niente logica nei controller.
+- Framework preferibilmente basato su Web Standard API (`Request`/`Response`, es. Hono) per la portabilità tra runtime (§ 2, policy Bun); alternative (Fastify, Express) tramite ADR. Il framework non esce da `apps/api`.
 - Errori: la tassonomia condivisa è mappata su **Problem Details RFC 9457**
   (`application/problem+json`), con status coerenti con gli exit code della CLI.
 - Frontend e client consumano tipi e schemi da `packages/contracts`: nessuna
@@ -449,16 +384,11 @@ composition root sottile sugli stessi package.
 
 #### Server MCP
 
-- Il server MCP è un adapter di ingresso come gli altri: ogni tool è un file in
-  `tools/`, dichiara description e input schema (Standard Schema: Zod v4, Valibot o
-  equivalenti) e delega a un caso d'uso. Niente logica nei tool handler.
+- Il server MCP è un adapter di ingresso come gli altri: ogni tool è un file in `tools/`, dichiara description e input schema (Standard Schema: Zod v4, Valibot o equivalenti) e delega a un caso d'uso. Niente logica nei tool handler.
 - SDK ufficiale TypeScript **v2** (`@modelcontextprotocol/server`, allineato alla spec
   2026-07-28). Trasporto **stdio** come default per l'integrazione locale con gli
   agenti; **Streamable HTTP** con autenticazione quando serve accesso remoto.
-- **Tool curati, non generati in massa**: esporre un sottoinsieme deliberato di casi
-  d'uso, con `description` scritte per il modello (cosa fa, quando usarlo, cosa
-  restituisce). Non esporre automaticamente l'intera API come tool: la superficie
-  grezza degrada la selezione del tool da parte dell'LLM.
+- **Tool curati, non generati in massa**: esporre un sottoinsieme deliberato di casi d'uso, con `description` scritte per il modello (cosa fa, quando usarlo, cosa restituisce). Non esporre automaticamente l'intera API come tool: la superficie grezza degrada la selezione del tool da parte dell'LLM.
 - Output dei tool: contenuto strutturato derivato dagli stessi DTO dei contratti;
   errori di dominio mappati su errori di tool con la stessa tassonomia.
 - Sicurezza: default read-only; i tool di scrittura richiedono scope espliciti;
@@ -468,32 +398,19 @@ composition root sottile sugli stessi package.
 
 #### UI web
 
-- Struttura per **feature colocate** (`features/<feature>/`: componenti, hook, client
-  API, test), non per tipo tecnico (`components/`, `hooks/` globali): ogni feature è
-  comprensibile ed eliminabile in un solo posto.
-- Il design system vive in `apps/web/src/design-system/` (o `packages/ui` se condiviso
-  tra più frontend); elementi HTML grezzi restano vietati fuori da esso (§ 6).
-- Le chiamate API passano da un client tipato sui contratti; lo stato server (cache,
-  refetch) è tenuto separato dallo stato UI.
+- Struttura per **feature colocate** (`features/<feature>/`: componenti, hook, client API, test), non per tipo tecnico (`components/`, `hooks/` globali): ogni feature è comprensibile ed eliminabile in un solo posto.
+- Il design system vive in `apps/web/src/design-system/` (o `packages/ui` se condiviso tra più frontend); elementi HTML grezzi restano vietati fuori da esso (§ 6).
+- Le chiamate API passano da un client tipato sui contratti; lo stato server (cache, refetch) è tenuto separato dallo stato UI.
 
 #### Navigabilità per gli agenti
 
-Regole strutturali che rendono il repository percorribile senza esplorazione
-esaustiva:
+Regole strutturali che rendono il repository percorribile senza esplorazione esaustiva:
 
-- **Screaming architecture**: i nomi di package, cartelle e file dicono cosa fa il
-  sistema (`packages/billing/`, `commands/report/generate.ts`), non quali framework usa.
-- **Un caso d'uso = un file** `<verbo>-<nome>.ts` con test colocato: trovare il
-  comportamento significa trovare il file.
-- **Registry espliciti**: ogni app ha un punto unico e dichiarativo che elenca la
-  propria superficie (comandi, route, tool). Non è un barrel: importa e registra, non
-  riesporta.
-- **Mappa delle superfici** in `docs/PROJECT.md`: tabella caso d'uso × canale
-  (CLI/API/MCP/UI), aggiornata a ogni aggiunta. È l'indice che evita all'agente la
-  scansione di tutte le app.
-- Convenzioni costanti: stessa struttura interna per ogni bounded context, stesso
-  naming su ogni canale, stessa anatomia per ogni entrypoint. La predicibilità è la
-  feature.
+- **Screaming architecture**: i nomi di package, cartelle e file dicono cosa fa il sistema (`packages/billing/`, `commands/report/generate.ts`), non quali framework usa.
+- **Un caso d'uso = un file** `<verbo>-<nome>.ts` con test colocato: trovare il comportamento significa trovare il file.
+- **Registry espliciti**: ogni app ha un punto unico e dichiarativo che elenca la propria superficie (comandi, route, tool). Non è un barrel: importa e registra, non riesporta.
+- **Mappa delle superfici** in `docs/PROJECT.md`: tabella caso d'uso × canale (CLI/API/MCP/UI), aggiornata a ogni aggiunta. È l'indice che evita all'agente la scansione di tutte le app.
+- Convenzioni costanti: stessa struttura interna per ogni bounded context, stesso naming su ogni canale, stessa anatomia per ogni entrypoint. La predicibilità è la feature.
 
 | Cosa | Dove |
 |---|---|
@@ -510,64 +427,26 @@ esaustiva:
 
 ### Logging e observability
 
-Il logging è I/O: vive dietro una **porta** (`Logger`), con un adapter scelto tramite
-ADR — default consigliato su Node: `pino` (JSON-first, `pino-pretty` in sviluppo).
-Il dominio non logga: restituisce valori, eventi o errori tipizzati; è l'application
-layer a decidere cosa registrare. `console.log` è vietato nel codice di libreria
-(`packages/**`) e il divieto è un **gate di lint** (`no-console` in Oxlint), non una
-convenzione: la console è un'uscita non governabile — niente livelli, niente redazione
-dei segreti, niente formato strutturato, rumore nei test e nelle pipe CLI.
+Il logging è I/O: vive dietro una **porta** (`Logger`), con un adapter scelto tramite ADR — default consigliato su Node: `pino` (JSON-first, `pino-pretty` in sviluppo). Il dominio non logga: restituisce valori, eventi o errori tipizzati; è l'application layer a decidere cosa registrare. `console.log` è vietato nel codice di libreria (`packages/**`) e il divieto è un **gate di lint** (`no-console` in Oxlint), non una convenzione: la console è un'uscita non governabile — niente livelli, niente redazione dei segreti, niente formato strutturato, rumore nei test e nelle pipe CLI.
 
-**Il debug logging resta centrale anche con gli agenti AI.** Un agente *può* pilotare
-un debugger, ma è uno strumento interattivo, lento e assente in CI e in produzione;
-i log invece sono **sensori** (Bockeler, in Fonti): artefatti testuali che l'agente
-può produrre, rileggere, filtrare e citare come evidenza nel report finale. Un buon
-logging di debug serve quindi due volte: all'umano che scorre il terminale e
-all'agente che diagnostica un bug senza doverlo indovinare.
+**Il debug logging resta centrale anche con gli agenti AI.** Un agente *può* pilotare un debugger, ma è uno strumento interattivo, lento e assente in CI e in produzione; i log invece sono **sensori** (Bockeler, in Fonti): artefatti testuali che l'agente può produrre, rileggere, filtrare e citare come evidenza nel report finale. Un buon logging di debug serve quindi due volte: all'umano che scorre il terminale e all'agente che diagnostica un bug senza doverlo indovinare.
 
 Regole:
 
-- **Livelli standard** `trace`/`debug`/`info`/`warn`/`error` (+ `fatal` dove sensato),
-  controllati da una variabile `LOG_LEVEL` validata all'avvio come il resto
-  dell'environment: default `debug` in sviluppo, `info` in produzione e nei test.
-  Sopprimibile fino a `warn`/`error`, aumentabile fino a `trace` senza rilasciare.
-- **Doppio formato**: JSON strutturato in produzione e CI (leggibile da macchine,
-  agenti e aggregatori); pretty a colori in sviluppo (leggibile da umani). Stessa
-  porta, due trasporti. Emoji MAY come marcatori visivi di livello, ma stabili nel
-  tempo e greppabili (es. `❌` error, `⚠️` warn), mai come unico segnale.
-- **Dove loggare**: ai confini — entrypoint, adapter, chiamate esterne, transizioni
-  di stato rilevanti — non dentro le funzioni pure di dominio. Child logger con
-  contesto e correlation/request ID propagato a ogni entry.
-- **Cosa non loggare**: segreti, PII, payload interi (troncare), hot loop. La
-  redazione è responsabilità dell'adapter, non del chiamante.
-- **Frontend**: stesso contratto `Logger`; l'adapter default scrive sulla console del
-  browser con gruppi collassabili e stili. Un pannello di log in-app (console fissa
-  riducibile/espandibile nel layout) è MAY: solo sviluppo, dietro flag, implementato
-  come adapter che bufferizza le entry; richiede un'ADR quando nasce l'esigenza reale.
-- **Per gli agenti**: in diagnosi SHOULD rieseguire il flusso con `LOG_LEVEL=debug`
-  e citare l'output rilevante nel report invece di ipotizzare il comportamento; i log
-  temporanei aggiunti per diagnosticare vanno rimossi o convertiti in chiamate
-  `debug`/`trace` prima della consegna — un `console.log` dimenticato è un gate rosso.
-- **Telemetria di prodotto (se esiste)**: gli eventi analytics sono definiti nei
-  contratti condivisi, non contengono mai PII o segreti e sono emessi tramite una
-  porta dedicata, mai con chiamate dirette al provider dal dominio o dagli
-  entrypoint. La conformità è verificata dal telemetry guard (§ 10).
+- **Livelli standard** `trace`/`debug`/`info`/`warn`/`error` (+ `fatal` dove sensato), controllati da una variabile `LOG_LEVEL` validata all'avvio come il resto dell'environment: default `debug` in sviluppo, `info` in produzione e nei test. Sopprimibile fino a `warn`/`error`, aumentabile fino a `trace` senza rilasciare.
+- **Doppio formato**: JSON strutturato in produzione e CI (leggibile da macchine, agenti e aggregatori); pretty a colori in sviluppo (leggibile da umani). Stessa porta, due trasporti. Emoji MAY come marcatori visivi di livello, ma stabili nel tempo e greppabili (es. `❌` error, `⚠️` warn), mai come unico segnale.
+- **Dove loggare**: ai confini — entrypoint, adapter, chiamate esterne, transizioni di stato rilevanti — non dentro le funzioni pure di dominio. Child logger con contesto e correlation/request ID propagato a ogni entry.
+- **Cosa non loggare**: segreti, PII, payload interi (troncare), hot loop. La redazione è responsabilità dell'adapter, non del chiamante.
+- **Frontend**: stesso contratto `Logger`; l'adapter default scrive sulla console del browser con gruppi collassabili e stili. Un pannello di log in-app (console fissa riducibile/espandibile nel layout) è MAY: solo sviluppo, dietro flag, implementato come adapter che bufferizza le entry; richiede un'ADR quando nasce l'esigenza reale.
+- **Per gli agenti**: in diagnosi SHOULD rieseguire il flusso con `LOG_LEVEL=debug` e citare l'output rilevante nel report invece di ipotizzare il comportamento; i log temporanei aggiunti per diagnosticare vanno rimossi o convertiti in chiamate `debug`/`trace` prima della consegna — un `console.log` dimenticato è un gate rosso.
+- **Telemetria di prodotto (se esiste)**: gli eventi analytics sono definiti nei contratti condivisi, non contengono mai PII o segreti e sono emessi tramite una porta dedicata, mai con chiamate dirette al provider dal dominio o dagli entrypoint. La conformità è verificata dal telemetry guard (§ 10).
 
-La telemetria copre due esigenze distinte, con tool diversi (riferimento: Tolaria,
-in Fonti):
+La telemetria copre due esigenze distinte, con tool diversi (riferimento: Tolaria, in Fonti):
 
-- **crash reporting**: cattura di eccezioni e crash con stack trace e contesto
-  tecnico, nient'altro. Tolaria usa **Sentry**, dedicato esclusivamente a questo
-  scopo (frontend TypeScript e backend Rust). Su un progetto di questo vademecum
-  l'adapter Sentry vive nel backend Node e, se esiste, in `apps/web`;
-- **product analytics**: eventi di utilizzo **anonimi** (es. interazioni con
-  l'editor) per capire come il prodotto viene usato. Tolaria usa **PostHog**
-  (self-hostable o cloud). Gli eventi sono definiti nei contratti e non
-  contengono mai PII.
+- **crash reporting**: cattura di eccezioni e crash con stack trace e contesto tecnico, nient'altro. Tolaria usa **Sentry**, dedicato esclusivamente a questo scopo (frontend TypeScript e backend Rust). Su un progetto di questo vademecum l'adapter Sentry vive nel backend Node e, se esiste, in `apps/web`;
+- **product analytics**: eventi di utilizzo **anonimi** (es. interazioni con l'editor) per capire come il prodotto viene usato. Tolaria usa **PostHog** (self-hostable o cloud). Gli eventi sono definiti nei contratti e non contengono mai PII.
 
-Le due porte restano separate: il crash reporting non diventa un canale analytics
-e viceversa. La scelta dei tool avviene tramite ADR; quelli citati sono il
-riferimento verificato, non un default obbligatorio.
+Le due porte restano separate: il crash reporting non diventa un canale analytics e viceversa. La scelta dei tool avviene tramite ADR; quelli citati sono il riferimento verificato, non un default obbligatorio.
 
 ### Contratti e dati esterni
 
@@ -590,13 +469,7 @@ const result = JSON.parse(raw) as SomeType;
 
 Il progetto seleziona una sola libreria di schema tramite ADR. Tipi TypeScript e JSON Schema devono derivare dalla stessa definizione, senza duplicazione manuale.
 
-Per la configurazione: i file `.env` reali sono sempre gitignored; nel repository
-vive un `.env.example` con valori finti ma strutturalmente validi, e l'environment
-viene validato all'avvio tramite lo schema scelto. Questo boilerplate aggiunge un
-`.env.default` committato come floor caricato sia dal `.envrc` del repo sia dai
-wrapper in `bin/`, un `.envrc` committato che carica `.env.default`, `.env` e
-`.envrc.local`, e wrapper PATH-globali che richiedono direnv. I segreti stanno
-solo in `.env` e `.envrc.local` (gitignored).
+Per la configurazione: i file `.env` reali sono sempre gitignored; nel repository vive un `.env.example` con valori finti ma strutturalmente validi, e l'environment viene validato all'avvio tramite lo schema scelto. Questo boilerplate aggiunge un `.env.default` committato come floor caricato sia dal `.envrc` del repo sia dai wrapper in `bin/`, un `.envrc` committato che carica `.env.default`, `.env` e `.envrc.local`, e wrapper PATH-globali che richiedono direnv. I segreti stanno solo in `.env` e `.envrc.local` (gitignored).
 
 ---
 
@@ -633,58 +506,25 @@ ESLint non viene installato per default. Può essere aggiunto tramite ADR soltan
 
 ### Code health e hotspot: free di default, pro solo a regime
 
-Questi strumenti rispondono a un'esigenza precisa del modello 3G: forniscono un
-**punteggio misurabile** su dimensioni che lint e coverage non coprono (hotspot,
-complessità, accoppiamento temporale, duplicazione), rendendo applicabili la Boy
-Scout Rule misurata (§ 12) e le soglie a cricchetto (§ 1). Restano MAY, ma quando
-si adottano si parte dallo **stack gratuito**: i commerciali (Codacy e CodeScene,
-al momento della verifica ~20 €/mese ciascuno per i repository privati e gratuiti
-solo per l'open source) si aggiungono solo quando il progetto diventa importante.
+Questi strumenti rispondono a un'esigenza precisa del modello 3G: forniscono un **punteggio misurabile** su dimensioni che lint e coverage non coprono (hotspot, complessità, accoppiamento temporale, duplicazione), rendendo applicabili la Boy Scout Rule misurata (§ 12) e le soglie a cricchetto (§ 1). Restano MAY, ma quando si adottano si parte dallo **stack gratuito**: i commerciali (Codacy e CodeScene, al momento della verifica ~20 €/mese ciascuno per i repository privati e gratuiti solo per l'open source) si aggiungono solo quando il progetto diventa importante.
 
 **Sostituto di Codacy — qualità continua, duplicazione, quality gate:**
 
-- **SonarQube Community Build**, self-hosted in Docker (~2 GB di RAM): analisi
-  TS/JS e Python, bug, code smell, vulnerabilità di base, duplicazione,
-  complessità, debito tecnico, import di coverage e di report SARIF, quality
-  gate. Limiti: niente analisi dei branch né decoration delle PR.
-- Alternativa zero-infrastruttura: **SonarQube Cloud Free** — fino a 5 membri e
-  50k LOC privati complessive, analisi del branch principale e delle PR verso di
-  esso, quality gate; progetti pubblici illimitati. Oltre la soglia si valuta
-  self-hosting o piano a pagamento.
-- Policy invariata: gate di **0 issue sul codice nuovo**; toccando codice
-  preesistente si correggono anche le issue dei file toccati.
-- Se serve SAST più profondo del livello base incluso: Semgrep CE (open source),
-  con ADR.
+- **SonarQube Community Build**, self-hosted in Docker (~2 GB di RAM): analisi TS/JS e Python, bug, code smell, vulnerabilità di base, duplicazione, complessità, debito tecnico, import di coverage e di report SARIF, quality gate. Limiti: niente analisi dei branch né decoration delle PR.
+- Alternativa zero-infrastruttura: **SonarQube Cloud Free** — fino a 5 membri e 50k LOC privati complessive, analisi del branch principale e delle PR verso di esso, quality gate; progetti pubblici illimitati. Oltre la soglia si valuta self-hosting o piano a pagamento.
+- Policy invariata: gate di **0 issue sul codice nuovo**; toccando codice preesistente si correggono anche le issue dei file toccati.
+- Se serve SAST più profondo del livello base incluso: Semgrep CE (open source), con ADR.
 
-**Sostituto di CodeScene — hotspot dalla storia git (churn × complessità),
-knowledge map, change coupling:**
+**Sostituto di CodeScene — hotspot dalla storia git (churn × complessità), knowledge map, change coupling:**
 
-- **CodeCharta** (open source, interamente locale): `unifiedparser` calcola
-  complessità, rloc e code smell su TS/TSX e Python; `gitlogparser` aggiunge
-  commit, autori, accoppiamento temporale e hotfix ratio; importa anche metriche
-  SonarQube, CodeMaat e coverage. Due comandi più un merge producono la mappa
-  degli hotspot.
-- Alternativa minimale: **CodeMaat** (la CLI open source dell'autore di
-  CodeScene, language-agnostic perché legge il git log) con output CSV.
-- Esecuzione: **mai nella fast lane** — girano nel health/refactoring guard
-  (§ 10) su `scheduled.yml` e producono report e task, non auto-fix.
-- Se basta un gate di complessità senza server né dashboard: **lizard** con
-  soglia di complessità ciclomatica in CI.
+- **CodeCharta** (open source, interamente locale): `unifiedparser` calcola complessità, rloc e code smell su TS/TSX e Python; `gitlogparser` aggiunge commit, autori, accoppiamento temporale e hotfix ratio; importa anche metriche SonarQube, CodeMaat e coverage. Due comandi più un merge producono la mappa degli hotspot.
+- Alternativa minimale: **CodeMaat** (la CLI open source dell'autore di CodeScene, language-agnostic perché legge il git log) con output CSV.
+- Esecuzione: **mai nella fast lane** — girano nel health/refactoring guard (§ 10) su `scheduled.yml` e producono report e task, non auto-fix.
+- Se basta un gate di complessità senza server né dashboard: **lizard** con soglia di complessità ciclomatica in CI.
 
-**Pro, solo a regime** (progetto con utenti reali, business o team multiplo):
-Codacy Team e/o CodeScene Standard, esposti all'agente via MCP; tornano gratuiti
-se il repository diventa open source. Su piani GitHub Team/Enterprise esiste
-anche GitHub Code Quality (a pagamento sui repository privati, gratuito sui
-pubblici), già richiamato al § 6 e § 11.
+**Pro, solo a regime** (progetto con utenti reali, business o team multiplo): Codacy Team e/o CodeScene Standard, esposti all'agente via MCP; tornano gratuiti se il repository diventa open source. Su piani GitHub Team/Enterprise esiste anche GitHub Code Quality (a pagamento sui repository privati, gratuito sui pubblici), già richiamato al § 6 e § 11.
 
-Esclusioni verificate al momento della scrittura: **DeepSource** (non gratuito
-per i repository privati), **Qodana** (il linter JS/TS richiede la licenza
-Ultimate; solo JVM, Python, .NET e C/C++ hanno edizione Community gratuita),
-**Mega-Linter** e **GitHub Super-Linter** (aggregatori senza scoring né quality
-gate: reintrodurrebbero ESLint/Prettier al posto di Oxlint/Biome e
-duplicherebbero Gitleaks, cspell, actionlint, markdownlint, ShellCheck,
-Hadolint e Trivy già curati singolarmente; per codice Python occasionale
-installare direttamente `ruff` e `mypy`).
+Esclusioni verificate al momento della scrittura: **DeepSource** (non gratuito per i repository privati), **Qodana** (il linter JS/TS richiede la licenza Ultimate; solo JVM, Python, .NET e C/C++ hanno edizione Community gratuita), **Mega-Linter** e **GitHub Super-Linter** (aggregatori senza scoring né quality gate: reintrodurrebbero ESLint/Prettier al posto di Oxlint/Biome e duplicherebbero Gitleaks, cspell, actionlint, markdownlint, ShellCheck, Hadolint e Trivy già curati singolarmente; per codice Python occasionale installare direttamente `ruff` e `mypy`).
 
 ### Escape hatch
 
@@ -751,11 +591,7 @@ Se questi budget vengono superati, ottimizzare suite, fixture e confini architet
 
 ### Matrice gate × stage
 
-Mappa consolidata dei controlli sui tre stage di esecuzione. Ogni riga corrisponde
-a una recipe `just` eseguibile in locale: **l'intera pipeline è sempre
-riproducibile in locale** (singole recipe per un controllo puntuale, `just ci` per
-il check completo); la CI esegue le stesse recipe e resta l'autorità finale, mai il
-primo punto di rilevamento.
+Mappa consolidata dei controlli sui tre stage di esecuzione. Ogni riga corrisponde a una recipe `just` eseguibile in locale: **l'intera pipeline è sempre riproducibile in locale** (singole recipe per un controllo puntuale, `just ci` per il check completo); la CI esegue le stesse recipe e resta l'autorità finale, mai il primo punto di rilevamento.
 
 | Controllo | Recipe | precommit | prepush | CI |
 |---|---|---|:---:|:---:|:---:|
@@ -778,22 +614,17 @@ primo punto di rilevamento.
 
 ### Fast path per diff docs-only
 
-Quando il diff tocca **esclusivamente** `docs/**`, `*.md`, `.github/workflows/**`
-e `.githooks/**` — lista esatta e completa mantenuta nel justfile — i gate si
-riducono ai controlli pertinenti:
+Quando il diff tocca **esclusivamente** `docs/**`, `*.md`, `.github/workflows/**` e `.githooks/**` — lista esatta e completa mantenuta nel justfile — i gate si riducono ai controlli pertinenti:
 
-- `just precommit` esegue solo `docs-check` e, se i workflow sono toccati,
-  `workflows-check`;
-- `just prepush` aggiunge la verifica di freschezza del bundle `agent-docs/`,
-  se esiste (§ 7);
+- `just precommit` esegue solo `docs-check` e, se i workflow sono toccati, `workflows-check`;
+- `just prepush` aggiunge la verifica di freschezza del bundle `agent-docs/`, se esiste (§ 7);
 - la CI esegue soltanto i job minimi di docs e lint.
 
 Invarianti:
 
 - la lista dei path è protetta da CODEOWNERS come ogni altro file di gate (§ 11);
 - un diff misto (docs + codice) percorre sempre il percorso completo;
-- nessuna soglia viene abbassata: i controlli saltati non sono ridotti, sono non
-  pertinenti al diff;
+- nessuna soglia viene abbassata: i controlli saltati non sono ridotti, sono non pertinenti al diff;
 - `just ci` resta sempre disponibile in locale per la pipeline completa.
 
 Gli hook versionati chiamano soltanto:
@@ -803,9 +634,7 @@ just precommit
 just prepush
 ```
 
-I gate devono vivere **in locale prima che in CI**: l'hook dà feedback immediato
-all'agente, che può correggere subito nello stesso ciclo. La CI esegue le stesse
-recipe e resta l'autorità finale, non il primo punto di rilevamento.
+I gate devono vivere **in locale prima che in CI**: l'hook dà feedback immediato all'agente, che può correggere subito nello stesso ciclo. La CI esegue le stesse recipe e resta l'autorità finale, non il primo punto di rilevamento.
 
 ---
 
@@ -826,10 +655,7 @@ Il modo di lavoro predefinito dell'agente è **red → green → refactor**:
 2. implementare il minimo per farlo passare;
 3. rifattorizzare a test verdi.
 
-Motivo determinante in un progetto AI-only: **un test che non è mai stato visto
-fallire è sospetto** — può essere tautologico, non assertivo, o scollegato dal
-codice sotto test. Il ciclo TDD è la contromisura strutturale ai test fantasma
-(§ 9), oltre che il rimedio da insegnare quando un gate di coverage fallisce.
+Motivo determinante in un progetto AI-only: **un test che non è mai stato visto fallire è sospetto** — può essere tautologico, non assertivo, o scollegato dal codice sotto test. Il ciclo TDD è la contromisura strutturale ai test fantasma (§ 9), oltre che il rimedio da insegnare quando un gate di coverage fallisce.
 
 ### Qualità dei test
 
@@ -908,11 +734,7 @@ Coprono:
 
 Playwright deve conservare trace, screenshot e log sui fallimenti, non su ogni esecuzione.
 
-**Keyboard-first** (progetti con UI): gli agenti sono deboli con il mouse e con i
-dettagli pixel-perfect. Il prodotto SHOULD essere interamente usabile da tastiera e
-i test E2E SHOULD preferire interazioni da tastiera quando equivalenti. In fase di
-implementazione UI, usare sempre i componenti del design system del progetto, mai
-elementi HTML grezzi, e studiare il linguaggio visivo esistente prima di aggiungerne.
+**Keyboard-first** (progetti con UI): gli agenti sono deboli con il mouse e con i dettagli pixel-perfect. Il prodotto SHOULD essere interamente usabile da tastiera e i test E2E SHOULD preferire interazioni da tastiera quando equivalenti. In fase di implementazione UI, usare sempre i componenti del design system del progetto, mai elementi HTML grezzi, e studiare il linguaggio visivo esistente prima di aggiungerne.
 
 ### Test LLM, se presenti
 
@@ -933,8 +755,7 @@ o a workflow schedulati. Non bloccano la normale fast lane salvo decisione espli
 
 ### Regole generali
 
-Per ogni bug fix (**zero-bugs policy**: i bug hanno priorità sulle feature e vanno
-replicati e corretti al più presto):
+Per ogni bug fix (**zero-bugs policy**: i bug hanno priorità sulle feature e vanno replicati e corretti al più presto):
 
 1. riprodurre il problema con un test fallente;
 2. implementare il fix;
@@ -973,9 +794,7 @@ I threshold sono **a cricchetto** (§ 1): la recipe
 just coverage-raise
 ```
 
-può alzarli automaticamente al valore corrente, ma nessun comando deve poterli
-abbassare. Una modifica che abbassa i threshold nel diff è un segnale di
-aggiramento del gate e deve bloccare la review.
+può alzarli automaticamente al valore corrente, ma nessun comando deve poterli abbassare. Una modifica che abbassa i threshold nel diff è un segnale di aggiramento del gate e deve bloccare la review.
 
 Se disponibile nel piano GitHub (Code Quality è gratuito sui repository pubblici e a pagamento sui privati), caricare un report Cobertura nella Code Quality API e configurare il ruleset con:
 
@@ -990,12 +809,7 @@ GitHub può mostrare la coverage direttamente nelle PR e bloccare merge che ne r
 
 ### La documentazione è infrastruttura per l'AI
 
-In un progetto sviluppato da agenti, la documentazione non è (solo) per gli umani:
-è **il meccanismo principale per iniettare buon giudizio nell'AI**. Le regole astratte
-vengono ignorate con una certa frequenza; le decisioni passate, concrete e motivate,
-vengono seguite con affidabilità molto maggiore (>90–95% nelle esperienze documentate).
-Per questo i decision record non sono burocrazia: sono il modo in cui il progetto
-accumula giudizio riutilizzabile.
+In un progetto sviluppato da agenti, la documentazione non è (solo) per gli umani: è **il meccanismo principale per iniettare buon giudizio nell'AI**. Le regole astratte vengono ignorate con una certa frequenza; le decisioni passate, concrete e motivate, vengono seguite con affidabilità molto maggiore (>90–95% nelle esperienze documentate). Per questo i decision record non sono burocrazia: sono il modo in cui il progetto accumula giudizio riutilizzabile.
 
 ### Gerarchia delle fonti
 
@@ -1022,8 +836,7 @@ Convenzioni:
 - le ADR sono anche l'**artefatto di review** per l'umano: più leggibili del diff riga per riga;
 - la directory delle ADR è configurabile nel `conventions.conf` in radice (`ADR_PATH`, default `docs/adr`); con Kilo la creazione passa dal comando `/create-adr`, che mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e dello stato delle decisioni.
 
-Quando serve un’ADR: nuova dipendenza significativa, strategia di storage, astrazione
-core, pattern cross-cutting, deroga a uno SHOULD di questo vademecum.
+Quando serve un’ADR: nuova dipendenza significativa, strategia di storage, astrazione core, pattern cross-cutting, deroga a uno SHOULD di questo vademecum.
 Quando **non** serve: bug fix, styling, refactoring che preservano il comportamento.
 
 Formato:
@@ -1063,17 +876,9 @@ Piano di migrazione e rollback, se rilevanti.
 
 ### PDR — Product Decision Record
 
-Serve una PDR quando viene introdotta o modificata una regola osservabile dall’utente
-o dal business — **ogni decisione di prodotto genuinamente nuova**, indipendentemente
-dalla dimensione del lavoro (un'epica può non introdurre nulla di nuovo, una piccola
-storia può introdurre un pattern importante). Non serve per pattern già consolidati.
-Un agente non deve inventare autonomamente una nuova regola di prodotto in presenza
-di ambiguità: apre una PDR `proposed` o chiede.
+Serve una PDR quando viene introdotta o modificata una regola osservabile dall’utente o dal business — **ogni decisione di prodotto genuinamente nuova**, indipendentemente dalla dimensione del lavoro (un'epica può non introdurre nulla di nuovo, una piccola storia può introdurre un pattern importante). Non serve per pattern già consolidati. Un agente non deve inventare autonomamente una nuova regola di prodotto in presenza di ambiguità: apre una PDR `proposed` o chiede.
 
-La directory delle PDR è configurabile nel `conventions.conf` in radice (`PDR_PATH`,
-default `docs/pdr`); con Kilo la creazione passa dal comando `/create-pdr`, che
-mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e
-dello stato delle decisioni.
+La directory delle PDR è configurabile nel `conventions.conf` in radice (`PDR_PATH`, default `docs/pdr`); con Kilo la creazione passa dal comando `/create-pdr`, che mantiene anche il `README.md` indice della directory — unica fonte dell'elenco e dello stato delle decisioni.
 
 Formato:
 
@@ -1108,31 +913,19 @@ Criteri di accettazione verificabili.
 
 ### Glossary e Vision
 
-`docs/product/GLOSSARY.md` è l'equivalente di prodotto degli overview architetturali:
-mappa le **astrazioni di dominio** (componenti UI ma anche concetti non-UI: workflow,
-integrazioni, entità) descrivendo per ognuna perché esiste, a cosa serve e come si usa.
-È un documento vivo, *derivato* dalla somma delle PDR attive, e va aggiornato quando
-una PDR introduce o modifica un'astrazione. Il suo scopo operativo è ancorare le spec
-generate dall'AI: con un glossario mantenuto, il rework sulle specifiche cala
-drasticamente (evidenza riportata: dal 60% al 20%).
+`docs/product/GLOSSARY.md` è l'equivalente di prodotto degli overview architetturali: mappa le **astrazioni di dominio** (componenti UI ma anche concetti non-UI: workflow, integrazioni, entità) descrivendo per ognuna perché esiste, a cosa serve e come si usa. È un documento vivo, *derivato* dalla somma delle PDR attive, e va aggiornato quando una PDR introduce o modifica un'astrazione. Il suo scopo operativo è ancorare le spec generate dall'AI: con un glossario mantenuto, il rework sulle specifiche cala drasticamente (evidenza riportata: dal 60% al 20%).
 
-`docs/product/VISION.md` (MAY): principi di prodotto stabili, usati dall'AI per
-brainstorm e bozze di spec. L'*intent* resta umano; la Vision gli dà forma verificabile.
+`docs/product/VISION.md` (MAY): principi di prodotto stabili, usati dall'AI per brainstorm e bozze di spec. L'*intent* resta umano; la Vision gli dà forma verificabile.
 
 ### Bundle `agent-docs/` per lookup machine-friendly (MAY)
 
-Un progetto MAY generare un bundle di documentazione derivato, ottimizzato per il
-lookup degli agenti: `agent-docs/index.md`, `all.md`, `search-index.json` ed
-eventuali pagine per sezione.
+Un progetto MAY generare un bundle di documentazione derivato, ottimizzato per il lookup degli agenti: `agent-docs/index.md`, `all.md`, `search-index.json` ed eventuali pagine per sezione.
 
 Regole:
 
 - è generato da `just docs-bundle` (script in `tools/scripts/`), mai editato a mano;
-- è un **artefatto derivato**, non una seconda fonte: la fonte canonica resta
-  `docs/` e il bundle non introduce contenuto nuovo, quindi non viola il divieto
-  di frammentazione delle regole (§ 8, § 14);
-- se committato nel repository, un gate anti-stale verifica che sia aggiornato
-  rispetto a `docs/`; in alternativa è gitignored e generato on demand;
+- è un **artefatto derivato**, non una seconda fonte: la fonte canonica resta `docs/` e il bundle non introduce contenuto nuovo, quindi non viola il divieto di frammentazione delle regole (§ 8, § 14);
+- se committato nel repository, un gate anti-stale verifica che sia aggiornato rispetto a `docs/`; in alternativa è gitignored e generato on demand;
 - il deploy opzionale su GitHub Pages vive in `deploy-docs.yml` (§ 11).
 
 ---
@@ -1141,16 +934,10 @@ Regole:
 
 ### Vincoli su `AGENTS.md`
 
-- **Un solo file canonico**, sempre caricato dall'agente. Semplicità deliberata:
-  niente frammentazione in decine di file di regole.
-- **Corto: <200 righe.** Il contesto dell'agente è la risorsa scarsa. Ogni riga deve
-  guadagnarsi il posto; il dettaglio vive nei documenti canonici linkati.
-- **Mantenuto dall'AI, approvato dall'umano.** Periodicamente (retrospettiva, § 10)
-  l'agente propone aggiornamenti basati sui problemi incontrati; entrano via PR.
-  Serve una procedura di pulizia contro il *context rot*: regole mai violate perché
-  ormai coperte da un gate vanno rimosse.
-- Regola di trasferimento: **quando una guida si dimostra critica e violabile, la si
-  trasforma in un gate** e la si rimuove o alleggerisce dalla guida.
+- **Un solo file canonico**, sempre caricato dall'agente. Semplicità deliberata: niente frammentazione in decine di file di regole.
+- **Corto: <200 righe.** Il contesto dell'agente è la risorsa scarsa. Ogni riga deve guadagnarsi il posto; il dettaglio vive nei documenti canonici linkati.
+- **Mantenuto dall'AI, approvato dall'umano.** Periodicamente (retrospettiva, § 10) l'agente propone aggiornamenti basati sui problemi incontrati; entrano via PR. Serve una procedura di pulizia contro il *context rot*: regole mai violate perché ormai coperte da un gate vanno rimosse.
+- Regola di trasferimento: **quando una guida si dimostra critica e violabile, la si trasforma in un gate** e la si rimuove o alleggerisce dalla guida.
 
 ### `AGENTS.md` minimale
 
@@ -1196,8 +983,7 @@ Regole:
 - NEVER use `--no-verify` or otherwise skip hooks.
 - NEVER lower coverage or quality thresholds; they only ratchet up.
 - NEVER extend ignore-lists, exclusions or suppressions to make a gate pass.
-- If a gate fails and you cannot find the fix, stop and report the exact
-  failure. Do not work around it.
+- If a gate fails and you cannot find the fix, stop and report the exact failure. Do not work around it.
 
 ## Testing
 
@@ -1205,16 +991,14 @@ Regole:
 - Mock only external or non-deterministic boundaries.
 - Tests must be isolated, deterministic, fast and behavioral.
 - Never call live external services or LLMs unless explicitly requested.
-- UI: use design-system components, never raw HTML elements; prefer
-  keyboard-driven interactions.
+- UI: use design-system components, never raw HTML elements; prefer keyboard-driven interactions.
 
 ## Validation
 
 - During development run `just precommit`.
 - Before completion run `just prepush`.
 - If a required command cannot run, report the exact reason.
-- Never claim a check passed unless you executed it successfully; quote the
-  actual command output in the final report.
+- Never claim a check passed unless you executed it successfully; quote the actual command output in the final report.
 
 ## Git safety
 
@@ -1309,17 +1093,12 @@ Tabella di riferimento. La colonna 3G indica dove vive la contromisura principal
 
 ## 10. Guards: procedure di fallback
 
-I guard coprono ciò che i gate non possono catturare: *judgment call* (serviva un ADR?
-una nuova stringa da localizzare? un evento analytics?) e *big picture* (una modifica
-corretta in isolamento può degradare il sistema nel tempo).
+I guard coprono ciò che i gate non possono catturare: *judgment call* (serviva un ADR? una nuova stringa da localizzare? un evento analytics?) e *big picture* (una modifica corretta in isolamento può degradare il sistema nel tempo).
 
 Regole:
 
-- i guard **non modificano direttamente il codice**: producono report e aprono
-  issue/task nel backlog, che il normale flusso di lavoro raccoglie;
-- girano tramite `just guards` in locale e tramite `scheduled.yml` in CI
-  (frequenza notturna o settimanale); in assenza di scheduling, l'esecuzione
-  manuale periodica resta obbligo del mantainer;
+- i guard **non modificano direttamente il codice**: producono report e aprono issue/task nel backlog, che il normale flusso di lavoro raccoglie;
+- girano tramite `just guards` in locale e tramite `scheduled.yml` in CI (frequenza notturna o settimanale); in assenza di scheduling, l'esecuzione manuale periodica resta obbligo del mantainer;
 - ogni guard è report-only: nessun auto-fix, nessun commit automatico.
 
 Guard predefiniti:
@@ -1335,11 +1114,7 @@ Guard predefiniti:
 
 ### Retrospettiva di processo
 
-È un guard speciale, da eseguire con cadenza regolare (settimanale o a fine ciclo di
-lavoro intenso): l'agente analizza i problemi incontrati — gate falliti ripetutamente,
-istruzioni ignorate, workaround tentati, task riaperti — e propone aggiornamenti a
-`AGENTS.md`, alle guide e ai guard stessi, tramite PR. È il meccanismo che chiude il
-loop del § 1: il sistema di regole migliora in base all'evidenza, non per accumulo.
+È un guard speciale, da eseguire con cadenza regolare (settimanale o a fine ciclo di lavoro intenso): l'agente analizza i problemi incontrati — gate falliti ripetutamente, istruzioni ignorate, workaround tentati, task riaperti — e propone aggiornamenti a `AGENTS.md`, alle guide e ai guard stessi, tramite PR. È il meccanismo che chiude il loop del § 1: il sistema di regole migliora in base all'evidenza, non per accumulo.
 
 ---
 
@@ -1375,8 +1150,7 @@ dependency-review
 
 `quality` esegue le recipe statiche aggregate. La CI usa installazione frozen e non modifica il lockfile.
 
-`scheduled.yml` ospita l'esecuzione automatica dei guard (§ 10): apre issue con i
-risultati, senza committare codice.
+`scheduled.yml` ospita l'esecuzione automatica dei guard (§ 10): apre issue con i risultati, senza committare codice.
 
 ### Ruleset di `main`
 
@@ -1393,13 +1167,9 @@ Configurare:
 - code scanning e coverage gate, quando disponibili;
 - merge queue se operano molti agenti in parallelo.
 
-Il default è un solo agente di coding alla volta: il collo di bottiglia è la
-validazione umana, non la generazione. Il lavoro parallelo di più agenti (worktree,
-merge queue) va introdotto solo quando la capacità di review lo sostiene.
+Il default è un solo agente di coding alla volta: il collo di bottiglia è la validazione umana, non la generazione. Il lavoro parallelo di più agenti (worktree, merge queue) va introdotto solo quando la capacità di review lo sostiene.
 
-Progetti personali a singolo mantainer MAY adottare un flusso trunk-based con commit
-frequenti direttamente su `main` e hook come gate unico, ma la scelta va registrata
-in un'ADR e i divieti di aggiramento restano identici.
+Progetti personali a singolo mantainer MAY adottare un flusso trunk-based con commit frequenti direttamente su `main` e hook come gate unico, ma la scelta va registrata in un'ADR e i divieti di aggiramento restano identici.
 
 I ruleset GitHub possono richiedere status check, risultati CodeQL, Code Quality e soglie di coverage. ([docs.github.com](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets?ref=jscarle.dev))
 
@@ -1482,14 +1252,12 @@ Per container o binari pubblicati, generare SBOM e artifact attestation.
 
 ### Prima di modificare codice
 
-0. Verificare che i gate siano verdi: **mai iniziare lavoro nuovo su un codebase
-   sotto soglia**. Se sono rossi, ripristinare la salute o segnalare il blocco.
+0. Verificare che i gate siano verdi: **mai iniziare lavoro nuovo su un codebase sotto soglia**. Se sono rossi, ripristinare la salute o segnalare il blocco.
 1. Leggere `PROJECT.md` e l’indice.
 2. Identificare bounded context e API pubbliche coinvolte.
 3. Leggere test, ADR e PDR rilevanti.
 4. Verificare se la richiesta contiene ambiguità di prodotto (→ PDR `proposed` o domanda).
-5. Definire un piano breve. Il task deve stare in una sessione di lavoro:
-   se il piano non ci sta, spezzare il task prima di iniziare.
+5. Definire un piano breve. Il task deve stare in una sessione di lavoro: se il piano non ci sta, spezzare il task prima di iniziare.
 6. Creare branch o worktree dedicato.
 
 ### Durante la modifica
@@ -1500,9 +1268,7 @@ Per container o binari pubblicati, generare SBOM e artifact attestation.
 - non aggiungere nuove astrazioni senza necessità;
 - eseguire continuamente `just precommit`;
 - aggiornare test e documentazione insieme al codice;
-- **Boy Scout Rule, riconciliata col diff minimo**: il codice *toccato* va lasciato
-  migliore di come è stato trovato, misuratamente (issue dei gate risolte nei file
-  modificati); refactoring di codice non correlato resta vietato;
+- **Boy Scout Rule, riconciliata col diff minimo**: il codice *toccato* va lasciato migliore di come è stato trovato, misuratamente (issue dei gate risolte nei file modificati); refactoring di codice non correlato resta vietato;
 - non silenziare check per ottenere una pipeline verde (§ 9);
 - ADR/PDR nello stesso commit del codice che le implementa.
 
@@ -1517,11 +1283,9 @@ Per container o binari pubblicati, generare SBOM e artifact attestation.
 
 ### Convenzione dei messaggi di commit (SHOULD)
 
-I messaggi di commit SHOULD seguire una convenzione derivata dai conventional
-commits. È una guida, non un gate: niente commitlint.
+I messaggi di commit SHOULD seguire una convenzione derivata dai conventional commits. È una guida, non un gate: niente commitlint.
 
-Formato: una prima riga riassuntiva con prefisso, una riga vuota, poi una lista
-puntata Markdown che descrive le cose fatte con dettaglio maggiore ma sintetico:
+Formato: una prima riga riassuntiva con prefisso, una riga vuota, poi una lista puntata Markdown che descrive le cose fatte con dettaglio maggiore ma sintetico:
 
 ```text
 feat: add retry policy to the payments adapter
@@ -1531,13 +1295,9 @@ feat: add retry policy to the payments adapter
 - add integration tests for retry, idempotency and terminal failure
 ```
 
-Prefissi ammessi: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`,
-`build`, `ci`, `revert`.
+Prefissi ammessi: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`.
 
-L'agente che fa modifiche mantiene `tmp/commit-message.md` con il messaggio che
-intende proporre per il lavoro in corso: il file va **azzerato** quando si inizia
-una modifica partendo da `git status` pulito, **integrato o corretto** altrimenti.
-`tmp/` è gitignored.
+L'agente che fa modifiche mantiene `tmp/commit-message.md` con il messaggio che intende proporre per il lavoro in corso: il file va **azzerato** quando si inizia una modifica partendo da `git status` pulito, **integrato o corretto** altrimenti. `tmp/` è gitignored.
 
 ---
 
@@ -1551,20 +1311,16 @@ Una feature o un fix è completo solo se:
 - [ ]  ogni nuovo test è stato **visto fallire** prima dell'implementazione;
 - [ ]  happy path, errori e casi limite rilevanti sono coperti;
 - [ ]  la coverage non è diminuita;
-- [ ]  nessuna soglia è stata abbassata e nessun gate è stato aggirato; il diff non
-       contiene modifiche ingiustificate a justfile, hook, config di lint/coverage;
+- [ ]  nessuna soglia è stata abbassata e nessun gate è stato aggirato; il diff non contiene modifiche ingiustificate a justfile, hook, config di lint/coverage;
 - [ ]  non esistono nuovi warning o suppression ingiustificate;
 - [ ]  non esistono file, export o dipendenze inutilizzati;
 - [ ]  le regole architetturali passano;
-- [ ]  ogni nuovo caso d'uso è esposto sulle superfici decise (registry CLI, route
-       API, tool MCP) con naming parallelo e contratti condivisi, e la mappa delle
-       superfici in `docs/PROJECT.md` è aggiornata;
+- [ ]  ogni nuovo caso d'uso è esposto sulle superfici decise (registry CLI, route API, tool MCP) con naming parallelo e contratti condivisi, e la mappa delle superfici in `docs/PROJECT.md` è aggiornata;
 - [ ]  gli schemi esterni sono validati a runtime;
 - [ ]  documentazione, ADR e PDR sono aggiornate nello stesso commit;
 - [ ]  `just prepush` passa;
 - [ ]  il report finale cita l'output reale dei comandi eseguiti;
-- [ ]  il messaggio in `tmp/commit-message.md` segue la convenzione (§ 12) e
-       descrive l'intero diff;
+- [ ]  il messaggio in `tmp/commit-message.md` segue la convenzione (§ 12) e descrive l'intero diff;
 - [ ]  rischi e test non eseguiti sono dichiarati;
 - [ ]  il diff non contiene modifiche estranee.
 
@@ -1608,56 +1364,29 @@ Non introdurre senza una necessità misurata e un’ADR:
 10. Creare il `justfile` e gli hook.
 11. Fissare i threshold iniziali di coverage come **baseline del cricchetto**.
 12. Aggiungere `AGENTS.md` e i bridge per gli altri agenti.
-13. Scrivere `docs/development/GETTING-STARTED.md` (§ 3) e linkarlo da
-    `docs/INDEX.md` e da `docs/PROJECT.md`.
+13. Scrivere `docs/development/GETTING-STARTED.md` (§ 3) e linkarlo da `docs/INDEX.md` e da `docs/PROJECT.md`.
 14. Configurare GitHub Actions, ruleset, CODEOWNERS (inclusi i file di gate) e Dependabot.
 15. Abilitare security scanning e coverage gate.
 16. Aggiungere `bun-smoke`.
 17. Configurare `scheduled.yml` con i guard e calendarizzare la prima retrospettiva.
 18. Verificare che `just ci` funzioni su una clone pulita.
 
-MAY, se si adotta il bundle `agent-docs/` (§ 7): aggiungere la recipe
-`just docs-bundle` e il workflow `deploy-docs.yml`.
+MAY, se si adotta il bundle `agent-docs/` (§ 7): aggiungere la recipe `just docs-bundle` e il workflow `deploy-docs.yml`.
 
 ---
 
 Il principio riassuntivo è:
 
-> **Guides corte e vive, gate deterministici a cricchetto, guard che creano task invece
-> di codice. Una sola interfaccia operativa, documentazione gerarchica come iniezione
-> di giudizio, architettura verificata automaticamente, TDD come ciclo di default,
-> molti integration test comportamentali e pochi E2E ad alto valore. L'obiettivo non
-> è la velocità iniziale ma non degradare nel tempo.**
+> **Guides corte e vive, gate deterministici a cricchetto, guard che creano task invece di codice. Una sola interfaccia operativa, documentazione gerarchica come iniezione di giudizio, architettura verificata automaticamente, TDD come ciclo di default, molti integration test comportamentali e pochi E2E ad alto valore. L'obiettivo non è la velocità iniziale ma non degradare nel tempo.**
 
 ---
 
 ## Fonti
 
 - Vademecum originale: versione precedente di questo file (chat GPT-5.6-Sol, in cronologia git).
-- Sintesi del workflow AI di Luca Rossi (Refactoring): `docs/init/Refactoring/00-refactoring-ai-workflow.md`,
-  in particolare [My AI Coding Workflow](https://refactoring.fm/p/my-ai-coding-workflow-b09) (modello 3G),
-  [How I Run the Tolaria Project](https://refactoring.fm/p/how-i-run-the-tolaria-project) (validazione, zero-bugs),
-  [How to make AI better at product](https://refactoring.fm/p/how-to-make-ai-better-at-product) (PDR, Glossary),
-  [How to Orchestrate AI Workflows](https://refactoring.fm/p/how-to-orchestrate-ai-workflows) (agents as scaffolding).
-- Pattern di processo del repository Tolaria: `docs/init/Refactoring/tolaria-dev-guidelines/`
-  (fast path docs-only, matrice gate × stage, bundle `agent-docs/`, convenzione
-  dei commit, policy telemetry, getting-started).
+- Sintesi del workflow AI di Luca Rossi (Refactoring): `docs/init/Refactoring/00-refactoring-ai-workflow.md`, in particolare [My AI Coding Workflow](https://refactoring.fm/p/my-ai-coding-workflow-b09) (modello 3G), [How I Run the Tolaria Project](https://refactoring.fm/p/how-i-run-the-tolaria-project) (validazione, zero-bugs), [How to make AI better at product](https://refactoring.fm/p/how-to-make-ai-better-at-product) (PDR, Glossary), [How to Orchestrate AI Workflows](https://refactoring.fm/p/how-to-orchestrate-ai-workflows) (agents as scaffolding).
+- Pattern di processo del repository Tolaria: `docs/init/Refactoring/tolaria-dev-guidelines/` (fast path docs-only, matrice gate × stage, bundle `agent-docs/`, convenzione dei commit, policy telemetry, getting-started).
 - [Test Desiderata — Kent Beck](https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3).
 - [Sensors for coding agents — Birgitta Bockeler](https://martinfowler.com/articles/sensors-for-coding-agents.html).
-- Superfici di ingresso (§ 3):
-  [MCP TypeScript SDK v2](https://github.com/modelcontextprotocol/typescript-sdk) e
-  [documentazione v2](https://ts.sdk.modelcontextprotocol.io/v2/);
-  [Building a CLI That Works for Humans and Machines — OpenStatus](https://www.openstatus.dev/blog/building-cli-for-human-and-agents);
-  [Machine-Readable Output — Agent Surface](https://agentsurface.dev/docs/cli-design/machine-readable-output);
-  [Building a production TypeScript CLI in 2026: oclif vs commander vs custom](https://dev.to/thegdsks/building-a-production-typescript-cli-in-2026-oclif-vs-commander-vs-custom-9ah);
-  [Vertical Slice Architecture in Node.js — The T-Shaped Dev](https://thetshaped.dev/p/vertical-slice-architecture-in-nodejs-typescript-one-folder-per-use-case).
-- Code health e alternative gratuite (§ 4), prezzi e licenze verificati 2026-08:
-  [SonarQube Community Build](https://www.sonarsource.com/open-source-editions/sonarqube-community-edition/) e
-  [piani SonarQube Cloud](https://docs.sonarsource.com/sonarqube-cloud/administering-sonarcloud/managing-subscription/subscription-plans);
-  [prezzi Codacy](https://www.codacy.com/pricing) e [prezzi CodeScene](https://codescene.com/pricing);
-  [licenze e linter Qodana](https://www.jetbrains.com/help/qodana/linters.html);
-  [GitHub Code Quality GA](https://github.blog/changelog/2026-07-20-github-code-quality-is-now-generally-available/);
-  [CodeCharta](https://codecharta.com/docs/parser/git-log) (parser git-log e unified);
-  [CodeMaat](https://github.com/adamtornhill/code-maat);
-  [lizard](https://github.com/terryyin/lizard);
-  [linter supportati da Mega-Linter](https://megalinter.io/latest/supported-linters/).
+- Superfici di ingresso (§ 3): [MCP TypeScript SDK v2](https://github.com/modelcontextprotocol/typescript-sdk) e [documentazione v2](https://ts.sdk.modelcontextprotocol.io/v2/); [Building a CLI That Works for Humans and Machines — OpenStatus](https://www.openstatus.dev/blog/building-cli-for-human-and-agents); [Machine-Readable Output — Agent Surface](https://agentsurface.dev/docs/cli-design/machine-readable-output); [Building a production TypeScript CLI in 2026: oclif vs commander vs custom](https://dev.to/thegdsks/building-a-production-typescript-cli-in-2026-oclif-vs-commander-vs-custom-9ah); [Vertical Slice Architecture in Node.js — The T-Shaped Dev](https://thetshaped.dev/p/vertical-slice-architecture-in-nodejs-typescript-one-folder-per-use-case).
+- Code health e alternative gratuite (§ 4), prezzi e licenze verificati 2026-08: [SonarQube Community Build](https://www.sonarsource.com/open-source-editions/sonarqube-community-edition/) e [piani SonarQube Cloud](https://docs.sonarsource.com/sonarqube-cloud/administering-sonarcloud/managing-subscription/subscription-plans); [prezzi Codacy](https://www.codacy.com/pricing) e [prezzi CodeScene](https://codescene.com/pricing); [licenze e linter Qodana](https://www.jetbrains.com/help/qodana/linters.html); [GitHub Code Quality GA](https://github.blog/changelog/2026-07-20-github-code-quality-is-now-generally-available/); [CodeCharta](https://codecharta.com/docs/parser/git-log) (parser git-log e unified); [CodeMaat](https://github.com/adamtornhill/code-maat); [lizard](https://github.com/terryyin/lizard); [linter supportati da Mega-Linter](https://megalinter.io/latest/supported-linters/).
