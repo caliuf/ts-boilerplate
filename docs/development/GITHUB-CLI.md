@@ -95,6 +95,8 @@ gh api repos/<owner>/<repo>/issues/comments/<id> -X DELETE
 
 ## Impostazioni del repo
 
+Per il setup iniziale di un repo derivato da questo boilerplate (remote, security, ruleset, chi fa cosa) vedi [`NEW-PROJECT.md`](./NEW-PROJECT.md) § Setup GitHub. Qui restano i gotcha operativi.
+
 Alcune impostazioni di sicurezza non si abilitano via API anche con scope `repo`. Ad esempio, **Dependency graph** su un repo pubblico va attivato manualmente in *Settings → Code security → Dependency graph*.
 
 Tentativo API (documentato ma non efficace qui):

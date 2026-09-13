@@ -41,9 +41,9 @@ I tipi sono quelli dei conventional commit: `feat`, `fix`, `refactor`, `perf`, `
 Il ruleset di `main` richiede review approvante di un code owner, ma GitHub non consente di approvare la propria PR. La politica è:
 
 - **PR aperte da un agente remoto** (es. Kilo Cloud Agent con la sua GitHub App): l'autore è l'app, quindi il maintainer può — e deve — fare la review. Il ruleset funziona come progettato.
-- **PR aperte dal maintainer in locale**: dopo CI verde il merge avviene con bypass owner consapevole (l'evento resta auditato). Non aggirare i check: il bypass salta solo la review, non gli status check.
+- **PR aperte dal maintainer in locale**: dopo i gate locali verdi il merge (o il push diretto su `main`) avviene con bypass owner consapevole, auditato. Il bypass ruleset con modalità *Always* salta l'intero ruleset, status check compresi: non usarlo per chiudere PR rosse; serve al flusso quotidiano su `main`/worktree senza aspettare Actions.
 
-Merge sempre con squash (ruleset): la storia di `main` resta lineare e un commit per PR.
+Il remote consente squash, merge commit e rebase. Non è squash-only e non c'è `required_linear_history`: si sceglie il metodo in base alla PR. Squash per le PR piccole o rumorose; merge commit (o rebase) quando si vuole conservare i commit del branch. Al merge di una PR GitHub cancella il branch remoto (`delete_branch_on_merge`); i commit già su `main` restano.
 
 ### Worktree in locale (Kilo Agent Manager)
 
@@ -54,7 +54,7 @@ Regole pratiche:
 - Alla creazione del worktree gira `.kilo/setup-script.sh` (installazione dipendenze via pnpm store condiviso, copia di `.envrc.local`).
 - Non usare `git stash` per spostare lavoro: lo stash è condiviso fra tutti i worktree.
 - Dev server in parallelo (es. `apps/api`, `apps/web`): derivare le porte da `WORKTREE_PATH` per evitare collisioni.
-- Dopo il merge della PR: rimuovere il worktree (dalla UI o `git worktree remove`) ed eliminare il branch remoto.
+- Dopo il merge della PR: rimuovere il worktree (dalla UI o `git worktree remove`). Il branch remoto lo cancella GitHub (`delete_branch_on_merge`).
 
 ## CI (GitHub Actions)
 
@@ -73,8 +73,7 @@ I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-c
 1. **Niente per far partire la CI**: i workflow partono da soli al primo push.
 2. Abilita in *Settings → Code security*: Dependabot alerts, security updates, secret scanning, push protection.
 3. Abilita **Dependency graph** in *Settings → Code security → Dependency graph* (richiesto dal job `dependency-review` in `ci.yml`; senza di esso il check fallisce in pochi secondi).
-4. Crea il ruleset di `main` (*Settings → Rules → Rulesets*): require PR, status check obbligatori (i job di `ci.yml`: `quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`), no force push, squash merge, Code Owner review. Vedi la checklist con i prompt pronti in
-   [`NEW-PROJECT.md`](./NEW-PROJECT.md).
+4. Crea il ruleset di `main` come in questo repository (boilerplate e derivati allineati; razionale in [`github-settings-explanation.md`](../init/misc/github-settings-explanation.md)): require PR, 1 approvazione, CODEOWNERS, dismiss stale reviews, extra approval per commit non attribuiti; niente last-push-approval né conversation resolution obbligatoria; no force push; no cancellazione di `main`; status check obbligatori sui job di `ci.yml` che girano sulle PR (`quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`; `dependency-review` se pubblico; mai `codeql`); squash + merge commit + rebase; niente `required_linear_history`; bypass owner *Always*; `delete_branch_on_merge`. Dettaglio: [`NEW-PROJECT.md`](./NEW-PROJECT.md) § Setup GitHub.
 
 ## Task schedulati (guards)
 

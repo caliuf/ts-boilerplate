@@ -1,7 +1,9 @@
+aiboost
 actionlint
 # Add domain terms, proper names and tool names here (not inline disables).
 calendarizzati
 Charta
+caliuf
 Codacy
 codehealth
 CodeCharta
