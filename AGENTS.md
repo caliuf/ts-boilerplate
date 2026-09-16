@@ -32,6 +32,7 @@ Boilerplate placeholders to customize:
 - Preserve existing public APIs unless the task explicitly changes them.
 - Keep domain and application code independent from frameworks and runtimes.
 - Validate all external data at runtime with Zod (`packages/contracts`).
+- Biome è il formatter automatico di default e oxlint il lint automatico di default, ma nessuno dei due prevale sulla leggibilità: se formatting o linting impongono una forma chiaramente meno leggibile, preferire una suppression locale supportata dal tool e motivata invece di alterare globalmente la configurazione; verificare comunque che il controllo resti esplicito e circoscritto.
 - When diagnosing runtime behavior, rerun the flow with `LOG_LEVEL=debug` and cite the relevant log output as evidence; never leave `console.log` or temporary debug output behind.
 - Do not use `any`, unchecked casts, `@ts-ignore`, non-null assertions or disable comments to make checks pass.
 - Do not edit generated files directly (`pnpm-lock.yaml`, coverage reports).
