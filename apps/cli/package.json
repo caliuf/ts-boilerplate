@@ -16,7 +16,7 @@
     "@project/adapter-pino": "workspace:*",
     "@project/contracts": "workspace:*",
     "@project/greetings": "workspace:*",
-    "zod": "4.4.3"
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@project/testkit": "workspace:*"

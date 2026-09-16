@@ -12,7 +12,7 @@ Primo bootstrap del boilerplate. Il vademecum prescrive: ultima Node Active LTS,
 
 ## Decision
 
-**Node 24.19.0 (`.node-version`), TypeScript 7.0.2, pnpm 11.22.0 (`packageManager`), ESM ovunque (`"type": "module"`), `just` come unica interfaccia operativa, mise per i tool di sistema (`.mise.toml`).**
+**Node 24.19.0 (`.node-version`), TypeScript 7.0.2, pnpm 12.4.2 (`packageManager`), ESM ovunque (`"type": "module"`), `just` come unica interfaccia operativa, mise per i tool di sistema (`.mise.toml`).**
 
 Dettagli:
 
