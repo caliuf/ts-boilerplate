@@ -9,7 +9,7 @@
 - env.env_default_purpose :: `.env.default` è committato, usato come floor di default dai wrapper in `bin/`, e deve restare libero da segreti.
 - env.env_purpose :: `.env` è gitignored e contiene variabili locali in formato `KEY=VALUE`, caricate da `.envrc` tramite `dotenv .env`.
 - env.envrc_purpose :: `.envrc` è il file di configurazione direnv committato in root che carica `.env.default`, `.env` e `.envrc.local`.
-- runtime.authoritative :: Node 24 è il runtime autorevole; Bun 1.3.14 è solo compatibility target, non dipendenza di dominio.
+- runtime.authoritative :: Node 24 è il runtime autorevole; Bun 1.4.0 è solo compatibility target, non dipendenza di dominio.
 - memory.location :: Kilo Memory è abilitata e salvata in `~/.local/share/kilo/memory/ts-boilerplate-0636824f8fd8/`; il repository memory bank in `docs/memory/` ne è il fallback portatile e versionabile.
 
 ## Decisions

@@ -9,21 +9,24 @@ Boilerplate placeholders to customize:
      - npm scope `@project` and CLI bin name `project`
      - URN prefix `urn:project:` in packages/contracts
      - CODEOWNERS handle `@YOUR-GITHUB-USERNAME`
+     - CodeScene Cloud project id `83744` (here, in `.kilo/kilo.jsonc`, `docs/development/CODESCENE.md` and `docs/memory/environment.md`)
+     - the absolute path `/home/dati/workspace/ts-boilerplate` in the working rules (replace with your primary clone path, or drop the rule)
      - any `META:` comment in docs and code
 -->
 
 ## Start here
 
-1. Read `docs/PROJECT.md` and `docs/INDEX.md`.
-2. Read `docs/memory/project.md` and `docs/memory/environment.md` for durable project context (Kilo Memory may or may not be active in the current client).
-3. Read the README of every package you will modify.
-4. Read the relevant active ADRs (`docs/architecture/adr/`) and PDRs (`docs/product/pdr/`).
-5. Use only root-level `just` recipes to build, test and validate changes (canonical table: `docs/development/GETTING-STARTED.md`).
+1. Run `tools/scripts/agent-briefing.sh` for a one-shot context dump (repo/worktree, git state, gate tools, project memory, open PRs/issues). Read-only; `--no-prs` skips GitHub.
+2. Read `docs/PROJECT.md` and `docs/INDEX.md`.
+3. Read `docs/memory/project.md` and `docs/memory/environment.md` for durable project context (Kilo Memory may or may not be active in the current client).
+4. Read the README of every package you will modify.
+5. Read the relevant active ADRs (`docs/architecture/adr/`) and PDRs (`docs/product/pdr/`).
+6. Use only root-level `just` recipes to build, test and validate changes (canonical table: `docs/development/GETTING-STARTED.md`).
 
 ## Working rules
 
-- At the start of every task, read `docs/memory/project.md` and `docs/memory/environment.md` to load project context; update them when you make durable decisions, corrections, or discover significant facts.
-- Keep the change limited to the requested scope. One task = one branch/worktree (branch naming, PR flow and worktree rules: `docs/development/WORKFLOWS.md` § Branching, PR e worktree).
+- When you make durable decisions, corrections, or discover significant facts, update `docs/memory/project.md` and `docs/memory/environment.md` in the same commit (ADR-0008).
+- Keep the change limited to the requested scope; never modify `docs/init/` (frozen blueprint). One task = one branch/worktree (branch naming, PR flow and worktree rules: `docs/development/WORKFLOWS.md` § Branching, PR e worktree).
 - When the user does not explicitly request a branch/PR and `realpath $(pwd)` equals `/home/dati/workspace/ts-boilerplate`, the default flow is to apply changes on the current `main` and leave the commit to the user.
 - Before starting, check that gates are green (`just smoke` at minimum). Never start new work on a below-threshold codebase: restore health first, or report the blocker.
 - Work test-first: red → green → refactor. For a bug, the first commit is a failing regression test. A test you have never seen fail is suspect.
@@ -39,7 +42,7 @@ Boilerplate placeholders to customize:
 - Before using a library API, verify it exists in the installed version (read its types/docs in `node_modules`); do not rely on memory.
 - Do not introduce a product decision without a PDR, nor an architectural decision without an ADR, in the same commit as the code. With Kilo use the `/create-adr` and `/create-pdr` commands; record directories are configured in `conventions.conf`.
 - Maintain `tmp/commit-message.md` with the proposed commit message for the work in progress: reset it when starting from a clean `git status`, integrate or fix it otherwise. `tmp/` is gitignored. The message follows the format in `docs/development/WORKFLOWS.md` § Messaggi di commit: prefisso conventional, una riga riassuntiva, riga vuota, lista puntata Markdown col dettaglio. Anche qui niente hard wrap sulle righe.
-- Use the automation scripts in `tools/scripts/` to avoid repetitive round-trips: `agent-briefing.sh` at task start (full context in one shot), `gh-prs.sh` for PR inspection, `finish-task.sh` to commit+push+open the PR. Do not run `just precommit`/`just prepush` by hand before commit/push: the git hooks already run them. Never ignore a "tool not found" warning — fix the PATH instead (see `docs/development/AGENT-AUTOMATION.md`).
+- Use the automation scripts in `tools/scripts/` instead of repetitive manual commands: `agent-briefing.sh` for task-start context, `gh-prs.sh` for PR inspection, `finish-task.sh` to commit+push+open the PR (see `docs/development/AGENT-AUTOMATION.md`). Never ignore a "tool not found" warning — fix the PATH instead.
 
 ## Documentation style
 
@@ -83,8 +86,9 @@ When the `codescene` MCP is connected, Code Health is authoritative for maintain
 
 ## Validation
 
-- During development run `just precommit`.
-- Before completion run `just prepush`.
+- While developing, `just precommit` is the fast feedback loop on staged/related files.
+- Before declaring completion run `just prepush` (full static analysis, integration, smoke, coverage); `just ci` replicates the whole CI pipeline locally.
+- Do not re-run `just precommit`/`just prepush` immediately before `git commit`/`git push`: the git hooks already run them (see `docs/development/AGENT-AUTOMATION.md`).
 - If a required command cannot run, report the exact reason.
 - Never claim a check passed unless you executed it successfully; quote the actual command output in the final report.
 

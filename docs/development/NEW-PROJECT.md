@@ -112,6 +112,7 @@ I meta-placeholder sono marcati e greppabili. Cerca `META:` nei file, lo scope `
 grep -rn "META:" --include="*.md" --include="*.ts" --include="*.tsx" --include="*.jsonc" . | grep -v node_modules
 grep -rln "@project" --include="*.json" --include="*.ts" . | grep -v node_modules
 grep -n "@caliuf\|@YOUR-GITHUB-USERNAME" .github/CODEOWNERS AGENTS.md
+grep -rn "83744\|ts-boilerplate-0636824f8fd8\|/home/dati/workspace/ts-boilerplate" --include="*.md" --include="*.jsonc" . | grep -v node_modules | grep -v docs/init
 ```
 
 Cose da rinominare:
@@ -123,7 +124,8 @@ Cose da rinominare:
 - titolo in `apps/web/index.html` e `name` nel `package.json` radice;
 - prefisso dei wrapper in `bin/` (`project-*` → `<nome>-*`) e commento `META` nello script;
 - handle in `.github/CODEOWNERS` (`@caliuf` → il maintainer reale). Un CODEOWNERS con handle inesistente rende inutilizzabile "require review from code owners";
-- pin CodeScene in `.kilo/kilo.jsonc` (`CS_DEFAULT_PROJECT_ID=83744`) e i riferimenti in [`CODESCENE.md`](./CODESCENE.md): non riusare l'id del boilerplate (passo 7);
+- pin CodeScene in `.kilo/kilo.jsonc` (`CS_DEFAULT_PROJECT_ID=83744`) e i riferimenti in [`CODESCENE.md`](./CODESCENE.md), `AGENTS.md` § CodeScene e `docs/memory/environment.md`: non riusare l'id del boilerplate (passo 7);
+- path assoluto del workspace principale in `AGENTS.md` § Working rules e in questo file (`/home/dati/workspace/ts-boilerplate`): sostituiscilo con il path del tuo clone, o elimina la regola se non ti serve;
 - path e hash di Kilo Memory in `docs/memory/` (passo 6): non copiare `ts-boilerplate-0636824f8fd8`.
 
 Prompt pronto:
