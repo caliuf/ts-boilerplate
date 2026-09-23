@@ -1,6 +1,6 @@
 # Regole di codice
 
-Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole critiche sono gate: falliscono in `just precommit`/`prepush`/`ci`.
+Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole marcate dai tool falliscono in `just precommit`/`prepush`/`ci`; le altre restano policy da rispettare e verificare in review.
 
 ## TypeScript
 
@@ -9,11 +9,11 @@ Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole
 - Niente alias `tsconfig.paths`: workspace package e `exports` standard.
 - `import type` espliciti (`verbatimModuleSyntax`).
 
-## Vietato (gate di lint, nessuna eccezione senza motivazione in linea)
+## Vietato (codice di produzione; nessuna eccezione senza motivazione in linea)
 
-- `any`, `@ts-ignore`, `@ts-nocheck`, non-null assertion `!`, doppi cast `unknown as T`, disable comment generici.
+- `any`, `@ts-ignore`, `@ts-nocheck`, non-null assertion `!`, doppi cast `unknown as T`, disable comment generici nel codice di dominio, application e adapter.
 - Promise non gestite (`no-floating-promises`).
-- `JSON.parse()` non validato: ogni dato esterno passa da uno schema Zod.
+- `JSON.parse()` non validato ai confini del prodotto: ogni dato esterno passa da uno schema Zod.
 - `console.log` fuori da `tools/scripts` e `apps/web` (il logging è una porta).
 - Catch silenziosi; `default` che nascondono casi nelle state machine (usa exhaustive checking con `never`).
 
@@ -24,7 +24,7 @@ Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole
 - Una route API = un handler in `apps/api/src/routes/`; un tool MCP = un file in `apps/mcp/src/tools/`; una feature UI = `apps/web/src/features/<feature>/`.
 - Entry point sottili: parse → valida → caso d'uso → mappa. Nient'altro.
 - Naming parallelo su ogni canale; mappa aggiornata in `docs/PROJECT.md`.
-- Niente cartelle `utils`/`helpers`/`common`; niente barrel; registry dichiarativi.
+- Niente cartelle `utils`/`helpers`/`common`; niente barrel interni (gli `src/index.ts` pubblici dei package sono ammessi); registry dichiarativi.
 - UI: solo componenti del design system (`apps/web/src/design-system/`), mai elementi HTML grezzi nelle feature; interazioni keyboard-first.
 
 ## Preferenze

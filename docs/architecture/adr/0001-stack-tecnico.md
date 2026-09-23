@@ -18,7 +18,7 @@ Dettagli:
 
 - esecuzione TypeScript senza build step: type stripping nativo di Node 24 (solo sintassi eliminabile, `erasableSyntaxOnly`);
 - dependency-cruiser richiede la compiler API, non pubblica in TS 7: gli viene affiancato TypeScript 6.0.3 via `packageExtensions` in `pnpm-workspace.yaml` (caso previsto dal vademecum §2);
-- Bun 1.3.14 come compatibility target (`just bun-smoke`), mai nel dominio;
+- Bun 1.4.0 come compatibility target (`just bun-smoke`), mai nel dominio;
 - tool di sistema (gitleaks, actionlint, zizmor, lychee, shellcheck, bun) fissati in `.mise.toml`; le recipe degradano a warning in locale se assenti, restano bloccanti in CI.
 
 ## Options considered

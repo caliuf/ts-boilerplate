@@ -6,13 +6,21 @@ Script che tolgono il lavoro ripetitivo dal flusso "un task = un branch = una PR
 |---|---|---|
 | `tools/scripts/agent-briefing.sh` | a inizio task | Dump unico del contesto: repo/worktree, git status, ultime commit, stato dei tool dei gate, memoria di progetto, draft di commit, PR e issue aperte. Read-only. `--no-prs` salta la parte GitHub. |
 | `tools/scripts/gh-prs.sh` | per orientarsi sulle PR | `list` (aperte + branch + autore), `all` (anche chiuse), `dependabot` (PR aperte dall'applicazione Dependabot), `view <n>...` (body, file, check di una o più PR), `content` (contenuto di tutte le aperte). Read-only; per comment/close/merge vedi `GITHUB-CLI.md`. |
-| `tools/scripts/finish-task.sh` | a fine task | `commit` → `push -u` → apre la PR **solo se il branch non ne ha già una**. `--all` staggia tutto prima; `-m "msg"` usa un messaggio al posto di `tmp/commit-message.md`. |
+| `tools/scripts/finish-task.sh` | a fine task, solo su branch dedicato e con consenso esplicito | `commit` → `push -u` → apre la PR **solo se il branch non ne ha già una**. Verifica prima che gli hook versionati siano attivi. `--all` fa `git add -A`: usarlo solo dopo aver controllato ogni file; preferire lo staging esplicito. `-m "msg"` usa un messaggio al posto di `tmp/commit-message.md`. |
 
 ## Perché `finish-task.sh` non lancia `just precommit` / `just prepush`
 
 Gli hook git in `.githooks/` lo fanno già: `git commit` esegue `just precommit`, `git push` esegue `just prepush`. Rilanciarli a mano prima del commit/push duplica il lavoro (è il back-and-forth che questo script elimina). Se un gate fallisce, l'hook abortisce commit/push e lo script si ferma lì.
 
-Conseguenza pratica per gli agenti: **non** fare `just precommit && git commit && just prepush && git push`. Basta `tools/scripts/finish-task.sh` (o, a mano, `git commit` e `git push`: gli hook coprono i gate).
+Conseguenza pratica per gli agenti autorizzati: **non** fare `just precommit && git commit && just prepush && git push`. Dopo aver eseguito il feedback loop previsto, basta `tools/scripts/finish-task.sh` (o, a mano, `git commit` e `git push`: gli hook coprono i gate). Senza consenso esplicito a commit, push e PR, fermati al report.
+
+Se `gh` non è disponibile, lo script può avere già eseguito commit e push ma termina con errore e non considera il task concluso: crea la PR manualmente e verifica i check prima di riportare il completamento.
+
+## Ciclo canonico per un agente
+
+1. **Avvio**: esegui `agent-briefing.sh` (con `--no-prs` se GitHub non è nel perimetro), leggi `AGENTS.md`, gli indici e i record pertinenti, poi verifica `just doctor` e `just smoke` prima di iniziare un task su una base non verde.
+2. **Lavoro**: stabilisci branch/worktree e baseline, usa CodeScene quando disponibile, lavora test-first (`red → green → refactor`) e aggiorna la memoria repository nel file appropriato quando nasce un fatto o una decisione durevole.
+3. **Consegna**: esegui `just prepush`, riepiloga gate e rischi, e usa `finish-task.sh` solo dopo consenso esplicito a commit, push e PR. Se il consenso non c'è, lascia le modifiche nel working tree e ferma l'automazione al report.
 
 ## Toolchain visibile ovunque (fix dei "tool not found")
 
@@ -34,5 +42,5 @@ Regola: **non ignorare mai un warning "tool non trovato"**. Non è rumore atteso
 
 ## Note operative per gli agenti
 
-- Per una verifica preliminare su un file usa il tool diretto sul path (`cspell lint file.md`, `markdownlint-cli2 file`) **senza** staggare: stagiare per far girare un gate e poi fare unstage è un giro inutile, e aggiungere file di supporto allo staging può cambiare il diff-scope (es. esce dal fast path docs-only) attivando gate extra.
-- `agent-briefing.sh` è il primo comando di un task; sostituisce la sequenza manuale git status + git log + doctor + lettura memoria + lista PR.
+- Per una verifica preliminare su un file usa il tool locale tramite `pnpm exec` (`pnpm exec cspell lint file.md`, `pnpm exec markdownlint-cli2 file`) **senza** staggare: stagiare per far girare un gate e poi fare unstage è un giro inutile, e aggiungere file di supporto allo staging può cambiare il diff-scope (es. esce dal fast path docs-only) attivando gate extra.
+- `agent-briefing.sh` è il primo comando di un task; sostituisce la sequenza manuale git status + git log + controllo presenza tool + lettura memoria + lista PR. Non sostituisce `just doctor`, che va eseguito dopo il setup o quando il preflight leggero segnala problemi.

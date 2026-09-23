@@ -6,6 +6,8 @@ Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: 
 
 ## Prerequisiti
 
+Prima di autorizzare un clone non fidato, ispeziona `.envrc` e i file richiamati: `just setup` esegue `direnv allow .` e il file può caricare `.env`, `.env.default` e `.envrc.local`.
+
 | Tool | Versione | Installazione |
 | --- | --- | --- |
 | Node.js | vedi `.node-version` | `mise install` (consigliato) |
@@ -16,15 +18,19 @@ Onboarding tecnico del progetto. Ogni comando citato qui esiste nel `justfile`: 
 | npm, npx | inclusi nella toolchain Node | `mise install` |
 | dotenv | versione compatibile | `npm install -g dotenv-cli` |
 | codegraph | ≥ 1.5 | `npm install -g @colbymchenry/codegraph` (non gestito da mise) |
+| Python 3, jq | versioni distro | richiesti da alcuni script; `just install` li prepara su Debian/Ubuntu |
 | GNU parallel | qualunque recente | package manager di sistema (es. `apt install parallel`); opzionale, non gestito da mise |
+| GitHub CLI (`gh`) | versione supportata dal servizio | opzionale per sviluppo locale; richiesto solo per operazioni GitHub automatizzate |
 
 Per una macchina Debian/Ubuntu si può installare l’insieme dei prerequisiti OS con `just install`. La recipe installa anche `mise` se manca, esegue `mise install` per i tool pinnati in `.mise.toml` e installa CodeGraph tramite npm; non installa le dipendenze JavaScript del repository, gli hook o Chromium, che restano responsabilità di `just setup`. L’installer di mise è quello ufficiale (`https://mise.run`) e viene usato solo quando `mise` non è già presente.
 
-Senza mise: installa le stesse versioni con il tuo package manager. I tool mancanti degradano le recipe corrispondenti a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning. GNU parallel è l'unica eccezione: è un'accelerazione opzionale di `precommit`/`prepush` e la sua assenza non produce warning, solo un'esecuzione sequenziale.
+Senza mise: installa le stesse versioni con il tuo package manager. I tool opzionali di gate mancanti degradano la recipe corrispondente a warning in locale, ma restano **bloccanti in CI** — non abituarti ai warning. Runtime, pnpm, dipendenze, hook e direnv restano prerequisiti obbligatori e fanno fallire il doctor. GNU parallel è l'unica eccezione: è un'accelerazione opzionale di `precommit`/`prepush` e la sua assenza non produce warning, solo un'esecuzione sequenziale.
 
-Verifica sempre con:
+Dopo l’installazione e il setup verifica con:
 
 ```sh
+just install  # solo se mancano i prerequisiti OS
+just setup
 just doctor
 ```
 
@@ -34,7 +40,9 @@ just doctor
 just setup
 ```
 
-Installa i tool (mise), le dipendenze (pnpm), gli hook git (`.githooks/`), autorizza il `.envrc` con direnv, i browser Playwright (chromium) e inizializza l'indice CodeGraph (`codegraph init` + `codegraph index`, saltato con warning se il binario non è installato).
+Usa la toolchain di mise se mise è già disponibile, installa le dipendenze (pnpm), gli hook git (`.githooks/`), autorizza il `.envrc` con direnv, i browser Playwright (chromium) e inizializza l'indice CodeGraph (`codegraph init` + `codegraph index`, saltato con warning se il binario non è installato). Se mise o gli altri prerequisiti mancano, prepara prima la macchina con `just install` oppure installali manualmente.
+
+Su Linux, se la suite E2E segnala librerie di sistema mancanti, completa l'installazione con `pnpm --filter @project/tests exec playwright install --with-deps chromium` usando i privilegi richiesti dal sistema operativo.
 
 ```sh
 just pull
@@ -46,10 +54,10 @@ Dopo aver integrato PR esterne (ad esempio Dependabot), aggiorna il branch corre
 
 ```sh
 just dev          # API (:3100) + web (:5100) in parallelo
-node apps/cli/src/cli.ts hello-world --name Ada
+just node apps/cli/src/cli.ts hello-world --name Ada
 ```
 
-Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per la catena di caricamento di `.env.default`, `.env` e `.envrc.local`. L'environment è validato all'avvio da ogni composition root.
+Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per la catena di caricamento di `.env.default`, `.env` e `.envrc.local`. L'environment runtime è validato prima di entrare nei confini applicativi; la configurazione del bundler resta tooling e deve rifiutare valori non utilizzabili.
 
 ## Recipe
 
@@ -62,8 +70,9 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | `just setup` | Installa dipendenze, tool, hook e indice CodeGraph |
 | `just install` | Installa i prerequisiti OS Debian-based e la toolchain pinnata via mise |
 | `just pull` | Pull e sincronizza tool/dipendenze/hook solo se cambiati; aggiorna l'indice CodeGraph |
-| `just doctor` | Verifica runtime, tool e configurazione |
+| `just doctor` | Verifica runtime, prerequisiti, dipendenze, hook e autorizzazione direnv; non sostituisce `just smoke` né i check MCP |
 | `just dev` | Avvia lo sviluppo (API + web) |
+| `just node <comando>` | Esegue Node con il major pinnato in `.mise.toml` |
 
 ### Analisi statica
 
@@ -101,12 +110,12 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | Comando | Funzione | Budget |
 | --- | --- | --- |
 | `just precommit` | Controlli rapidi su staged/related | ≤ 10s |
-| `just prepush` | Static analysis e integration principali | ≤ 60s |
-| `just ci` | Esatta pipeline CI in locale | ≤ 10min |
+| `just prepush` | Static analysis e integration principali | target ≤ 60s |
+| `just ci` | Esatta pipeline CI in locale | target ≤ 10min |
 
 Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check`).
 
-I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: con GNU parallel installato sono eseguiti in parallelo (uno slot per core) ma stdout/stderr restano raggruppati per comando nell’ordine originale della lista; senza, tornano sequenziali. I gate sono fail-late: tutti i check girano sempre, anche dopo un fallimento, e il gate fallisce alla fine — un solo giro mostra tutti i problemi. Su terminale interattivo i colori dei tool sono forzati (`FORCE_COLOR`, `JUST_COLOR`, più i flag dedicati di biome e tsc); con `NO_COLOR` settata (anche vuota, es. `NO_COLOR= just prepush`) o con output su pipe/redirect l’output resta plain, senza ANSI — consigliato agli agenti per risparmiare token. Sulla macchina di sviluppo principale (`whoami` = caio) i check girano sotto `nice -n 19`; in CI mai. `RUN_CHECKS_SEQUENTIAL=1` forza il percorso sequenziale anche con parallel installato.
+I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: GNU parallel è un'accelerazione opzionale, i job restano fail-late e l'output è raggruppato per comando. Per colori, `nice` e modalità sequenziale consulta [`docs/memory/environment.md`](../memory/environment.md); `RUN_CHECKS_SEQUENTIAL=1` forza il percorso sequenziale.
 
 ## Manutenzione dei prerequisiti
 
@@ -121,7 +130,7 @@ I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: con G
 - Debug di un flusso: rieseguilo con log di debug e cita l'output nel report:
 
 ```sh
-LOG_LEVEL=debug node apps/cli/src/cli.ts hello-world --name Ada 2>&1
+  LOG_LEVEL=debug just node apps/cli/src/cli.ts hello-world --name Ada 2>&1
 LOG_LEVEL=debug just dev
 ```
 
@@ -149,5 +158,5 @@ tests/e2e             flussi Playwright
 tools/scripts         doctor, diff-scope, coverage-raise, guards, bun-smoke, run-checks
 .githooks/            hook versionati (chiamano solo just)
 docs/                 documentazione (questa)
-docs/init/            blueprint congelato (non toccare, rimuovere all'adozione)
+docs/init/            blueprint congelato (rimuovere all'adozione insieme ai riferimenti vivi)
 ```

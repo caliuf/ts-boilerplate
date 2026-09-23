@@ -22,7 +22,7 @@ export async function fetchHelloWorld(name?: string): Promise<Result<HelloWorldO
     return {
       ok: false,
       error: {
-        code: "VALIDATION",
+        code: problem.success ? problem.data.code : "INTERNAL",
         message: problem.success ? problem.data.detail : "request failed",
       },
     };

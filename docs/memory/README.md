@@ -35,7 +35,7 @@ Format each entry as a bullet starting with a stable key, followed by `::` and a
 
 ## How agents use it
 
-1. At the start of a task, read `project.md` and `environment.md` if they exist.
+1. At the start of a task, read `project.md` and `environment.md`; if either is missing, report the repository inconsistency before proceeding.
 2. When the user asks about prior work, search this directory before relying on general knowledge.
 3. When an important decision, constraint, or correction is made, append it to the appropriate file in the same commit as the code (or in a dedicated docs commit).
 4. Keep `project.md` tidy: move superseded items to the relevant ADR/PDR and mark them as superseded.

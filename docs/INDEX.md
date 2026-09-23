@@ -8,7 +8,7 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 2. [`memory/project.md`](./memory/project.md) — contesto operativo del progetto (fatti, decisioni attive, vincoli).
 3. [`memory/environment.md`](./memory/environment.md) — comandi e path specifici del progetto.
 4. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
-5. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/`).
+5. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/` e alla relativa voce dell'indice).
 
 ## Architettura
 
@@ -39,4 +39,4 @@ Nessun runbook ancora: si creano in `docs/operations/runbooks/` quando esiste qu
 
 ## Blueprint
 
-- [`init/`](./init/) — il vademecum e le fonti da cui nasce questo boilerplate. **Congelato**: non va modificato nello sviluppo ordinario e va rimosso nei progetti derivati (vedi [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md)).
+- [`init/`](./init/) — il vademecum e le fonti da cui nasce questo boilerplate. **Congelato**: non va modificato nello sviluppo ordinario e va rimosso nei progetti derivati; rimuovi anche questa riga e gli altri riferimenti a `docs/init/` nel cleanup finale di [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md).

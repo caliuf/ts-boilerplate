@@ -32,7 +32,17 @@ function parseGitLines(out: string | undefined): string[] | undefined {
 }
 
 function stagedFiles(): string[] | undefined {
-  return parseGitLines(git(["diff", "--cached", "--name-only", "--diff-filter=ACMR"]));
+  return parseGitLines(git(["diff", "--cached", "--name-only", "--diff-filter=ACMRD"]));
+}
+
+function workingTreeFiles(): string[] | undefined {
+  const unstaged = parseGitLines(git(["diff", "--name-only", "--diff-filter=ACMRD"]));
+  const staged = stagedFiles();
+  const untracked = parseGitLines(git(["ls-files", "--others", "--exclude-standard"]));
+  if (unstaged === undefined) return undefined;
+  if (staged === undefined) return undefined;
+  if (untracked === undefined) return undefined;
+  return [...new Set([...unstaged, ...staged, ...untracked])];
 }
 
 function upstreamFiles(): string[] | undefined {
@@ -40,7 +50,7 @@ function upstreamFiles(): string[] | undefined {
   if (!upstream) {
     return undefined;
   }
-  return parseGitLines(git(["diff", "--name-only", `${upstream}...HEAD`, "--diff-filter=ACMR"]));
+  return parseGitLines(git(["diff", "--name-only", `${upstream}...HEAD`, "--diff-filter=ACMRD"]));
 }
 
 function mergeBaseFiles(): string[] | undefined {
@@ -50,7 +60,7 @@ function mergeBaseFiles(): string[] | undefined {
       continue;
     }
     const files = parseGitLines(
-      git(["diff", "--name-only", `${mergeBase}...HEAD`, "--diff-filter=ACMR"]),
+      git(["diff", "--name-only", `${mergeBase}...HEAD`, "--diff-filter=ACMRD"]),
     );
     if (files !== undefined) {
       return files;
@@ -63,8 +73,15 @@ function changedFiles(): string[] | undefined {
   if (mode === "--staged") {
     return stagedFiles();
   }
-  // --prepush: upstream range, then main/master merge-base, then give up (full).
-  return upstreamFiles() ?? mergeBaseFiles();
+  // --prepush: include committed branch changes and the current working tree.
+  // Hooks run before a commit/push, so local changes must not be hidden by the
+  // upstream range used to find the branch baseline.
+  const baseline = upstreamFiles() ?? mergeBaseFiles();
+  const local = workingTreeFiles();
+  if (baseline === undefined || local === undefined) {
+    return undefined;
+  }
+  return [...new Set([...baseline, ...local])];
 }
 
 const files = changedFiles();

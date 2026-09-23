@@ -15,7 +15,7 @@ Code Health tools used by AGENTS.md:
   - code_health_review
 
 Configuration (env):
-  CODESCENE_PROJECT_ID   CodeScene Cloud project id (default: 83744)
+  CODESCENE_PROJECT_ID   CodeScene Cloud project id (overrides .kilo/kilo.jsonc)
   REPO_PATH              Absolute path to the git repo (default: auto-detected)
 
 Usage:
@@ -26,18 +26,35 @@ Usage:
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import uuid
-
-DEFAULT_PROJECT_ID = 83744
-
 
 def _git_root() -> str:
     return subprocess.check_output(
         ["git", "rev-parse", "--show-toplevel"],
         text=True,
     ).strip()
+
+
+def _project_id_from_repo(repo: str) -> int | None:
+    config_path = os.path.join(repo, ".kilo", "kilo.jsonc")
+    try:
+        with open(config_path, encoding="utf-8") as config:
+            match = re.search(r'"CS_DEFAULT_PROJECT_ID"\s*:\s*"(\d+)"', config.read())
+    except OSError:
+        return None
+    return int(match.group(1)) if match else None
+
+
+def _resolve_project_id(repo: str, explicit: int | None) -> int | None:
+    if explicit is not None:
+        return explicit
+    configured = os.environ.get("CODESCENE_PROJECT_ID", os.environ.get("CS_DEFAULT_PROJECT_ID"))
+    if configured:
+        return int(configured)
+    return _project_id_from_repo(repo)
 
 
 def send(proc, msg: dict) -> None:
@@ -128,7 +145,7 @@ def all_checks(repo: str, project_id: int) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description="CodeScene MCP fallback client")
     parser.add_argument("--repo", default=os.environ.get("REPO_PATH", _git_root()))
-    parser.add_argument("--project-id", type=int, default=int(os.environ.get("CODESCENE_PROJECT_ID", os.environ.get("CS_DEFAULT_PROJECT_ID", DEFAULT_PROJECT_ID))))
+    parser.add_argument("--project-id", type=int, default=None)
     parser.add_argument("--tool", choices=[
         "all",
         "verify_installation",
@@ -144,25 +161,29 @@ def main() -> int:
     parser.add_argument("--base-ref", default="origin/main", help="Base ref for analyze_change_set")
     args = parser.parse_args()
 
+    project_id = _resolve_project_id(args.repo, args.project_id)
+    if project_id is None:
+        parser.error("CodeScene project id not configured; set CODESCENE_PROJECT_ID or .kilo/kilo.jsonc")
+
     if args.tool == "all":
-        results = all_checks(args.repo, args.project_id)
+        results = all_checks(args.repo, project_id)
     elif args.tool in {"code_health_score", "code_health_review"}:
         if not args.path:
             parser.error(f"--path is required for {args.tool}")
-        results = run_server(args.repo, args.project_id, [
+        results = run_server(args.repo, project_id, [
             {"tool": args.tool, "args": {"file_path": os.path.abspath(args.path)}},
         ])
     elif args.tool == "analyze_change_set":
-        results = run_server(args.repo, args.project_id, [
+        results = run_server(args.repo, project_id, [
             {"tool": args.tool, "args": {"git_repository_path": args.repo, "base_ref": args.base_ref}},
         ])
     elif args.tool == "pre_commit_code_health_safeguard":
-        results = run_server(args.repo, args.project_id, [
+        results = run_server(args.repo, project_id, [
             {"tool": args.tool, "args": {"git_repository_path": args.repo}},
         ])
     else:
-        results = run_server(args.repo, args.project_id, [
-            {"tool": args.tool, "args": {"project_id": args.project_id} if "project" in args.tool else {}},
+        results = run_server(args.repo, project_id, [
+            {"tool": args.tool, "args": {"project_id": project_id} if "project" in args.tool else {}},
         ])
 
     print(json.dumps(results, indent=2))

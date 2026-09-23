@@ -9,7 +9,7 @@ Questo progetto è sviluppato tramite agenti AI con supervisione umana.
 ## Per gli umani
 
 1. Setup: `just setup`, poi `just doctor`.
-2. Ogni modifica passa da una PR; i gate locali (`precommit`/`prepush`) girano in automatico via hook git.
+2. Di norma ogni modifica passa da una PR; nel checkout principale del boilerplate, quando l'utente non chiede branch o PR, si può lavorare su `main` e lasciare il commit all'utente (vedi [`WORKFLOWS.md`](./docs/development/WORKFLOWS.md)). I gate locali (`precommit`/`prepush`) girano in automatico via hook git.
 3. Le decisioni di prodotto nuove si registrano come PDR (`docs/product/pdr/`), quelle architetturali come ADR (`docs/architecture/adr/`) — nello stesso commit del codice. Con Kilo si usano i comandi `/create-pdr` e `/create-adr`.
 4. Messaggi di commit: convenzione in
    [`docs/development/WORKFLOWS.md`](./docs/development/WORKFLOWS.md).

@@ -62,8 +62,12 @@ install:
 setup:
     #!/usr/bin/env bash
     set -euo pipefail
-    if command -v mise >/dev/null 2>&1; then
-      mise install
+    mise_cmd="$(command -v mise || true)"
+    if [ -z "$mise_cmd" ] && [ -x "$HOME/.local/bin/mise" ]; then
+      mise_cmd="$HOME/.local/bin/mise"
+    fi
+    if [ -n "$mise_cmd" ]; then
+      "$mise_cmd" install
     else
       echo "⚠️  mise not found — install the tools pinned in .mise.toml manually (see docs/development/GETTING-STARTED.md)"
     fi
@@ -185,6 +189,10 @@ docs-check:
     if command -v lychee >/dev/null 2>&1; then
       lychee --offline --no-progress --include-fragments .
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ lychee not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  lychee not found — skipping local link check (blocking in CI; run \`mise install\`)"
     fi
 
@@ -195,11 +203,19 @@ workflows-check:
     if command -v actionlint >/dev/null 2>&1; then
       actionlint
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ actionlint not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  actionlint not found — skipping (blocking in CI; run \`mise install\`)"
     fi
     if command -v zizmor >/dev/null 2>&1; then
       zizmor .
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ zizmor not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  zizmor not found — skipping (blocking in CI; run \`mise install\`)"
     fi
 
@@ -210,6 +226,10 @@ secrets:
     if command -v gitleaks >/dev/null 2>&1; then
       gitleaks dir --redact --no-banner .
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ gitleaks not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  gitleaks not found — skipping secrets scan (blocking in CI; run \`mise install\`)"
     fi
 
@@ -220,6 +240,10 @@ secrets-staged:
     if command -v gitleaks >/dev/null 2>&1; then
       gitleaks git --staged --redact --no-banner .
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ gitleaks not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  gitleaks not found — skipping staged secrets scan (blocking in CI; run \`mise install\`)"
     fi
 
@@ -231,6 +255,10 @@ shell-check:
       # Exclude unused check
       shellcheck -e SC2329 -x bin/* tools/scripts/*.sh
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ shellcheck not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  shellcheck not found — skipping shell lint (blocking in CI; run \`mise install\`)"
     fi
 
@@ -283,6 +311,10 @@ bun-smoke:
     if command -v bun >/dev/null 2>&1; then
       bun run tools/scripts/bun-smoke.ts
     else
+      if [ "${CI:-}" = "true" ]; then
+        echo "❌ bun not found in CI — install the pinned toolchain with mise" >&2
+        exit 1
+      fi
       echo "⚠️  bun not found — skipping compatibility suite (blocking in CI; run \`mise install\`)"
     fi
 
@@ -310,7 +342,7 @@ codescene-safeguard:
 codescene-changeset base="origin/main":
     python3 .kilo/scripts/codescene-gate.py changeset --base-ref {{ base }}
 
-# CodeScene Code Health ratchet gate (project-level Hotspot and Average floors)
+# CodeScene Code Health ratchet check (project-level Hotspot and Average floors)
 codescene-ratchet:
     tools/scripts/codescene-ratchet.sh
 
@@ -320,7 +352,7 @@ precommit:
     set -euo pipefail
     scope=$(node tools/scripts/diff-scope.ts --staged {{ DOCS_ONLY_PATTERNS }})
     if [ "$scope" = "docs-only" ]; then
-      tools/scripts/run-checks.sh "just docs-check" "just workflows-check"
+      tools/scripts/run-checks.sh "just docs-check" "just workflows-check" "just secrets-staged"
       exit 0
     fi
     # Tutti i check sono read-only: nessun ordine di dipendenza, solo ordine di stampa.
@@ -339,7 +371,7 @@ prepush:
     set -euo pipefail
     scope=$(node tools/scripts/diff-scope.ts --prepush {{ DOCS_ONLY_PATTERNS }})
     if [ "$scope" = "docs-only" ]; then
-      tools/scripts/run-checks.sh "just docs-check" "just workflows-check"
+      tools/scripts/run-checks.sh "just docs-check" "just workflows-check" "just secrets"
       exit 0
     fi
     # Fail-late anche fra le onde: se l'analisi statica fallisce le suite di

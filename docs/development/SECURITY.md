@@ -26,8 +26,8 @@ Policy operative; la segnalazione di vulnerabilità è in
 
 ## Dati esterni
 
-Tutto ciò che entra (HTTP, env, file, queue, webhook, API esterne, output LLM) è validato a runtime con Zod (ADR-0003). Vietato `JSON.parse(...) as T`.
+Tutto ciò che entra nei confini del prodotto (HTTP, env, file, queue, webhook, API esterne, output LLM) è validato a runtime con Zod (ADR-0003). Tooling e test che leggono output tecnici devono validare il dato prima di restringerlo; niente `JSON.parse(...) as T` per saltare la validazione.
 
 ## File critici protetti (CODEOWNERS)
 
-`/.github/`, `/AGENTS.md`, `/CLAUDE.md`, `/docs/architecture/`, `/docs/product/`, `/SECURITY.md`, e i file che definiscono i gate: `/justfile`, `/.githooks/`, `/biome.json`, `/.oxlintrc.json`, `/knip.json`, `/dependency-cruiser.config.mjs`, `/coverage-thresholds.json`, `/tools/scripts/`.
+`/.github/`, `/AGENTS.md`, `/CLAUDE.md`, `/docs/architecture/`, `/docs/product/`, `/SECURITY.md`, e i file che definiscono i gate: `/justfile`, `/.githooks/`, `/biome.json`, `/.oxlintrc.json`, `/knip.json`, `/dependency-cruiser.config.mjs`, `/coverage-thresholds.json`, `/tools/scripts/`, `/.kilo/kilo.jsonc`, `/.kilo/scripts/`, `/.codescene-thresholds`.

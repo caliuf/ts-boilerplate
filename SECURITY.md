@@ -4,7 +4,7 @@
 
 ## Segnalare una vulnerabilità
 
-Non aprire issue pubbliche per vulnerabilità di sicurezza. Scrivi al maintainer del repository (contatto nel profilo GitHub) con:
+Non aprire issue pubbliche per vulnerabilità di sicurezza. Scrivi a `<SECURITY_CONTACT>` (placeholder da sostituire all'adozione) con:
 
 - descrizione del problema e impatto;
 - passi di riproduzione;

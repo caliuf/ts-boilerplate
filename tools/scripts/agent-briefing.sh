@@ -53,7 +53,7 @@ git --no-pager log --oneline -5
 
 section "Gates tooling"
 missing=0
-for tool in node pnpm just mise direnv gitleaks actionlint zizmor lychee shellcheck parallel; do
+for tool in node pnpm just mise direnv gitleaks actionlint zizmor lychee shellcheck; do
   if command -v "$tool" >/dev/null 2>&1; then
     printf '  ok   %s\n' "$tool"
   else
@@ -61,14 +61,19 @@ for tool in node pnpm just mise direnv gitleaks actionlint zizmor lychee shellch
     missing=1
   fi
 done
+if command -v parallel >/dev/null 2>&1; then
+  printf '  ok   parallel (optional acceleration)\n'
+else
+  printf '  info parallel absent (optional; gates run sequentially)\n'
+fi
 if [ "$missing" -eq 1 ]; then
-  printf '\nSome tools are missing. Do NOT ignore this: gates degrade to warnings\n'
+  printf '\nSome required tools are missing. Do NOT ignore this: gates degrade to warnings\n'
   # shellcheck disable=SC2016
   printf 'locally but block in CI. Run `mise install` and re-run this briefing.\n'
 fi
 
 section "Project memory (docs/memory)"
-for f in docs/memory/project.md docs/memory/environment.md; do
+for f in docs/memory/project.md docs/memory/environment.md docs/memory/corrections.md; do
   if [ -f "$f" ]; then
     printf -- '--- %s ---\n' "$f"
     cat "$f"

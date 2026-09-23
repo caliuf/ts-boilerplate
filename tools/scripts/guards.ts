@@ -7,7 +7,8 @@
  * Implemented guards:
  * - docs guard (lite): every `just <recipe>` cited in docs exists in the
  *   justfile; every CLI command in the registry appears in the surface map
- *   of docs/PROJECT.md.
+ *   of docs/PROJECT.md; ADR/PDR indexes point to existing records and list all
+ *   records in their directories.
  * - testing guard: the unit+integration suite stays within its time budget.
  * - placeholder guards (performance, localization, telemetry): report their
  *   non-applicability until probes/i18n/analytics exist.
@@ -42,7 +43,8 @@ function justfileRecipes(): Set<string> {
   const text = readFileSync("justfile", "utf8");
   const recipes = new Set<string>();
   for (const line of text.split("\n")) {
-    const match = /^([a-z][a-z0-9-]*)(?:\s[^:=]*)?:/.exec(line);
+    // I parametri possono avere valori con `=`, ad esempio `base="origin/main"`.
+    const match = /^([a-z][a-z0-9-]*)(?:\s[^:]*)?:/.exec(line);
     if (match?.[1] !== undefined) {
       recipes.add(match[1]);
     }
@@ -90,6 +92,53 @@ function checkSurfaceMap(projectPath: string, registry: string): void {
   }
 }
 
+type DecisionIndexConfig = { indexPath: string; directory: string; kind: string };
+
+function collectIndexedRecords(config: DecisionIndexConfig): Set<string> {
+  const indexed = new Set(
+    Array.from(
+      readFileSync(config.indexPath, "utf8").matchAll(/\]\(([^)]+\.md)\)/g),
+      (match) => match[1],
+    )
+      .filter((record): record is string => record !== undefined)
+      .filter((record) => record !== "README.md"),
+  );
+  return indexed;
+}
+
+function reportMissingRecords(config: DecisionIndexConfig, indexed: Set<string>): void {
+  for (const record of indexed) {
+    if (existsSync(join(config.directory, record))) continue;
+    findings.push({
+      guard: "docs",
+      message: `${config.kind} index points to missing record ${record}`,
+    });
+  }
+}
+
+function reportUnindexedRecords(config: DecisionIndexConfig, indexed: Set<string>): void {
+  for (const entry of readdirSync(config.directory)) {
+    if (!entry.endsWith(".md")) continue;
+    if (entry === "README.md") continue;
+    if (indexed.has(entry)) continue;
+    findings.push({
+      guard: "docs",
+      message: `${config.kind} record ${entry} is missing from its index`,
+    });
+  }
+}
+
+function checkDecisionIndex(config: DecisionIndexConfig): void {
+  if (!existsSync(config.indexPath) || !existsSync(config.directory)) return;
+  const indexed = collectIndexedRecords(config);
+  reportMissingRecords(config, indexed);
+  reportUnindexedRecords(config, indexed);
+  /*
+   * Keep the index check report-only: record applicability still belongs to
+   * the adoption review and cannot be inferred from filenames alone.
+   */
+}
+
 function docsGuard(): void {
   const recipes = justfileRecipes();
   const files = [...listMarkdown("docs"), "README.md", "AGENTS.md", "CONTRIBUTING.md"].filter(
@@ -99,8 +148,26 @@ function docsGuard(): void {
   notes.push(`docs guard: checked ${String(cited.size)} cited recipes against the justfile`);
 
   // Surface map freshness: every CLI command appears in docs/PROJECT.md.
-  const registry = readFileSync("apps/cli/src/registry.ts", "utf8");
-  checkSurfaceMap("docs/PROJECT.md", registry);
+  // A derived project may remove the CLI entirely, but a partial CLI is an error.
+  const registryPath = "apps/cli/src/registry.ts";
+  if (existsSync(registryPath)) {
+    checkSurfaceMap("docs/PROJECT.md", readFileSync(registryPath, "utf8"));
+  } else if (existsSync("apps/cli")) {
+    findings.push({ guard: "docs", message: "apps/cli exists but its registry is missing" });
+  } else {
+    notes.push("docs guard: CLI absent; surface map check skipped");
+  }
+
+  checkDecisionIndex({
+    indexPath: "docs/architecture/adr/README.md",
+    directory: "docs/architecture/adr",
+    kind: "ADR",
+  });
+  checkDecisionIndex({
+    indexPath: "docs/product/pdr/README.md",
+    directory: "docs/product/pdr",
+    kind: "PDR",
+  });
 }
 
 // --- testing guard -------------------------------------------------------------

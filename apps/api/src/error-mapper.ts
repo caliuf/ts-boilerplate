@@ -1,4 +1,4 @@
-import type { AppError, HttpErrorStatus } from "@project/contracts";
+import type { AppError, ProblemDetailsDto } from "@project/contracts";
 import { errorCodeToHttpStatus, errorCodeToProblem } from "@project/contracts";
 
 /**
@@ -6,16 +6,10 @@ import { errorCodeToHttpStatus, errorCodeToProblem } from "@project/contracts";
  * The shared error taxonomy is mapped once, here; status codes stay coherent
  * with the CLI exit codes (ADR-0004).
  */
-export type ProblemDetails = {
-  readonly type: string;
-  readonly title: string;
-  readonly status: HttpErrorStatus;
-  readonly detail: string;
-};
-
-export function toProblemDetails(error: AppError): ProblemDetails {
+export function toProblemDetails(error: AppError): ProblemDetailsDto {
   const problem = errorCodeToProblem[error.code];
   return {
+    code: error.code,
     type: problem.type,
     title: problem.title,
     status: errorCodeToHttpStatus[error.code],

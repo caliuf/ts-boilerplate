@@ -5,7 +5,7 @@ Guida per chi non ha familiarità con CI/CD: cosa gira, dove, e perché.
 ## Il modello in 30 secondi
 
 - **Guides**: regole testuali (`AGENTS.md`, queste docs). Utili ma fallibili.
-- **Gates**: controlli automatici che bloccano codice non conforme. Girano in locale (`just precommit`, `just prepush`) e in CI (`.github/workflows/`). La CI riesegue le stesse recipe e fa fede; il locale dà feedback immediato.
+- **Gates**: controlli automatici che bloccano codice non conforme. Girano in locale (`just precommit`, `just prepush`) e in CI (`.github/workflows/`). La CI esegue il set di recipe dichiarato nei workflow e fa fede; il locale dà feedback immediato e aggiunge i gate CodeScene del working tree.
 - **Guards**: controlli schedulati report-only (`just guards` + `scheduled.yml`): non bloccano, aprono issue.
 
 ## Gate locali (hook git)
@@ -13,11 +13,11 @@ Guida per chi non ha familiarità con CI/CD: cosa gira, dove, e perché.
 Gli hook versionati in `.githooks/` (attivati da `just setup`) chiamano solo:
 
 - `just precommit` a ogni `git commit` (≤ 10s): format, lint, shell-check sui wrapper, docs, segreti sullo staged, test correlati ai file in stage.
-- `just prepush` a ogni `git push` (≤ 60s): static analysis completa (incluso shell-check), integration, smoke, coverage.
+- `just prepush` a ogni `git push` (≤ 60s): static analysis completa (incluso shell-check), segreti sul working tree, CodeScene change-set, integration, smoke, coverage.
 
 Mai saltare gli hook (`--no-verify` è vietato; vedi `AGENTS.md`). Se un gate fallisce e non sai rimediare: fermati e riporta il fallimento esatto.
 
-Fast path docs-only: se il diff tocca solo docs/markdown/workflow/hook, i gate si riducono a `docs-check` + `workflows-check`. La lista dei path è la variabile `DOCS_ONLY_PATTERNS` nel justfile, protetta da CODEOWNERS. Un diff misto percorre sempre il percorso completo.
+Fast path docs-only: se il diff tocca solo docs/markdown/workflow/hook, i gate si riducono a `docs-check` + `workflows-check` + scansione segreti (`secrets-staged` in precommit, `secrets` in prepush). La lista dei path è la variabile `DOCS_ONLY_PATTERNS` nel justfile, protetta da CODEOWNERS. Un diff misto percorre sempre il percorso completo.
 
 ## Branching, PR e worktree
 
@@ -62,7 +62,7 @@ I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-c
 
 | Workflow | Quando | Cosa fa |
 |---|---|---|
-| `ci.yml` | PR, push su main, manuale | un unico run: quality + integration & coverage + bun-compatibility + e2e + dependency-review (ADR-0005) |
+| `ci.yml` | PR, push su main, manuale | un unico run: quality + integration & coverage + bun-compatibility + e2e; dependency-review sui repository pubblici (ADR-0005) |
 | `security.yml` | settimanale, manuale | CodeQL + scansione segreti su tutta la storia (slow lane) |
 | `scheduled.yml` | cron settimanale, manuale | guard (apre issue sui findings) + link esterni |
 
@@ -72,8 +72,8 @@ I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-c
 
 1. **Niente per far partire la CI**: i workflow partono da soli al primo push.
 2. Abilita in *Settings → Code security*: Dependabot alerts, security updates, secret scanning, push protection.
-3. Abilita **Dependency graph** in *Settings → Code security → Dependency graph* (richiesto dal job `dependency-review` in `ci.yml`; senza di esso il check fallisce in pochi secondi).
-4. Crea il ruleset di `main` come in questo repository (boilerplate e derivati allineati; razionale in [`github-settings-explanation.md`](../init/misc/github-settings-explanation.md)): require PR, 1 approvazione, CODEOWNERS, dismiss stale reviews, extra approval per commit non attribuiti; niente last-push-approval né conversation resolution obbligatoria; no force push; no cancellazione di `main`; status check obbligatori sui job di `ci.yml` che girano sulle PR (`quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`; `dependency-review` se pubblico; mai `codeql`); squash + merge commit + rebase; niente `required_linear_history`; bypass owner *Always*; `delete_branch_on_merge`. Dettaglio: [`NEW-PROJECT.md`](./NEW-PROJECT.md) § Setup GitHub.
+3. Se il repository è pubblico, abilita **Dependency graph** in *Settings → Code security → Dependency graph* (senza di esso il check `dependency-review` fallisce in pochi secondi).
+4. Crea il ruleset di `main` come in questo repository (boilerplate e derivati allineati): require PR, 1 approvazione, CODEOWNERS, dismiss stale reviews, extra approval per commit non attribuiti; niente last-push-approval né conversation resolution obbligatoria; no force push; no cancellazione di `main`; status check obbligatori sui job di `ci.yml` che girano sulle PR (`quality`, `integration-and-coverage`, `bun-compatibility`, `e2e`; `dependency-review` solo se pubblico; mai `codeql`); squash + merge commit + rebase; niente `required_linear_history`; bypass owner *Always*; `delete_branch_on_merge`. Dettaglio: [`NEW-PROJECT.md`](./NEW-PROJECT.md) § Setup GitHub.
 
 ## Task schedulati (guards)
 
@@ -100,7 +100,7 @@ La presenza dei prerequisiti viene mantenuta da `just doctor`; su Debian/Ubuntu 
 
 **Adottato:** repository-local memory bank in `docs/memory/` come fallback portatile e versionabile della Kilo Memory nativa (ADR-0008). Gli agenti leggono `docs/memory/project.md` e `docs/memory/environment.md` all'avvio e aggiornano i file quando emergono fatti o correzioni duraturi.
 
-Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità continua, duplicazione), CodeCharta/CodeMaat (hotspot da git history, nel health guard), lizard (gate di complessità), Semgrep CE (SAST). Codacy non è usato: codacy-cli-v2 non supporta TypeScript in locale (parser assente, ESLint fallisce su `.ts`/`.tsx`; verificato 2026-09-01). Riferimenti: vademecum §4 in `docs/init/`.
+Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità continua, duplicazione), CodeCharta/CodeMaat (hotspot da git history, nel health guard), lizard (gate di complessità), Semgrep CE (SAST). Il CLI locale di Codacy non è usato perché codacy-cli-v2 non supporta TypeScript in locale (parser assente, ESLint fallisce su `.ts`/`.tsx`; verificato 2026-09-01); la configurazione `.codacy.yml` resta invece parte del repository e mantiene le esclusioni deliberate. Non usare `docs/init/` come fonte operativa nei derivati.
 
 ## Messaggi di commit
 
@@ -108,4 +108,4 @@ Convenzione (guida, non gate): prefisso conventional (`feat`, `fix`, `refactor`,
 
 ## Automazione del flusso
 
-Gli script in `tools/scripts/` tolgono il lavoro ripetitivo: `agent-briefing.sh` (contesto in un colpo a inizio task), `gh-prs.sh` (PR e contenuto), `finish-task.sh` (commit → push → PR, senza rilanciare i gate che gli hook già eseguono). Dettagli e regole in [`AGENT-AUTOMATION.md`](./AGENT-AUTOMATION.md).
+Gli script in `tools/scripts/` tolgono il lavoro ripetitivo: `agent-briefing.sh` (contesto in un colpo a inizio task), `gh-prs.sh` (PR e contenuto), `finish-task.sh` (commit → push → PR, senza rilanciare i gate che gli hook già eseguono). `finish-task.sh` si usa solo su un branch dedicato e dopo consenso esplicito a commit, push e PR. Dettagli e regole in [`AGENT-AUTOMATION.md`](./AGENT-AUTOMATION.md).

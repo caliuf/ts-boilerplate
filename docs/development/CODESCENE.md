@@ -1,11 +1,11 @@
 # CodeScene
 
-Code Health e debito tecnico per gli agenti, via MCP e REST API. Decisione: [ADR-0006](../architecture/adr/0006-codescene-mcp.md). Non è un hook git né una recipe `just`: quando l'MCP è connesso è comunque obbligatorio usarlo invece di indovinare la maintainability.
+Code Health e debito tecnico per gli agenti, via MCP e REST API. Decisione: [ADR-0006](../architecture/adr/0006-codescene-mcp.md). CodeScene non è un hook autonomo: i gate locali lo incapsulano nelle recipe `just`, mentre i tool MCP restano obbligatori quando l'MCP è connesso invece di indovinare la maintainability.
 
 **Quale strumento usare:**
 
 - **MCP** per i check a livello di file (`code_health_score`, `code_health_review`, `pre_commit_code_health_safeguard`) e per l'analisi del change-set (`analyze_change_set`). Questi girano in locale sul working tree, quindi producono dati sempre freschi.
-- **REST API** per il ratchet progetto (`just codescene-ratchet`), perché Hotspot e Average Code Health non sono esposti dai tool MCP. Il ratchet è progettuale e legge la scansione Cloud, che è in ritardo rispetto ai commit locali: per questo **non** è un gate di commit/push.
+- **REST API** per il ratchet progetto (`just codescene-ratchet`), perché Hotspot e Average Code Health non sono esposti dai tool MCP. Il ratchet è informativo, legge la scansione Cloud che è in ritardo rispetto ai commit locali e per questo **non** è un gate di commit/push.
 
 ## Cosa c'è già
 
@@ -58,11 +58,11 @@ Già fatto su questa macchina. Per un clone nuovo o un altro computer:
 1. Account CodeScene e progetto Cloud che punta a questo git remote.
 2. In Kilo: server MCP `codescene` con comando `npx -y @codescene/codehealth-mcp`.
 3. Login: `npx -y @codescene/codehealth-mcp auth`.
-4. Pin: `CS_DEFAULT_PROJECT_ID` (o `set_config default_project_id`) all'id del progetto Cloud. Questa variabile è necessaria al server MCP CodeScene; nel resto del progetto usa `CODESCENE_PROJECT_ID`.
+4. Pin: `CS_DEFAULT_PROJECT_ID` (o `set_config default_project_id`) all'id del progetto Cloud. Questa variabile è necessaria al server MCP CodeScene; nel resto del progetto usa `CODESCENE_PROJECT_ID`. I gate locali leggono anche `CS_DEFAULT_PROJECT_ID` da `.kilo/kilo.jsonc` quando non ricevono un override nell'environment.
 5. Crea un **CodeScene REST API token** nel progetto Cloud e salvalo in `~/.codescene/token`, oppure esporta `CODESCENE_API_TOKEN`. L'OAuth token dell'MCP non basta per le chiamate API progetto usate dal ratchet.
 6. Riavviare la sessione Kilo.
 
-In un progetto derivato da questo boilerplate: crea un progetto Cloud nuovo, aggiorna l'id in `.kilo/kilo.jsonc` e in questa pagina. Non riusare `83744`.
+In un progetto derivato da questo boilerplate: crea un progetto Cloud nuovo, aggiorna l'id in `.kilo/kilo.jsonc`, in questa pagina e nella memoria operativa. I gate locali e il client fallback leggono il pin dal file quando non è presente un override nell'environment. Non riusare `83744`.
 
 ## Gate locali (pre-commit e pre-push)
 
@@ -83,9 +83,9 @@ Entrambi i gate passano per `.kilo/scripts/codescene-gate.py`, che parla MCP su 
 
 Poiché legge la scansione Cloud (che riflette `origin/main`, non il working tree), il ratchet **non** è nei gate di commit/push: va eseguito dopo il push, quando la scansione Cloud si è aggiornata, per alzare i pavimenti. Usarlo come gate di commit bloccherebbe su dati vecchi.
 
-## Ratchet in CI (GitHub Actions)
+## Ratchet in CI (opzionale)
 
-In CI non c'è sessione MCP e non si possono committare secret. Configurare il ratchet come step del workflow che usa il progetto Cloud:
+Nessun workflow corrente esegue automaticamente il ratchet: `scheduled.yml` esegue i guard e la pipeline principale non usa token CodeScene. Se il progetto adotta il ratchet in CI, non c'è sessione MCP e non si possono committare secret; configurarlo come step del workflow che usa il progetto Cloud:
 
 1. Crea un repository secret `CODESCENE_API_TOKEN` con il CodeScene REST API token.
 2. Opzionalmente crea un repository variable `CODESCENE_PROJECT_ID` con l'id del progetto Cloud (es. `83744`). Se omesso, lo script legge il valore da `.kilo/kilo.jsonc` (dove è salvato come `CS_DEFAULT_PROJECT_ID` per il server MCP).

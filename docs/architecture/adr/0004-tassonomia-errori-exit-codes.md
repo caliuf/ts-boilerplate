@@ -18,11 +18,11 @@ Il vademecum richiede una tassonomia di errori condivisa (stessa fonte per CLI, 
 | --- | --- | --- | --- |
 | `INTERNAL` | 1 | 500 | errore interno |
 | `VALIDATION` | 2 | 400 | input non valido |
-| `UNAUTHORIZED` | 3 | 401/403 | autenticazione/autorizzazione |
+| `UNAUTHORIZED` | 3 | 401 | autenticazione (un eventuale `FORBIDDEN` richiederà un codice e una decisione separati) |
 | `NOT_FOUND` | 4 | 404 | risorsa non trovata |
 | `CONFLICT` | 5 | 409 | conflitto di stato |
 
-Exit code `0`: successo. L'API mappa su Problem Details RFC 9457 (`application/problem+json`) con URN `urn:<progetto>:error:<code>`
+Exit code `0`: successo. L'API mappa su Problem Details RFC 9457 (`application/problem+json`) con `code` condiviso e URN `urn:<progetto>:error:<code>`
 <!-- META: rinomina il prefisso URN `urn:project:` nel tuo progetto -->.
 MCP mappa su errori di tool (`isError: true` + payload JSON con lo stesso codice). La CLI emette `{"error","message"}` su stderr in modalità JSON.
 

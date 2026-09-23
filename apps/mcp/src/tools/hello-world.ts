@@ -2,7 +2,6 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { helloWorldInputSchema, helloWorldOutputSchema } from "@project/contracts";
 import type { Logger } from "@project/greetings";
 import { sayHello } from "@project/greetings";
-import { z } from "zod";
 
 /**
  * `hello_world` tool — 1:1 with the use case (naming parallel: `hello-world`
@@ -20,9 +19,7 @@ export function registerHelloWorldTool(server: McpServer, deps: { readonly logge
       description:
         "Returns the hello-world greeting for a person. Use it to greet someone by name; " +
         "omit `name` to greet the world. Returns { message } and never fails for valid input.",
-      inputSchema: z.object({
-        name: z.string().trim().min(1).max(100).optional(),
-      }),
+      inputSchema: helloWorldInputSchema,
       outputSchema: helloWorldOutputSchema,
       annotations: { readOnlyHint: true },
     },

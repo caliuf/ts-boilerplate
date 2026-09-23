@@ -8,11 +8,11 @@ date: 2026-08-20
 
 ## Context
 
-Ogni dato esterno (HTTP, environment, file, output LLM, risposte API) va validato a runtime; tipi TypeScript e schemi devono derivare da una sola definizione. Il vademecum richiede UNA libreria di schema scelta tramite ADR.
+Ogni dato esterno che attraversa un confine applicativo (HTTP, environment runtime, file, output LLM, risposte API) va validato a runtime; tipi TypeScript e schemi devono derivare da una sola definizione. Il vademecum richiede UNA libreria di schema scelta tramite ADR.
 
 ## Decision
 
-**Zod v4 come unica libreria di schema del progetto.** Tipi inferiti con `z.infer`; nessuna ridefinizione manuale dei tipi su nessuna superficie. Gli schemi condivisi vivono in `packages/contracts`; l'environment è validato all'avvio in ogni composition root.
+**Zod v4 come unica libreria di schema del progetto.** Tipi inferiti con `z.infer`; nessuna ridefinizione manuale dei tipi sulle superfici applicative. Gli schemi condivisi vivono in `packages/contracts`; l'environment consumato da una composition root è validato prima di entrare nel dominio o nell'application layer. Le configurazioni del bundler restano tooling e devono comunque rifiutare valori non utilizzabili.
 
 ## Options considered
 

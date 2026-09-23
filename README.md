@@ -12,10 +12,11 @@ Il caso d'uso dimostrativo è `hello-world`, esposto identico su ogni superficie
 ## Avvio rapido
 
 ```sh
-just setup        # tool (mise), dipendenze (pnpm), hook git, direnv allow, browser Playwright
-just doctor       # verifica che tutto sia a posto
+just setup        # dipendenze, hook git, direnv allow, browser Playwright
+just doctor       # verifica prerequisiti, dipendenze e hook
+just smoke        # baseline funzionale
 just dev          # API su :3100 + web su :5100
-node apps/cli/src/cli.ts hello-world --name Ada
+just node apps/cli/src/cli.ts hello-world --name Ada
 just ci           # l'intera pipeline, in locale
 ```
 
@@ -25,7 +26,7 @@ Prerequisiti: `just`, `mise` e `direnv` (o le versioni equivalenti installate a 
 
 ## Adottare il boilerplate per un nuovo progetto
 
-Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/NEW-PROJECT.md`](./docs/development/NEW-PROJECT.md)** — rinomina dei placeholder, rimozione delle superfici non necessarie, setup GitHub (ruleset, security), attivazione dei task schedulati.
+Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/NEW-PROJECT.md`](./docs/development/NEW-PROJECT.md)** — rinomina dei placeholder, rimozione delle superfici non necessarie, setup GitHub (ruleset, security) e attivazione condizionale dei task schedulati.
 
 ## Mappa dei file
 
@@ -50,9 +51,9 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 | [`packages/contracts`](./packages/contracts/) | DTO, schemi Zod, tassonomia errori |
 | [`packages/greetings`](./packages/greetings/) | Bounded context di riferimento |
 | [`packages/adapter-pino`](./packages/adapter-pino/) | Adapter di logging |
-| [`packages/testkit`](./packages/testkit/) | Doppioni di test |
+| [`packages/testkit`](./packages/testkit/) | Helper e test doubles condivisi |
 | [`tests/`](./tests/) | Suite integration ed E2E |
-| [`tools/scripts`](./tools/scripts/) | doctor, diff-scope, coverage-raise, guards, bun-smoke |
+| [`tools/scripts`](./tools/scripts/) | Script di briefing, automazione, diagnostica e gate |
 | [`.githooks/`](./.githooks/) | Hook git versionati |
 | [`.github/workflows/`](./.github/workflows/) | Unica CI per push/PR; security e guards in slow lane settimanale |
 
@@ -62,4 +63,4 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 2. **Gates** deterministici a cricchetto: typecheck, lint type-aware, formattazione, dead code, architettura, segreti, test, coverage — in locale prima che in CI, mai aggirabili.
 3. **Guards** schedulati e report-only: creano task invece di codice.
 
-L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**. Le regole complete: [`docs/init/Vademecum Typescript.md`](./docs/init/Vademecum%20Typescript.md) (blueprint di origine; nei progetti derivati basta `AGENTS.md` + `docs/`).
+L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**. Le regole operative attive sono in `AGENTS.md` e `docs/`; `docs/init/` è il blueprint storico del boilerplate e va rimosso all'adozione.

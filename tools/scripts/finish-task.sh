@@ -37,6 +37,12 @@ if [ "$branch" = "main" ]; then
   exit 1
 fi
 
+hooks_path=$(git config --get core.hooksPath || true)
+if [ "$hooks_path" != ".githooks" ] || [ ! -x .githooks/pre-commit ] || [ ! -x .githooks/pre-push ]; then
+  echo "Error: versioned git hooks are not active — run 'just setup' before finish-task.sh." >&2
+  exit 1
+fi
+
 if [ "$stage_all" -eq 1 ]; then
   git add -A
 fi
@@ -63,9 +69,9 @@ git push -u origin "$branch"
 
 # --- PR ------------------------------------------------------------------------
 if ! command -v gh >/dev/null 2>&1; then
-  echo "gh not found — branch pushed, create the PR manually:"
+  echo "gh not found — branch pushed, but the task is not complete until the PR is created manually:" >&2
   echo "  gh pr create --fill"
-  exit 0
+  exit 1
 fi
 
 existing=$(gh pr list --head "$branch" --state open --json number --template '{{range .}}{{.number}}{{"\n"}}{{end}}' 2>/dev/null || true)

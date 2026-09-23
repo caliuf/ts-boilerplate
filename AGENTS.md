@@ -18,17 +18,17 @@ Boilerplate placeholders to customize:
 
 1. Run `tools/scripts/agent-briefing.sh` for a one-shot context dump (repo/worktree, git state, gate tools, project memory, open PRs/issues). Read-only; `--no-prs` skips GitHub.
 2. Read `docs/PROJECT.md` and `docs/INDEX.md`.
-3. Read `docs/memory/project.md` and `docs/memory/environment.md` for durable project context (Kilo Memory may or may not be active in the current client).
+3. Read `docs/memory/project.md` and `docs/memory/environment.md` for durable project context; read `docs/memory/corrections.md` too for tooling, workflow or adoption tasks (Kilo Memory may or may not be active in the current client).
 4. Read the README of every package you will modify.
-5. Read the relevant active ADRs (`docs/architecture/adr/`) and PDRs (`docs/product/pdr/`).
+5. Read the ADR/PDR index first, then the relevant active records; for architecture or product work also read the matching overview, boundaries or glossary.
 6. Use only root-level `just` recipes to build, test and validate changes (canonical table: `docs/development/GETTING-STARTED.md`).
 
 ## Working rules
 
-- When you make durable decisions, corrections, or discover significant facts, update `docs/memory/project.md` and `docs/memory/environment.md` in the same commit (ADR-0008).
+- When you make a durable decision, correction or discovery, update the appropriate memory file in the same commit: `project.md` for facts, decisions and constraints; `environment.md` for commands, paths and tool quirks. Update both only when both scopes changed (ADR-0008).
 - Keep the change limited to the requested scope; never modify `docs/init/` (frozen blueprint). One task = one branch/worktree (branch naming, PR flow and worktree rules: `docs/development/WORKFLOWS.md` § Branching, PR e worktree).
 - When the user does not explicitly request a branch/PR and `realpath $(pwd)` equals `/home/dati/workspace/ts-boilerplate`, the default flow is to apply changes on the current `main` and leave the commit to the user.
-- Before starting, check that gates are green (`just smoke` at minimum). Never start new work on a below-threshold codebase: restore health first, or report the blocker.
+- Before starting, check that gates are green (`just smoke` at minimum). During initial bootstrap, run it immediately after `just setup` and `just doctor`, before starting feature work. Never start new work on a below-threshold codebase: restore health first, or report the blocker.
 - Work test-first: red → green → refactor. For a bug, the first commit is a failing regression test. A test you have never seen fail is suspect.
 - Leave the code you touch better than you found it, measured by the repo gates and by CodeScene when the MCP is connected. Do NOT perform unrelated refactors or dependency upgrades.
 - Do not add a dependency unless necessary; significant ones require an ADR.
@@ -37,12 +37,12 @@ Boilerplate placeholders to customize:
 - Validate all external data at runtime with Zod (`packages/contracts`).
 - Biome è il formatter automatico di default e oxlint il lint automatico di default, ma nessuno dei due prevale sulla leggibilità: se formatting o linting impongono una forma chiaramente meno leggibile, preferire una suppression locale supportata dal tool e motivata invece di alterare globalmente la configurazione; verificare comunque che il controllo resti esplicito e circoscritto.
 - When diagnosing runtime behavior, rerun the flow with `LOG_LEVEL=debug` and cite the relevant log output as evidence; never leave `console.log` or temporary debug output behind.
-- Do not use `any`, unchecked casts, `@ts-ignore`, non-null assertions or disable comments to make checks pass.
+- Do not use `any`, unchecked casts, `@ts-ignore`, non-null assertions or disable comments to make checks pass in production code; test/tooling boundaries must validate parsed data and keep any unavoidable narrowing local and motivated.
 - Do not edit generated files directly (`pnpm-lock.yaml`, coverage reports).
 - Before using a library API, verify it exists in the installed version (read its types/docs in `node_modules`); do not rely on memory.
 - Do not introduce a product decision without a PDR, nor an architectural decision without an ADR, in the same commit as the code. With Kilo use the `/create-adr` and `/create-pdr` commands; record directories are configured in `conventions.conf`.
 - Maintain `tmp/commit-message.md` with the proposed commit message for the work in progress: reset it when starting from a clean `git status`, integrate or fix it otherwise. `tmp/` is gitignored. The message follows the format in `docs/development/WORKFLOWS.md` § Messaggi di commit: prefisso conventional, una riga riassuntiva, riga vuota, lista puntata Markdown col dettaglio. Anche qui niente hard wrap sulle righe.
-- Use the automation scripts in `tools/scripts/` instead of repetitive manual commands: `agent-briefing.sh` for task-start context, `gh-prs.sh` for PR inspection, `finish-task.sh` to commit+push+open the PR (see `docs/development/AGENT-AUTOMATION.md`). Never ignore a "tool not found" warning — fix the PATH instead.
+- Use the automation scripts in `tools/scripts/` instead of repetitive manual commands: `agent-briefing.sh` for task-start context, `gh-prs.sh` for PR inspection, `finish-task.sh` to commit+push+open the PR when explicitly requested (see `docs/development/AGENT-AUTOMATION.md`). Never ignore a "tool not found" warning — fix the PATH instead.
 
 ## Documentation style
 
@@ -55,11 +55,11 @@ Boilerplate placeholders to customize:
 - The project language is technical-IT Italian (italiano tecnico-informatico). Commit messages are written in the project language.
 - Code identifiers (functions, variables, types, file names) stay in English: they are more concise and expressive.
 - Comments and documentation are written in Italian; heavy use of English domain-specific terms is fine when a translation would sound weird.
-- Exceptions: a file already in English stays in English; files under `docs/memory/` stay in English.
+- Exceptions: a file already in English stays in English; files under `docs/memory/` keep their existing language and the `key :: value` format.
 
 ## Architecture in one paragraph
 
-One use case = one file in `packages/<context>/src/application/`. CLI (`apps/cli`), HTTP API (`apps/api`), MCP (`apps/mcp`) and web UI (`apps/web`) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every surface and a row in the surface map of `docs/PROJECT.md`.
+One use case = one file in `packages/<context>/src/application/`. The kept surfaces (CLI, HTTP API, MCP and/or web UI) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every kept surface and a row in the surface map of `docs/PROJECT.md`.
 
 ## CodeScene
 
@@ -101,11 +101,12 @@ Before any operation on PRs, issues, checks or repository settings via the GitHu
 - Do not use destructive Git commands.
 - Do not rewrite existing commits or force-push unless explicitly requested.
 - Do not delete unrelated or untracked files.
+- Do not create commits, push, open PRs, create remotes or change GitHub settings unless the user explicitly asks; when authorized, use the documented automation and GitHub CLI flows.
 - Commit message convention (guide, not a gate): `docs/development/WORKFLOWS.md`. Messages are written in the project language (§ Language).
 
 ## Final report
 
-Report:
+Report the following. For a docs-only or otherwise inapplicable item, write `N/A` rather than inferring a result:
 
 1. what changed;
 2. tests added or changed;

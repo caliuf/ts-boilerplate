@@ -11,7 +11,7 @@ Messaggio di saluto prodotto dal bounded context `greetings`.
 
 - **Perché esiste**: dimostratore minimo end-to-end del boilerplate.
 - **Cosa fa**: dato un nome opzionale, produce `Hello, <name>!` (default `world`).
-- **Come si usa**: caso d'uso `sayHello` (`packages/greetings/src/application/ say-hello.ts`), esposto come `project hello-world` (CLI), `GET /api/hello-world` (API), tool `hello_world` (MCP), hook `useHelloWorld` (UI).
+- **Come si usa**: caso d'uso `sayHello` (`packages/greetings/src/application/say-hello.ts`), esposto come `bin/project-hello-world` (CLI), `GET /api/hello-world` (API), tool `hello_world` (MCP), hook `useHelloWorld` (UI).
 
 ## AppError / ErrorCode
 

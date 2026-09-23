@@ -10,24 +10,44 @@ so the gate always uses fresh data, never the stale project-level Cloud scan:
 Exit code is 0 when quality_gates == "passed", 1 otherwise, 2 on tool error.
 
 Configuration (env):
-  CODESCENE_PROJECT_ID   CodeScene Cloud project id (default: 83744)
+  CODESCENE_PROJECT_ID   CodeScene Cloud project id (overrides .kilo/kilo.jsonc)
   CODESCENE_BASE_REF     Base ref for the changeset mode (default: origin/main)
+
+If no project id is supplied in the environment or CLI, the value is read from
+.kilo/kilo.jsonc. The gate fails closed when no project id is configured.
 """
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import uuid
-
-DEFAULT_PROJECT_ID = 83744
-
 
 def _git_root() -> str:
     return subprocess.check_output(
         ["git", "rev-parse", "--show-toplevel"],
         text=True,
     ).strip()
+
+
+def _project_id_from_repo(repo: str) -> int | None:
+    config_path = os.path.join(repo, ".kilo", "kilo.jsonc")
+    try:
+        with open(config_path, encoding="utf-8") as config:
+            match = re.search(r'"CS_DEFAULT_PROJECT_ID"\s*:\s*"(\d+)"', config.read())
+    except OSError:
+        return None
+    return int(match.group(1)) if match else None
+
+
+def _resolve_project_id(repo: str, explicit: int | None) -> int | None:
+    if explicit is not None:
+        return explicit
+    configured = os.environ.get("CODESCENE_PROJECT_ID", os.environ.get("CS_DEFAULT_PROJECT_ID"))
+    if configured:
+        return int(configured)
+    return _project_id_from_repo(repo)
 
 
 def send(proc, msg: dict) -> None:
@@ -126,7 +146,7 @@ def run_gate(tool: str, tool_args: dict, repo: str, project_id: int) -> int:
             category = finding.get("category", "?")
             change = finding.get("change-type", "")
             print(f"       {category} [{change}]", file=sys.stderr)
-    print("Refactor the degraded files (or run: just codescene-review <file>).", file=sys.stderr)
+    print("Review the degraded files with the CodeScene `code_health_review` tool.", file=sys.stderr)
     return 1
 
 
@@ -142,13 +162,14 @@ def main() -> int:
         default=os.environ.get("CODESCENE_BASE_REF", "origin/main"),
         help="Base ref for changeset mode (default: origin/main)",
     )
-    parser.add_argument(
-        "--project-id",
-        type=int,
-        default=int(os.environ.get("CODESCENE_PROJECT_ID", os.environ.get("CS_DEFAULT_PROJECT_ID", DEFAULT_PROJECT_ID))),
-    )
+    parser.add_argument("--project-id", type=int, default=None)
     parser.add_argument("--repo", default=os.environ.get("REPO_PATH", _git_root()))
     args = parser.parse_args()
+
+    project_id = _resolve_project_id(args.repo, args.project_id)
+    if project_id is None:
+        print("⚠️  CodeScene project id not configured; set CODESCENE_PROJECT_ID or .kilo/kilo.jsonc", file=sys.stderr)
+        return 2
 
     if args.mode == "staged":
         tool = "pre_commit_code_health_safeguard"
@@ -158,7 +179,7 @@ def main() -> int:
         tool_args = {"git_repository_path": args.repo, "base_ref": args.base_ref}
 
     try:
-        return run_gate(tool, tool_args, args.repo, args.project_id)
+        return run_gate(tool, tool_args, args.repo, project_id)
     except Exception as e:  # noqa: BLE001 - a gate must fail closed, not silently pass
         print(f"⚠️  CodeScene gate could not run: {e}", file=sys.stderr)
         return 2

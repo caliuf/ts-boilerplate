@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 /**
  * Shared error taxonomy (Vademecum §3, "Superfici di ingresso").
  *
@@ -39,6 +41,17 @@ export const errorCodeToExitCode: Readonly<Record<ErrorCode, number>> = {
   CONFLICT: 5,
 };
 
+/** HTTP statuses allowed by the shared error taxonomy. */
+export const httpErrorStatusSchema = z.union([
+  z.literal(400),
+  z.literal(401),
+  z.literal(404),
+  z.literal(409),
+  z.literal(500),
+]);
+
+export type HttpErrorStatus = z.infer<typeof httpErrorStatusSchema>;
+
 /** HTTP status mapping, kept coherent with the CLI exit codes above. */
 export const errorCodeToHttpStatus = {
   INTERNAL: 500,
@@ -46,9 +59,7 @@ export const errorCodeToHttpStatus = {
   UNAUTHORIZED: 401,
   NOT_FOUND: 404,
   CONFLICT: 409,
-} as const satisfies Record<ErrorCode, number>;
-
-export type HttpErrorStatus = (typeof errorCodeToHttpStatus)[ErrorCode];
+} as const satisfies Record<ErrorCode, HttpErrorStatus>;
 
 /** RFC 9457 problem type URNs and human titles, one per error code. */
 export const errorCodeToProblem: Readonly<Record<ErrorCode, { type: string; title: string }>> = {

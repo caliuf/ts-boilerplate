@@ -2,7 +2,7 @@
 
 Cosa fare da quando prendi in mano questo boilerplate per iniziare un progetto nuovo. Il destinatario operativo è l'agente: tu incolli un prompt, lui legge questo file e ti guida. Non sei tenuto a leggerlo.
 
-> Quando l'adozione è completa, cancella questo file e `docs/init/`.
+> Quando l'adozione è completa, cancella questo file e `docs/init/` dopo aver ripulito i riferimenti vivi e rieseguito i gate documentali.
 
 ## Modalità guidata dall'agente
 
@@ -36,29 +36,19 @@ Dati:
 - bin CLI: <nome>
 - handle GitHub (CODEOWNERS): @<handle oppure chiedimi>
 - visibilità repo: <public | private | chiedimi>
+- licenza se pubblico: <MIT | Apache-2.0 | altra | chiedimi>
 - superfici da tenere: <CLI, API, MCP, UI | chiedimi>
 - merge: squash, merge commit e rebase; niente linear history obbligatoria
 
 Parti dal passo 0.
 ```
 
-Esempio compilato (progetto `aiboost`; handle e visibilità li chiede l'agente):
+Esempio compilato (progetto `aiboost`; handle, visibilità e superfici li chiede l'agente):
 
 ```text
-Adotta questo boilerplate per il progetto "aiboost".
+Adotta questo boilerplate per il progetto "aiboost" usando il template guidato sopra.
 
-Leggi docs/development/NEW-PROJECT.md (modalità guidata) e docs/development/GITHUB-CLI.md. Non farmeli leggere: guidami tu nell'ordine del file. Esegui tu tutto ciò che è Harness. Per ciò che è Utente dammi in un unico blocco tutte le azioni consecutive che posso fare io; le eseguo e ti restituisco il controllo. Spezza solo se in mezzo serve un'azione tua. Non creare remote GitHub né toccare ruleset/security senza consenso esplicito.
-
-Dati:
-- nome: aiboost
-- scope npm: @aiboost
-- bin CLI: aiboost
-- handle GitHub (CODEOWNERS): chiedimi
-- visibilità repo: chiedimi
-- superfici da tenere: chiedimi
-- merge: squash, merge commit e rebase; niente linear history obbligatoria
-
-Parti dal passo 0.
+Dati: scope npm @aiboost, bin CLI aiboost; chiedimi handle GitHub, visibilità e superfici da tenere. Mantieni squash, merge commit e rebase, senza linear history obbligatoria. Parti dal passo 0.
 ```
 
 Il prompt minimale «guarda NEW-PROJECT e guidami passo passo facendo tu le parti che ti competono» è sufficiente *solo* se l'agente segue il protocollo sopra e chiede subito i dati mancanti. Meglio il template compilato: evita che parta senza nome o che ti rifili la guida intera.
@@ -99,39 +89,43 @@ git clone <url-di-questo-boilerplate> il-mio-progetto
 cd il-mio-progetto
 git remote remove origin
 just setup                      # dipendenze, hook, Playwright, indice CodeGraph
-just doctor                     # tutto ✅ prima di proseguire
+just doctor                     # nessun ❌; registra o risolvi i warning
+just smoke                      # baseline verde prima di rinominare o tagliare
 ```
 
 `just setup` non è `just install`. Se i tool di sistema mancano, l'utente lancia prima `just install`.
 
 ## 2. Rinomina i placeholder
 
-I meta-placeholder sono marcati e greppabili. Cerca `META:` nei file, lo scope `@project` e l'handle `@caliuf` in CODEOWNERS:
+I meta-placeholder sono marcati e greppabili. Cerca tutti i placeholder nei file vivi, sempre escludendo `docs/init/` e questo file:
 
 ```sh
-grep -rn "META:" --include="*.md" --include="*.ts" --include="*.tsx" --include="*.jsonc" . | grep -v node_modules
-grep -rln "@project" --include="*.json" --include="*.ts" . | grep -v node_modules
+grep -RInE "META:|@project|urn:project:|project-|ts-boilerplate|<SECURITY_CONTACT>" --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude-dir=tmp --exclude-dir=docs/init --exclude=NEW-PROJECT.md .
 grep -n "@caliuf\|@YOUR-GITHUB-USERNAME" .github/CODEOWNERS AGENTS.md
-grep -rn "83744\|ts-boilerplate-0636824f8fd8\|/home/dati/workspace/ts-boilerplate" --include="*.md" --include="*.jsonc" . | grep -v node_modules | grep -v docs/init
+grep -RInE "83744|ts-boilerplate-0636824f8fd8|/home/dati/workspace/ts-boilerplate" --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude-dir=tmp --exclude-dir=docs/init --exclude=NEW-PROJECT.md .
 ```
 
 Cose da rinominare:
 
-- scope npm `@project` → `@<nome>` in package.json e import;
+- scope npm `@project` → `@<nome>` in package.json, lockfile rigenerato e import;
 - bin della CLI `project` → `<nome>` (`apps/cli/package.json`, help in `cli.ts`);
 - prefisso URN `urn:project:` in `packages/contracts`;
 - nome del server MCP in `apps/mcp/src/create-server.ts`;
 - titolo in `apps/web/index.html` e `name` nel `package.json` radice;
 - prefisso dei wrapper in `bin/` (`project-*` → `<nome>-*`) e commento `META` nello script;
 - handle in `.github/CODEOWNERS` (`@caliuf` → il maintainer reale). Un CODEOWNERS con handle inesistente rende inutilizzabile "require review from code owners";
+- contatto `<SECURITY_CONTACT>` in `SECURITY.md`;
 - pin CodeScene in `.kilo/kilo.jsonc` (`CS_DEFAULT_PROJECT_ID=83744`) e i riferimenti in [`CODESCENE.md`](./CODESCENE.md), `AGENTS.md` § CodeScene e `docs/memory/environment.md`: non riusare l'id del boilerplate (passo 7);
 - path assoluto del workspace principale in `AGENTS.md` § Working rules e in questo file (`/home/dati/workspace/ts-boilerplate`): sostituiscilo con il path del tuo clone, o elimina la regola se non ti serve;
-- path e hash di Kilo Memory in `docs/memory/` (passo 6): non copiare `ts-boilerplate-0636824f8fd8`.
+- path e hash di Kilo Memory in `docs/memory/` (passo 6): non copiare `ts-boilerplate-0636824f8fd8`;
+- tutti i commenti `META:` nei file vivi: riscriverli se descrivono il progetto derivato, oppure rimuoverli quando sono istruzioni del boilerplate. Non modificare `docs/init/`.
+
+Dopo il rename, esegui di nuovo la ricerca e non procedere se restano placeholder nei file vivi. Per il lockfile usa `just setup` o `pnpm install`; non modificare `pnpm-lock.yaml` a mano.
 
 Prompt pronto:
 
 ```text
-Adotta il boilerplate per il progetto "<NOME>": rinomina lo scope npm `@project` in `@<nome>` in tutti i package.json e import, il bin della CLI da `project` a `<nome>` (apps/cli/package.json, help in cli.ts), il prefisso URN `urn:project:` in packages/contracts, il nome del server MCP in apps/mcp/src/create-server.ts, il titolo in apps/web/index.html e il name nel package.json radice, e i file in `bin/` da `project-*` a `<nome>-*`. Sostituisci @caliuf in .github/CODEOWNERS con @<handle>. Risolvi tutti i commenti `META:` che riguardano nomi. Aggiorna docs/PROJECT.md di conseguenza. Non toccare ancora GitHub remote, CodeScene id o lo store nativo di Kilo Memory. Chiudi con `just ci` verde.
+Adotta il boilerplate per il progetto "<NOME>": rinomina lo scope npm `@project` in `@<nome>` in tutti i package.json e import, il bin della CLI da `project` a `<nome>` (apps/cli/package.json, help in cli.ts), il prefisso URN `urn:project:` in packages/contracts, il nome del server MCP in apps/mcp/src/create-server.ts, il titolo in apps/web/index.html e il name nel package.json radice, e i file in `bin/` da `project-*` a `<nome>-*`. Sostituisci @caliuf in .github/CODEOWNERS con @<handle> e `<SECURITY_CONTACT>` in SECURITY.md con il contatto reale. Risolvi o rimuovi tutti i commenti `META:` nei file vivi, senza toccare docs/init. Aggiorna README.md e docs/PROJECT.md di conseguenza, rigenera il lockfile con `just setup` e richiudi la ricerca dei placeholder. Non toccare ancora GitHub remote, CodeScene id o lo store nativo di Kilo Memory. Chiudi con `just ci` verde.
 ```
 
 ## 3. Descrivi il TUO progetto (la parte che decide l'umano)
@@ -157,19 +151,23 @@ Se hai già creato il ruleset GitHub (passo 5), allinealo subito: un check obbli
 Prompt pronto:
 
 ```text
-Questo progetto non avrà <UI web / server MCP / API>: rimuovi le app, i test e i workflow corrispondenti, aggiorna pnpm-workspace, knip.json, vitest.config.ts, docs/PROJECT.md (tabella deployable e mappa superfici) e GETTING-STARTED.md. Se esiste un ruleset su main, togli dagli status check i job che non esistono più. `just ci` deve restare verde.
+Questo progetto non avrà <UI web / server MCP / API>: rimuovi le app, i test, i workflow e le recipe `just` corrispondenti; aggiorna pnpm-workspace, knip.json, vitest.config.ts, justfile (inclusi i filtri di `just dev`), README.md, AGENTS.md, docs/INDEX.md, docs/PROJECT.md (tabella deployable e mappa superfici), GETTING-STARTED.md e gli ADR/PDR il cui perimetro cambia. Se esiste un ruleset su main, togli dagli status check i job che non esistono più. `just ci` deve restare verde.
 ```
+
+## 4.1 Allinea ADR, PDR e viste correnti
+
+Dopo il pruning delle superfici, rileggi l'indice ADR e l'indice PDR e valuta ogni record `active`. Una decisione non più applicabile va rimossa solo se è un artefatto del boilerplate, oppure sostituita da un nuovo record con `supersedes`/`superseded_by`; aggiorna anche `OVERVIEW.md`, `BOUNDARIES.md`, `docs/product/OVERVIEW.md`, `GLOSSARY.md`, `docs/PROJECT.md`, `AGENTS.md` e le guide operative interessate. La PDR-0001 è solo il dimostratore: quando `hello-world` viene sostituito, va sostituita o rimossa con una decisione esplicita.
 
 ## 5. Setup GitHub
 
-I workflow in `.github/` partono da soli al primo push: non serve "accendere la CI". Serve invece configurare sicurezza, ruleset e (se pubblico) dependency graph. Riferimenti: [`WORKFLOWS.md`](./WORKFLOWS.md) § CI, [`GITHUB-CLI.md`](./GITHUB-CLI.md) § Impostazioni del repo, [`SECURITY.md`](./SECURITY.md). Perché queste scelte, alternative e flussi (locale su `main`, worktree, cloud agents): [`docs/init/misc/github-settings-explanation.md`](../init/misc/github-settings-explanation.md).
+I workflow in `.github/` partono da soli al primo push: non serve "accendere la CI". Serve invece configurare sicurezza, ruleset e (se pubblico) dependency graph. Riferimenti: [`WORKFLOWS.md`](./WORKFLOWS.md) § CI, [`GITHUB-CLI.md`](./GITHUB-CLI.md) § Impostazioni del repo e [`SECURITY.md`](./SECURITY.md).
 
 ### 5.1 Chi fa cosa
 
 | Passo | Chi | Perché |
 | --- | --- | --- |
 | `gh auth login` e scelta visibilità (pubblico/privato) | **Utente** | Interattivo; implica piano GitHub, minuti CI e GHAS |
-| LICENSE se il repo sarà pubblico | **Insieme** | Senza licenza il boilerplate pubblico è "all rights reserved" |
+| Scelta e creazione di `LICENSE` se il repo sarà pubblico | **Insieme** | Senza licenza il boilerplate pubblico è "all rights reserved"; scegliere esplicitamente MIT, Apache-2.0 o altra licenza |
 | CODEOWNERS con handle reale | **Harness** | Già nel passo 2; bloccante per il ruleset |
 | `gh repo create` + push iniziale | **Harness** (consenso esplicito) | Crea un remote; non è un fork del boilerplate |
 | Merge: squash, merge commit e rebase; `delete_branch_on_merge` | **Harness** | `gh repo edit` / API; niente linear history |
@@ -297,8 +295,7 @@ printf '%s' '{
           {"context": "quality"},
           {"context": "integration-and-coverage"},
           {"context": "bun-compatibility"},
-          {"context": "e2e"},
-          {"context": "dependency-review"}
+          {"context": "e2e"}
         ]
       }
     }
@@ -307,7 +304,7 @@ printf '%s' '{
   -H "Accept: application/vnd.github+json" --input -
 ```
 
-Se hai rimosso l'E2E al passo 4, togli `e2e`. Se il repo è **privato**, togli `dependency-review` (il job si auto-esclude e il check non diventa mai verde). Non aggiungere `codeql`.
+Se hai rimosso l'E2E al passo 4, togli `e2e`. Se il repo è **pubblico**, aggiungi `{"context": "dependency-review"}` dopo aver verificato che il job sia comparso almeno una volta. Se il repo è privato, non aggiungerlo. Non aggiungere `codeql`.
 
 **Utente in UI** se l'API non è disponibile: *Settings → Rules → Rulesets → New branch ruleset*, stessa checklist. Non attivare una regola `update` che blocca anche i merge via PR (errore tipico: push e PR rifiutati entrambi).
 
@@ -339,7 +336,7 @@ gh run list --limit 5
 Prompt pronto:
 
 ```text
-Prima leggi docs/development/GITHUB-CLI.md e docs/development/NEW-PROJECT.md § Setup GitHub. Verifica gh auth status. Crea il remote GitHub del working tree corrente (non un fork). Allinea il remote a questo boilerplate: squash+merge+rebase, delete_branch_on_merge, niente linear history, ruleset come in § 5.5 (check CI obbligatori sulle PR, mai codeql, bypass owner always). Abilita via API Dependabot alerts/security updates e secret scanning/push protection. Non tentare di abilitare il dependency graph via API: dimmi di farlo in UI. Se un endpoint risponde 403/404 o il piano non supporta i ruleset, fermati e riporta la risposta grezza. Riporta ogni comando e lo status code.
+Prima leggi docs/development/GITHUB-CLI.md e docs/development/NEW-PROJECT.md § Setup GitHub. Verifica gh auth status. Crea il remote GitHub del working tree corrente (non un fork), esegui il primo push e attendi che i job CI producano i context; solo dopo crea o aggiorna il ruleset. Allinea il remote a questo boilerplate: squash+merge+rebase, delete_branch_on_merge, niente linear history, ruleset come in § 5.5 (check CI obbligatori sulle PR, mai codeql, bypass owner always). Abilita via API Dependabot alerts/security updates e secret scanning/push protection. Non tentare di abilitare il dependency graph via API: dimmi di farlo in UI. Se un endpoint risponde 403/404 o il piano non supporta i ruleset, fermati e riporta la risposta grezza. Riporta ogni comando e lo status code.
 ```
 
 ## 6. Memoria Kilo (non ripartire da zero)
@@ -401,14 +398,14 @@ Dopo il primo bind, aggiorna in `docs/memory/project.md` (e in environment) il p
 Non esiste un import bulk dello store globale. **Harness**, nella prima sessione Kilo sul nuovo repo, dopo che la diagnostica è verde:
 
 ```text
-Kilo Memory è appena stata associata a questo clone. Leggi docs/memory/project.md, environment.md e corrections.md. Per ogni entry che è ancora vera per QUESTO progetto (non path, hash, CodeScene id o sessioni del boilerplate) salvala nella Kilo Memory nativa con kilo_memory_save (remember), stessa chiave e stesso testo. Non copiare ~/.local/share/kilo/memory/ da altri progetti. Poi rilancia tools/scripts/kilo-memory-diagnose.sh e riporta enabled, autoInject, canonical path e dimensioni.
+Kilo Memory è appena stata associata a questo clone. Leggi docs/memory/project.md, environment.md e corrections.md. Per ogni entry che è ancora vera per QUESTO progetto (non path, hash, CodeScene id o sessioni del boilerplate) salvala nella memoria nativa del client, se disponibile, usando il meccanismo documentato da quel client e mantenendo stessa chiave e stesso testo. Non copiare ~/.local/share/kilo/memory/ da altri progetti. Poi rilancia tools/scripts/kilo-memory-diagnose.sh e riporta enabled, autoInject, canonical path e dimensioni.
 ```
 
-Da quel momento la nativa è la fonte veloce in-sessione; `docs/memory/` resta la fonte autorevole versionabile. Ogni fatto nuovo va in entrambi, come da ADR-0008.
+Da quel momento la nativa è la fonte veloce in-sessione; `docs/memory/` resta la fonte autorevole versionabile. Ogni fatto nuovo va nel file repository appropriato e, se il client lo supporta, anche nella memoria nativa, come da ADR-0008.
 
-## 7. CodeScene
+## 7. CodeScene (se adottato)
 
-**Utente** (una tantum, account e Cloud): crea un progetto CodeScene Cloud *nuovo* che punta al git remote di questo repo. Non riusare `83744`.
+Se il progetto mantiene CodeScene, **Utente** (una tantum, account e Cloud): crea un progetto CodeScene Cloud *nuovo* che punta al git remote di questo repo. Non riusare `83744`.
 
 Poi, insieme all'harness, segui [`CODESCENE.md`](./CODESCENE.md) § Setup:
 
@@ -418,7 +415,7 @@ Poi, insieme all'harness, segui [`CODESCENE.md`](./CODESCENE.md) § Setup:
 4. Token REST in `~/.codescene/token` o `CODESCENE_API_TOKEN` (fuori dal git) per `just codescene-ratchet`. L'OAuth dell'MCP non basta per l'API progetto.
 5. Riavvia la sessione Kilo.
 
-Senza progetto proprio i gate `just codescene-safeguard` / `just codescene-changeset` restano usabili in locale sul working tree; hotspot e ratchet Cloud no.
+Senza progetto proprio i gate `just codescene-safeguard` / `just codescene-changeset` restano usabili in locale sul working tree; hotspot e ratchet Cloud no. Se il progetto non adotta CodeScene, rimuovi il server da `.kilo/kilo.jsonc`, le recipe e i riferimenti CodeScene da hook, `AGENTS.md`, ADR-0006, `CODESCENE.md`, memoria e checklist; non lasciare un gate configurato verso il progetto del boilerplate.
 
 ## 8. Sostituisci il dimostratore col primo caso d'uso reale
 
@@ -430,7 +427,7 @@ Sostituisci il bounded context `greetings` con il primo caso d'uso reale: <COSA 
 
 ## 9. Attiva i task schedulati
 
-I guard girano via `.github/workflows/scheduled.yml` (cron settimanale): **non richiedono configurazione** oltre al repo attivo. Apriranno issue in caso di findings. Verifica dopo la prima settimana che il workflow sia girato (*Actions → scheduled*) e metti in calendario la prima retrospettiva di processo (prompt in `WORKFLOWS.md`).
+Se il derivato ha un remote GitHub, i guard girano via `.github/workflows/scheduled.yml` (cron settimanale): **non richiedono configurazione** oltre al repo attivo. Apriranno issue in caso di findings. Verifica dopo la prima settimana che il workflow sia girato (*Actions → scheduled*) e metti in calendario la prima retrospettiva di processo (prompt in `WORKFLOWS.md`). Senza remote, questa verifica GitHub è non applicabile.
 
 Se lavori senza remoto GitHub: esegui `just guards` a mano ogni settimana.
 
@@ -452,15 +449,23 @@ feature applicative.
 
 ## Checklist finale di adozione
 
-- [ ] `just doctor` tutto ✅
+- [ ] `just doctor` senza errori; warning opzionali registrati o risolti
+- [ ] `just smoke` verde dopo `just setup` e prima delle modifiche di progetto
 - [ ] placeholder rinominati (`@project`, `project`, `urn:project:`, `bin/project-*`, CODEOWNERS, `META:`)
+- [ ] contatto di sicurezza in `SECURITY.md` sostituito con un canale reale
+- [ ] lockfile rigenerato con `just setup` dopo il rename; nessuna modifica manuale a `pnpm-lock.yaml`
+- [ ] `README.md`, `AGENTS.md`, `docs/INDEX.md`, overview, glossary e guide vive aggiornati al nome e alle superfici reali
 - [ ] `docs/PROJECT.md` descrive il TUO progetto
-- [ ] app superflue rimosse; `just ci` verde
-- [ ] remote GitHub creato (copia, non fork); squash, merge commit e rebase; `delete_branch_on_merge`; niente linear history
-- [ ] Code security: Dependabot alerts/updates, secret scanning, push protection; **dependency graph abilitato in UI**
-- [ ] ruleset allineato a questo boilerplate (o esplicitamente impossibile sul piano/visibilità); check CI obbligatori sulle PR; niente `codeql` fra i required; bypass owner Always
+- [ ] app superflue rimosse; justfile/workflow/test/config/docs allineati; `just ci` verde
+- [ ] ADR/PDR attivi verificati dopo il pruning; record non applicabili sostituiti o rimossi con decisione esplicita; PDR-0001 sostituita quando `hello-world` non è più il prodotto
+- [ ] `just guards` verde dopo l'aggiornamento di indici ADR/PDR e della surface map
+- [ ] se esiste un remote GitHub: copia non fork, squash/merge commit/rebase, `delete_branch_on_merge`, niente linear history, security e ruleset allineati; se non esiste, voce marcata N/A
+- [ ] se il repo è pubblico: LICENSE, Dependabot alerts/updates, secret scanning, push protection e **dependency graph abilitato in UI**
+- [ ] se il repo è privato: limiti di piano/GHAS documentati e non-required check rimossi dal ruleset
 - [ ] `docs/memory/` ripulito; Kilo Memory nativa associata a *questo* clone (non copiata dal boilerplate); `kilo-memory-diagnose.sh` verde; fatti duraturi re-iniettati
-- [ ] CodeScene: progetto Cloud proprio e id aggiornato in `.kilo/kilo.jsonc` + `docs/development/CODESCENE.md` (non riusare `83744`)
+- [ ] CodeScene adottato: progetto Cloud proprio e id aggiornato in `.kilo/kilo.jsonc` + `docs/development/CODESCENE.md` (non riusare `83744`), oppure rimosso completamente e marcato N/A
 - [ ] `hello-world` sostituito dal primo caso d'uso reale
-- [ ] prima esecuzione di `scheduled.yml` verificata
-- [ ] questo file e `docs/init/` cancellati
+- [ ] con remote GitHub, prima esecuzione di `scheduled.yml` verificata; senza remote, `just guards` eseguito manualmente e voce marcata N/A
+- [ ] prima di iniziare il primo caso d'uso, baseline `just ci` verde e task branch/issue separati secondo `WORKFLOWS.md`
+- [ ] prima di cancellare questo file e `docs/init/`, rimossi i link/riferimenti operativi a entrambi in README, INDEX, guide e config; poi `just docs-check` verde
+- [ ] questo file e `docs/init/` cancellati solo dopo il cleanup e la validazione finale

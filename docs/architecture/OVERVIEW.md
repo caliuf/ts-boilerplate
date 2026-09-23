@@ -11,7 +11,7 @@ Modular monolith in monorepo pnpm, *functional core / imperative shell*, ports &
 packages/contracts     DTO, schemi Zod, tassonomia errori (foglia)
 packages/<context>/    bounded context: domain / application / ports
 packages/adapter-*/    adapter tecnologici (oggi: adapter-pino)
-packages/testkit/      doppioni di test (mai importati dal codice di produzione)
+packages/testkit/      test doubles e helper (mai importati dal codice di produzione)
 apps/cli, api, mcp, web  adapter di ingresso + composition root sottili
 tests/                 suite integration ed E2E
 ```
@@ -35,7 +35,7 @@ Naming parallelo su ogni canale; la mappa caso d'uso × canale vive in
 - i bounded context comunicano solo via API pubbliche (`src/index.ts`).
 - niente `utils`/`helpers`/`common`, niente service locator o DI container.
 - errori di dominio come valori (`Result`, union discriminate); eccezioni solo al confine del processo.
-- logging dietro la porta `Logger`; niente `console.log` fuori da `tools/scripts` (gate di lint).
+- logging dietro la porta `Logger`; niente `console.log` fuori da `tools/scripts` e `apps/web` (gate di lint).
 
 L'elenco completo con i gate che le applicano: [`BOUNDARIES.md`](./BOUNDARIES.md).
 

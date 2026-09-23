@@ -81,13 +81,15 @@ Il commento è opzionale; senza `--comment` la PR viene chiusa senza aggiungere 
 
 ### Eliminare un commento proprio
 
-Trova l'ID del commento:
+Trova solo i commenti dell'utente autenticato e verifica l'ID prima di cancellare:
 
 ```bash
-gh api repos/<owner>/<repo>/issues/<numero-pr>/comments --jq '.[-1].id'
+login=$(gh api user --jq .login)
+gh api repos/<owner>/<repo>/issues/<numero-pr>/comments \
+  --jq --arg login "$login" '.[] | select(.user.login == $login) | {id,created_at,body}'
 ```
 
-Poi cancellalo:
+Poi scegli l'`id` corretto dall'elenco e cancellalo:
 
 ```bash
 gh api repos/<owner>/<repo>/issues/comments/<id> -X DELETE

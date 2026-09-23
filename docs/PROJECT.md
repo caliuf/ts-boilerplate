@@ -18,10 +18,10 @@ Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente t
 
 | Deployable | Package | Comando | Descrizione |
 | --- | --- | --- | --- |
-| CLI | `apps/cli` | `project <subcommand>` (bin) | Un bin, albero di subcommand |
-| API HTTP | `apps/api` | `pnpm --filter @project/api start` | Hono su Node |
-| Server MCP | `apps/mcp` | `pnpm --filter @project/mcp start` | Trasporto stdio |
-| Web UI | `apps/web` | `pnpm --filter @project/web dev` | React + Vite |
+| CLI | `apps/cli` | `bin/project-hello-world --name Ada` | Wrapper del bin, albero di subcommand |
+| API HTTP | `apps/api` | `just dev` (API + web) | Hono su Node, API su `:3100` |
+| Server MCP | `apps/mcp` | `just node apps/mcp/src/server.ts` | Trasporto stdio |
+| Web UI | `apps/web` | `just dev` (API + web) | React + Vite, UI su `:5100` |
 
 La CLI ha anche wrapper bash in `bin/` (`project-*` oggi, `<nome>-*` dopo l'adozione) per l'uso da PATH globale; vedi [`docs/development/ENVIRONMENT.md`](./development/ENVIRONMENT.md).
 
@@ -64,7 +64,7 @@ Un caso d'uso esiste una sola volta (`packages/greetings/src/application/`) e og
 
 | Caso d'uso | CLI | API | MCP | UI |
 |---|---|---|---|---|
-| `sayHello` | `project hello-world` | `GET /api/hello-world` | tool `hello_world` | hook `useHelloWorld` |
+| `sayHello` | `bin/project-hello-world` | `GET /api/hello-world` | tool `hello_world` | hook `useHelloWorld` |
 
 Aggiorna questa tabella a ogni nuovo caso d'uso (il docs guard verifica la coerenza con il registry CLI).
 
@@ -81,7 +81,7 @@ Gli indici autorevoli, con lo stato di ogni decisione, sono [`architecture/adr/R
 ## Budget
 
 - Performance: nessun probe ancora (performance guard non applicabile).
-- Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI ≤ 10 min (misurato dal testing guard).
+- Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI target ≤ 10 min (il testing guard misura solo la suite Vitest, non l'intera pipeline CI).
 - Coverage: cricchetto in `coverage-thresholds.json` (baseline 95/95/94/76).
 
 ## Stato delle funzionalità

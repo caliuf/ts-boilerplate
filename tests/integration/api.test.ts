@@ -37,6 +37,7 @@ describe("GET /api/hello-world", () => {
     expect(response.status).toBe(400);
     expect(response.headers.get("content-type")).toContain("application/problem+json");
     const problem = problemDetailsSchema.parse(await response.json());
+    expect(problem.code).toBe("VALIDATION");
     expect(problem.type).toBe("urn:project:error:validation");
     expect(problem.status).toBe(400);
   });

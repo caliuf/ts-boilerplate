@@ -23,3 +23,6 @@
 /dependency-cruiser.config.mjs @caliuf
 /coverage-thresholds.json @caliuf
 /tools/scripts/ @caliuf
+/.kilo/kilo.jsonc @caliuf
+/.kilo/scripts/ @caliuf
+/.codescene-thresholds @caliuf
