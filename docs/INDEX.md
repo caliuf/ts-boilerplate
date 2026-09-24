@@ -7,8 +7,16 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 1. [`PROJECT.md`](./PROJECT.md) — cosa è il sistema, cosa esiste, mappa delle superfici.
 2. [`memory/project.md`](./memory/project.md) — contesto operativo del progetto (fatti, decisioni attive, vincoli).
 3. [`memory/environment.md`](./memory/environment.md) — comandi e path specifici del progetto.
-4. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
-5. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/` e alla relativa voce dell'indice).
+4. [`memory/corrections.md`](./memory/corrections.md) — correzioni esplicite emerse nelle sessioni (utile per task di tooling, workflow o adozione).
+5. [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — setup, recipe, debug.
+6. [`development/NEW-PROJECT.md`](./development/NEW-PROJECT.md) — **solo se stai adottando il boilerplate per un nuovo progetto** (poi va cancellato insieme a `docs/init/` e alla relativa voce dell'indice).
+
+## Contratto degli agenti
+
+- [`AGENTS.md`](../AGENTS.md) — contratto canonico per gli agenti AI; `CLAUDE.md` e `GEMINI.md` sono symlink.
+- [`.kilo/`](../.kilo/) — configurazione Kilo del progetto: server MCP in `kilo.jsonc`, comandi in `command/`, script dei gate CodeScene in `scripts/`, setup dei worktree in `setup-script.sh`.
+- [`conventions.conf`](../conventions.conf) — directory di ADR e PDR lette dai comandi `/create-adr` e `/create-pdr`.
+- [`memory/README.md`](./memory/README.md) — convenzioni e struttura del memory bank.
 
 ## Architettura
 

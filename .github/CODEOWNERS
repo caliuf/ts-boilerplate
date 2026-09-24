@@ -19,10 +19,20 @@
 /.githooks/ @caliuf
 /biome.json @caliuf
 /.oxlintrc.json @caliuf
+/.markdownlint-cli2.jsonc @caliuf
+/cspell.json @caliuf
 /knip.json @caliuf
 /dependency-cruiser.config.mjs @caliuf
 /coverage-thresholds.json @caliuf
 /tools/scripts/ @caliuf
+/tools/cspell/ @caliuf
+/.mise.toml @caliuf
+/.node-version @caliuf
 /.kilo/kilo.jsonc @caliuf
 /.kilo/scripts/ @caliuf
+/.kilo/command/ @caliuf
 /.codescene-thresholds @caliuf
+/conventions.conf @caliuf
+
+# Frozen blueprint (never modified in ordinary development)
+/docs/init/ @caliuf

@@ -113,7 +113,7 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | `just prepush` | Static analysis e integration principali | target ≤ 60s |
 | `just ci` | Esatta pipeline CI in locale | target ≤ 10min |
 
-Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check`).
+Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check` e scansione segreti: `secrets-staged` in precommit, `secrets` in prepush).
 
 I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: GNU parallel è un'accelerazione opzionale, i job restano fail-late e l'output è raggruppato per comando. Per colori, `nice` e modalità sequenziale consulta [`docs/memory/environment.md`](../memory/environment.md); `RUN_CHECKS_SEQUENTIAL=1` forza il percorso sequenziale.
 
@@ -142,9 +142,11 @@ Code Health (agenti, via MCP): [`CODESCENE.md`](./CODESCENE.md). Non sostituisce
 
 ```text
 bin/            Wrapper bash per il PATH globale (`<bin>-<comando>`)
+conventions.conf  Directory di ADR e PDR lette dai comandi Kilo (/create-adr, /create-pdr)
 .envrc          direnv del repo (carica `.env.default`, `.env`, `.envrc.local`)
 .env.default    Floor di environment committato (mai segreti)
 .env.example    Template per `.env` (non caricato)
+.kilo/          Config Kilo del progetto (kilo.jsonc, command/, scripts/, setup-script.sh)
 apps/cli        CLI (un bin, subcommand in src/commands/<nome>.ts)
 apps/api        API HTTP (Hono; route in src/routes/)
 apps/mcp        server MCP stdio (tool in src/tools/)
@@ -156,7 +158,9 @@ packages/testkit      doppioni di test (mai in produzione)
 tests/integration     suite principale (contratto CLI, API, MCP, smoke)
 tests/e2e             flussi Playwright
 tools/scripts         doctor, diff-scope, coverage-raise, guards, bun-smoke, run-checks
+tools/cspell          dizionario di progetto per cspell
 .githooks/            hook versionati (chiamano solo just)
 docs/                 documentazione (questa)
+docs/memory/          memory bank versionabile (fatti, decisioni, correzioni, digest)
 docs/init/            blueprint congelato (rimuovere all'adozione insieme ai riferimenti vivi)
 ```

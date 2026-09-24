@@ -24,5 +24,6 @@
 ## Constraints
 
 - runtime.domain_no_node_builtins :: Domain/application e packages greetings/contracts senza `node:*` né `Bun.*`; I/O dietro adapter (ADR-0002); `just arch` lo verifica.
+- github.gate_files_protected :: CODEOWNERS protegge i file che definiscono gate e toolchain (`justfile`, `.githooks/`, `biome.json`, `.oxlintrc.json`, `.markdownlint-cli2.jsonc`, `cspell.json`, `knip.json`, `dependency-cruiser.config.mjs`, `coverage-thresholds.json`, `tools/scripts/`, `tools/cspell/`, `.mise.toml`, `.node-version`, `.kilo/{kilo.jsonc,scripts,command}`, `.codescene-thresholds`, `conventions.conf`) e il blueprint congelato `docs/init/`.
 
 ## Open Questions

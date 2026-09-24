@@ -369,6 +369,7 @@ Scarta o riscrivi ciò che identifica *questo* boilerplate o *questa* macchina:
 - `memory.location` e `kilo.memory_path` con hash `ts-boilerplate-0636824f8fd8`;
 - `codescene.project` id `83744`;
 - digest in `docs/memory/sessions/` (sono sessioni del boilerplate);
+- sessioni e piani locali del boilerplate in `.kilo/sessions/` e `.kilo/plans/`: sono storia di lavoro del boilerplate, non memoria di progetto;
 - correzioni non più vere; tieni solo quelle ancora operative (es. Codacy scartato per TypeScript, ciclo pnpm dei task `typecheck` se usi ancora pnpm workspace);
 - path assoluti (`/home/dati/workspace/ts-boilerplate`), hostname, `whoami`.
 
@@ -463,6 +464,7 @@ feature applicative.
 - [ ] se il repo è pubblico: LICENSE, Dependabot alerts/updates, secret scanning, push protection e **dependency graph abilitato in UI**
 - [ ] se il repo è privato: limiti di piano/GHAS documentati e non-required check rimossi dal ruleset
 - [ ] `docs/memory/` ripulito; Kilo Memory nativa associata a *questo* clone (non copiata dal boilerplate); `kilo-memory-diagnose.sh` verde; fatti duraturi re-iniettati
+- [ ] `.kilo/sessions/` e `.kilo/plans/` del boilerplate rimossi o svuotati; `.kilo/command/` e `.kilo/scripts/` mantenuti
 - [ ] CodeScene adottato: progetto Cloud proprio e id aggiornato in `.kilo/kilo.jsonc` + `docs/development/CODESCENE.md` (non riusare `83744`), oppure rimosso completamente e marcato N/A
 - [ ] `hello-world` sostituito dal primo caso d'uso reale
 - [ ] con remote GitHub, prima esecuzione di `scheduled.yml` verificata; senza remote, `just guards` eseguito manualmente e voce marcata N/A

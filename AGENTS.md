@@ -19,7 +19,7 @@ Boilerplate placeholders to customize:
 1. Run `tools/scripts/agent-briefing.sh` for a one-shot context dump (repo/worktree, git state, gate tools, project memory, open PRs/issues). Read-only; `--no-prs` skips GitHub.
 2. Read `docs/PROJECT.md` and `docs/INDEX.md`.
 3. Read `docs/memory/project.md` and `docs/memory/environment.md` for durable project context; read `docs/memory/corrections.md` too for tooling, workflow or adoption tasks (Kilo Memory may or may not be active in the current client).
-4. Read the README of every package you will modify.
+4. Read the README of every package you will modify (all `packages/*` have one; apps, tests and tools are described in `docs/PROJECT.md` and the matching guide).
 5. Read the ADR/PDR index first, then the relevant active records; for architecture or product work also read the matching overview, boundaries or glossary.
 6. Use only root-level `just` recipes to build, test and validate changes (canonical table: `docs/development/GETTING-STARTED.md`).
 
@@ -87,6 +87,7 @@ When the `codescene` MCP is connected, Code Health is authoritative for maintain
 ## Validation
 
 - While developing, `just precommit` is the fast feedback loop on staged/related files.
+- A diff that touches only docs/markdown/workflow/hook runs a reduced gate set (`docs-check`, `workflows-check`, secret scan); the exact path list is `DOCS_ONLY_PATTERNS` in the justfile. Anything else takes the full path.
 - Before declaring completion run `just prepush` (full static analysis, integration, smoke, coverage); `just ci` replicates the whole CI pipeline locally.
 - Do not re-run `just precommit`/`just prepush` immediately before `git commit`/`git push`: the git hooks already run them (see `docs/development/AGENT-AUTOMATION.md`).
 - If a required command cannot run, report the exact reason.
@@ -98,6 +99,7 @@ Before any operation on PRs, issues, checks or repository settings via the GitHu
 
 ## Git safety
 
+- Use `git --no-pager` for every Git command: an interactive pager hangs agent shells.
 - Do not use destructive Git commands.
 - Do not rewrite existing commits or force-push unless explicitly requested.
 - Do not delete unrelated or untracked files.
