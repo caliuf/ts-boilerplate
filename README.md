@@ -36,13 +36,16 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 | [`README.md`](./README.md) | Questo file |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Come contribuire (umani e agenti) |
 | [`SECURITY.md`](./SECURITY.md) | Segnalazione vulnerabilità |
+| [`conventions.conf`](./conventions.conf) | Directory di ADR e PDR lette dai comandi Kilo `/create-adr` e `/create-pdr` |
 | [`justfile`](./justfile) | Unica interfaccia operativa (task runner) |
 | [`bin/`](./bin/) | Wrapper bash per l'uso da PATH globale |
+| [`.kilo/`](./.kilo/) | Configurazione Kilo del progetto: server MCP (`kilo.jsonc`), comandi (`command/`), script dei gate CodeScene (`scripts/`), setup dei worktree (`setup-script.sh`) |
 | [`docs/INDEX.md`](./docs/INDEX.md) | Indice della documentazione |
 | [`docs/PROJECT.md`](./docs/PROJECT.md) | Cos'è il sistema: il primo file che un agente legge |
 | [`docs/architecture/`](./docs/architecture/) | Overview, confini (gate) e ADR |
 | [`docs/product/`](./docs/product/) | Overview, glossario e PDR |
 | [`docs/development/`](./docs/development/) | Guide: setup, codice, test, CI/CD, sicurezza, adozione |
+| [`docs/memory/`](./docs/memory/) | Memory bank versionabile: fatti, decisioni, correzioni e digest (ADR-0008) |
 | [`docs/init/`](./docs/init/) | Blueprint congelato (vademecum e fonti) — non toccare, rimuovere all'adozione |
 | [`apps/cli`](./apps/cli/) | CLI: un bin con subcommand |
 | [`apps/api`](./apps/api/) | API HTTP (Hono) |
@@ -63,4 +66,4 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 2. **Gates** deterministici a cricchetto: typecheck, lint type-aware, formattazione, dead code, architettura, segreti, test, coverage — in locale prima che in CI, mai aggirabili.
 3. **Guards** schedulati e report-only: creano task invece di codice.
 
-L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**. Le regole operative attive sono in `AGENTS.md` e `docs/`; `docs/init/` è il blueprint storico del boilerplate e va rimosso all'adozione.
+L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**. Le regole operative attive sono in `AGENTS.md` e `docs/`, il contesto durevole per gli agenti in `docs/memory/`; `docs/init/` è il blueprint storico del boilerplate e va rimosso all'adozione.

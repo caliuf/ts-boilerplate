@@ -33,6 +33,13 @@ Format each entry as a bullet starting with a stable key, followed by `::` and a
 | `corrections.md` | Explicit corrections or clarifications from sessions. |
 | `sessions/` | Notable session digests (optional, named `YYYYMMDD-HHMMSS-topic.md`). |
 
+## `docs/memory/sessions/` vs `.kilo/sessions/`
+
+Two directories named `sessions/` exist and are not interchangeable:
+
+- `docs/memory/sessions/` (here) holds **curated, durable session digests** that belong to the project's versioned memory bank.
+- `.kilo/sessions/` holds **raw Kilo client sessions** compacted with `/compact`; `.kilo/plans/` holds the saved plans they implement. They are local working history, not curated project memory. A derived project should drop the boilerplate's own `.kilo/sessions/` and `.kilo/plans/` during adoption (see `docs/development/NEW-PROJECT.md`).
+
 ## How agents use it
 
 1. At the start of a task, read `project.md` and `environment.md`; if either is missing, report the repository inconsistency before proceeding.

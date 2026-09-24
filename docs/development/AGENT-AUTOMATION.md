@@ -22,23 +22,21 @@ Se `gh` non è disponibile, lo script può avere già eseguito commit e push ma 
 2. **Lavoro**: stabilisci branch/worktree e baseline, usa CodeScene quando disponibile, lavora test-first (`red → green → refactor`) e aggiorna la memoria repository nel file appropriato quando nasce un fatto o una decisione durevole.
 3. **Consegna**: esegui `just prepush`, riepiloga gate e rischi, e usa `finish-task.sh` solo dopo consenso esplicito a commit, push e PR. Se il consenso non c'è, lascia le modifiche nel working tree e ferma l'automazione al report.
 
-## Toolchain visibile ovunque (fix dei "tool not found")
+## Toolchain visibile in ogni shell
 
-I gate (`docs-check`, `workflows-check`, `secrets`, `shell-check`, `bun-smoke`) chiamano `lychee`, `actionlint`, `zizmor`, `gitleaks`, `shellcheck`, `bun`: tool pinnati in `.mise.toml` e **bloccanti in CI**. In locale venivano saltati con un warning quando la shell non aveva l'hook mise attivo (agenti, subshell CI, worktree con direnv bloccato).
-
-Fix sistemico in testa al `justfile`:
+I gate (`docs-check`, `workflows-check`, `secrets`, `shell-check`, `bun-smoke`) usano `lychee`, `actionlint`, `zizmor`, `gitleaks`, `shellcheck`, `bun`: tool pinnati in `.mise.toml` e **bloccanti in CI**. Le recipe non devono richiedere l'hook mise della shell interattiva, che manca in agenti, subshell CI e worktree con direnv bloccato: per questo il `justfile` antepone gli shim mise al PATH.
 
 ```just
 export PATH := env_var('HOME') / ".local/share/mise/shims" + ":" + env_var('PATH')
 ```
 
-mise mantiene uno shim per tool in `~/.local/share/mise/shims`; ogni shim risolve la versione dal `.mise.toml` trovato risalendo dalla cwd della recipe. Così ogni recipe vede la toolchain pinnata senza hook di shell e senza `mise exec` per comando. Se la directory non esiste (tool installati a mano), la voce in più nel PATH è innocua e si ricade sul PATH ambiente: chi non usa mise non è penalizzato.
+Ogni shim risolve la versione dal `.mise.toml` trovato risalendo dalla cwd della recipe. Se la directory non esiste (tool installati a mano), la voce in più nel PATH è innocua e si ricade sul PATH ambiente: chi non usa mise non è penalizzato.
 
-Regola: **non ignorare mai un warning "tool non trovato"**. Non è rumore atteso: è un sintomo di PATH senza shim mise. Risalire al PATH, non accettare lo skip.
+Regola: **non ignorare mai un warning "tool non trovato"**. Non è rumore atteso: è il sintomo di un PATH senza shim mise. Risali al PATH, non accettare lo skip.
 
 ## Worktree e direnv
 
-`.kilo/setup-script.sh` (repo principale, eseguito da Agent Manager alla creazione del worktree) ora fa anche `direnv allow .`: ogni worktree ha il proprio inode di `.envrc`, quindi l'allow dato sul main repo non si propaga e i wrapper in `bin/` fallirebbero il preflight con "direnv: error ... .envrc is blocked". Senza questo passo bastava `cd` nel worktree per vedere l'errore.
+Ogni worktree ha il proprio inode di `.envrc`, quindi l'`allow` dato sul repo principale non si propaga. `.kilo/setup-script.sh`, eseguito da Agent Manager alla creazione del worktree, copia `.envrc.local`, lancia `pnpm install` e autorizza direnv con `direnv allow .`: senza quell'allow i wrapper in `bin/` fallirebbero il preflight con "direnv: error ... .envrc is blocked". Se il setup gira senza `mise`, `pnpm` o `direnv` nel PATH, lo script avvisa e il passo va ripetuto a mano nel worktree.
 
 ## Note operative per gli agenti
 

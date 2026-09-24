@@ -30,4 +30,4 @@ Tutto ciò che entra nei confini del prodotto (HTTP, env, file, queue, webhook, 
 
 ## File critici protetti (CODEOWNERS)
 
-`/.github/`, `/AGENTS.md`, `/CLAUDE.md`, `/docs/architecture/`, `/docs/product/`, `/SECURITY.md`, e i file che definiscono i gate: `/justfile`, `/.githooks/`, `/biome.json`, `/.oxlintrc.json`, `/knip.json`, `/dependency-cruiser.config.mjs`, `/coverage-thresholds.json`, `/tools/scripts/`, `/.kilo/kilo.jsonc`, `/.kilo/scripts/`, `/.codescene-thresholds`.
+`/.github/`, `/AGENTS.md`, `/CLAUDE.md`, `/GEMINI.md`, `/docs/architecture/`, `/docs/product/`, `/docs/init/` (blueprint congelato), `/SECURITY.md`, `/conventions.conf`, e i file che definiscono i gate o la toolchain dei gate: `/justfile`, `/.githooks/`, `/biome.json`, `/.oxlintrc.json`, `/.markdownlint-cli2.jsonc`, `/cspell.json`, `/knip.json`, `/dependency-cruiser.config.mjs`, `/coverage-thresholds.json`, `/tools/scripts/`, `/tools/cspell/`, `/.mise.toml`, `/.node-version`, `/.kilo/kilo.jsonc`, `/.kilo/scripts/`, `/.kilo/command/`, `/.codescene-thresholds`.
