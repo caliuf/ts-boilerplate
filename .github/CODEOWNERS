@@ -24,6 +24,7 @@
 /knip.json @caliuf
 /dependency-cruiser.config.mjs @caliuf
 /coverage-thresholds.json @caliuf
+/lychee.toml @caliuf
 /tools/scripts/ @caliuf
 /tools/cspell/ @caliuf
 /.mise.toml @caliuf

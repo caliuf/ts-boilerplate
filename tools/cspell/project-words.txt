@@ -28,6 +28,7 @@ interoperabile
 justfile
 knip
 lychee
+lycheeignore
 Maat
 microservizi
 mockare

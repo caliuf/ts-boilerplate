@@ -80,7 +80,7 @@ I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-c
 `scheduled.yml` gira settimanalmente (lunedì 03:17 UTC) ed esegue:
 
 - `just guards` — report-only: coerenza docs↔recipe↔registry, budget della suite, slot per performance/i18n/telemetria quando esisteranno. Se ci sono findings apre una issue col report (nessun auto-fix, nessun commit: i guard creano task, non codice).
-- `lychee` online — verifica i link esterni della documentazione (slow lane: troppo lento/instabile per la fast lane).
+- `lychee` online — verifica i link esterni della documentazione (slow lane: troppo lento/instabile per la fast lane). Le esclusioni vivono in `lychee.toml` e coprono il path `docs/init/Refactoring/` (riproduzione di articoli terzi con link instabili e host anti-bot) e il dominio `medium.com`, che risponde 403 agli scraper: il resto di `docs/` resta scansionato.
 
 Per cambiare frequenza: modifica il `cron` in `scheduled.yml` (<https://crontab.guru> per la sintassi). In assenza del remoto GitHub, esegui `just guards` a mano con cadenza regolare: è obbligo del maintainer.
 

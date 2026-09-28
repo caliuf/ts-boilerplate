@@ -1,0 +1,2 @@
+exclude_path = ["docs/init/Refactoring"]
+exclude = ['medium\.com']
