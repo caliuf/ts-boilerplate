@@ -106,6 +106,12 @@ Quando il progetto cresce, valuta con un'ADR: SonarQube Community (qualità cont
 
 Convenzione (guida, non gate): prefisso conventional (`feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `revert`), una riga riassuntiva, riga vuota, lista puntata Markdown col dettaglio. I messaggi sono scritti nella lingua del progetto (italiano tecnico-informatico; vedi AGENTS.md § Language). L'agente mantiene la bozza in `tmp/commit-message.md` (gitignored).
 
+## Movimenti e rinomine di file
+
+Rinomine e spostamenti si fanno sempre con `git mv`, mai cancellando il file vecchio e ricreandolo. `git mv` esegue la rimozione e l'aggiunta in un solo passo atomico: evita gli errori classici (file nuovo committato e vecchio rimasto orfano, oppure vecchio cancellato e nuovo dimenticato non tracciato) e rende esplicita l'intenzione, così Git collega il contenuto alla stessa storia (`git log --follow`, `git blame`, rivelazione del rename in diff e merge).
+
+Quando possibile, tieni un movimento puro in un commit dedicato e separato dalle modifiche di contenuto: un rename mescolato a edit rende fragile la rivelazione del rename e riempie il diff di rumore. Se l'editor ha già prodotto un delete + create, correggi lo staging con `git add` e `git rm` espliciti (o ripristina e ripeti con `git mv`) prima del commit.
+
 ## Automazione del flusso
 
 Gli script in `tools/scripts/` tolgono il lavoro ripetitivo: `agent-briefing.sh` (contesto in un colpo a inizio task), `gh-prs.sh` (PR e contenuto), `finish-task.sh` (commit → push → PR, senza rilanciare i gate che gli hook già eseguono). `finish-task.sh` si usa solo su un branch dedicato e dopo consenso esplicito a commit, push e PR. Dettagli e regole in [`AGENT-AUTOMATION.md`](./AGENT-AUTOMATION.md).

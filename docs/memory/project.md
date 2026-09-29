@@ -24,6 +24,7 @@
 ## Constraints
 
 - runtime.domain_no_node_builtins :: Domain/application e packages greetings/contracts senza `node:*` né `Bun.*`; I/O dietro adapter (ADR-0002); `just arch` lo verifica.
+- git.moves_with_git_mv :: Spostamenti e rinomine di file sempre con `git mv`, mai delete+ricrea, e quando possibile in un commit dedicato separato dalle modifiche di contenuto, per mantenere l'atomicità dello staging e rename detection, `git log --follow` e `git blame` coerenti. Dettagli in `docs/development/WORKFLOWS.md` § Movimenti e rinomine di file.
 - github.gate_files_protected :: CODEOWNERS protegge i file che definiscono gate e toolchain (`justfile`, `.githooks/`, `biome.json`, `.oxlintrc.json`, `.markdownlint-cli2.jsonc`, `cspell.json`, `knip.json`, `dependency-cruiser.config.mjs`, `coverage-thresholds.json`, `lychee.toml`, `tools/scripts/`, `tools/cspell/`, `.mise.toml`, `.node-version`, `.kilo/{kilo.jsonc,scripts,command}`, `.codescene-thresholds`, `conventions.conf`) e il blueprint congelato `docs/init/`.
 
 ## Open Questions

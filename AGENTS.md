@@ -102,6 +102,7 @@ Before any operation on PRs, issues, checks or repository settings via the GitHu
 - Use `git --no-pager` for every Git command: an interactive pager hangs agent shells.
 - Do not use destructive Git commands.
 - Do not rewrite existing commits or force-push unless explicitly requested.
+- Move or rename files with `git mv`, never delete-and-recreate: it stages both sides atomically, prevents the classic "new file committed, old one left behind" (or the reverse) and keeps rename detection, `git log --follow` and `git blame` coherent. Keep a pure move in its own commit, separate from content changes, when practical (detail: `docs/development/WORKFLOWS.md`).
 - Do not delete unrelated or untracked files.
 - Do not create commits, push, open PRs, create remotes or change GitHub settings unless the user explicitly asks; when authorized, use the documented automation and GitHub CLI flows.
 - Commit message convention (guide, not a gate): `docs/development/WORKFLOWS.md`. Messages are written in the project language (§ Language).
