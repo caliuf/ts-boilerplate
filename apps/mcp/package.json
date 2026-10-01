@@ -11,7 +11,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/server": "2.1.0",
     "@project/adapter-pino": "workspace:*",
     "@project/contracts": "workspace:*",
     "@project/greetings": "workspace:*",
