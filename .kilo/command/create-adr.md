@@ -30,7 +30,8 @@ Crea una ADR quando il lavoro fissa una scelta tecnica che vincola il futuro del
 - supporto di una nuova piattaforma, runtime, provider o target;
 - introduzione, rimozione o responsabilità di un'astrazione core;
 - decisione cross-cutting su sicurezza, osservabilità, performance, deployment o workflow;
-- scelta di un'invariante tecnica che gli sviluppatori dovranno rispettare in seguito.
+- scelta di un'invariante tecnica che gli sviluppatori dovranno rispettare in seguito;
+- deroga a uno SHOULD del vademecum o a una convenzione tecnica già adottata.
 
 La dimensione della modifica non determina da sola se serve una ADR: conta la durata e l'ampiezza del vincolo introdotto.
 
@@ -72,7 +73,7 @@ Template minimo:
 type: ADR
 id: "NNNN"
 title: "Titolo breve della decisione"
-status: proposed
+status: proposed   # proposed | active | superseded | rejected
 date: YYYY-MM-DD
 ---
 
@@ -93,6 +94,14 @@ Qual è il problema, perché va deciso ora e quali vincoli tecnici, operativi o 
 
 Descrivi conseguenze positive e negative, impatto su codice, dati, operazioni, test e documentazione, oltre a migrazione, rollback o debito introdotto quando applicabili. Indica cosa farebbe rivalutare la decisione.
 
+## Enforcement
+
+Indica come la decisione viene verificata automaticamente, per esempio con lint, dependency-cruiser, test o CI. Se il controllo è manuale o non ancora automatizzato, dichiaralo senza presentarlo come un gate esistente.
+
+## Migration / rollback
+
+Descrivi il piano di migrazione e rollback quando sono rilevanti; se non lo sono, dichiaralo esplicitamente.
+
 ## Advice
 
 *(opzionale)* Input ricevuti prima della decisione: persone o fonti consultate e loro contributo. Ometti la sezione quando non ci sono input esterni.
@@ -104,11 +113,13 @@ Regole di compilazione:
 - Usa la data odierna nel formato `YYYY-MM-DD`. Mantieni `id` come stringa quotata per non perdere gli zeri iniziali, serializza il titolo con escaping YAML corretto e assicurati che il frontmatter sia valido. Se il titolo contiene `|`, `[`, `]`, `#`, backslash, virgolette o newline, non inserirlo alla cieca nell'indice: fai escaping Markdown oppure chiedi un titolo più semplice.
 - Usa `status: proposed` quando la decisione è ancora da approvare o il contesto non dimostra che sia stata adottata. Usa `status: active` solo quando la conversazione o il progetto mostra una decisione approvata e corrente. Non trasformare una proposta in una decisione inventando consenso.
 - Se il pattern del progetto richiede dati di approvazione o altre sezioni/metadati, compilali solo quando l'approvazione è esplicita e i dati sono noti; non inventare approvatore, data o vincoli mancanti.
-- Nel formato nuovo gli stati supportati sono `proposed`, `active` e `superseded`. Non inventare altri stati: se il corpus usa una tassonomia diversa, seguila e documenta la transizione nello stesso stile.
+- Nel formato nuovo gli stati supportati sono `proposed`, `active`, `superseded` e `rejected`. Usa `rejected` solo quando la proposta è stata esplicitamente scartata; non attribuire approvazioni o rifiuti senza evidenza. Se il corpus usa una tassonomia diversa, seguila e documenta la transizione nello stesso stile.
 - La sezione `Decision` deve essere verificabile e distinguere una scelta da una semplice descrizione dello stato attuale.
 - Elenca le alternative realmente valutate. Se non ne esistono, dichiaralo esplicitamente e spiega il vincolo; non riempire la lista con alternative fittizie.
 - Inserisci rischi, costi e condizioni di rivalutazione: una ADR che presenta solo vantaggi è incompleta.
+- Nella sezione `Enforcement` cita solo controlli realmente configurati; nella sezione `Migration / rollback` indica il piano applicabile oppure dichiara perché non è necessario.
 - Se il progetto ha già un proprio vocabolario o titoli di sezione, preferisci la coerenza del corpus senza cambiare retroattivamente i documenti esistenti.
+- Se la decisione introduce o ridefinisce un termine o un'astrazione di dominio e il progetto ha già un glossario (per esempio `requirements/02-glossary.md` o `docs/product/GLOSSARY.md`), aggiornalo con la fonte e lo stato del termine; è una vista derivata e non normativa, non va creato automaticamente se assente.
 
 ## Passo 4: Aggiorna l'indice
 
@@ -143,7 +154,7 @@ Non creare commit automaticamente. Quando la decisione accompagna un'implementaz
 
 Usa il supersede solo quando una nuova decisione sostituisce davvero una decisione precedente. Correggere un refuso o aggiungere un dettaglio non giustifica la riscrittura del contenuto di una ADR già adottata.
 
-1. Individua la ADR precedente tramite ID e verifica che sia quella corretta, che abbia `type: ADR` e che non sia già `superseded`. Non modificare il suo corpo, la data originale o i link già presenti; rifiuta auto-superseding e cicli.
+1. Individua la ADR precedente tramite ID e verifica che sia quella corretta, che abbia `type: ADR`, sia `active` e non sia già `superseded` o `rejected`. Non modificare il suo corpo, la data originale o i link già presenti; rifiuta auto-superseding e cicli.
 2. Prepara e valida prima la nuova ADR con un nuovo ID. Nella sezione `Context` spiega perché la decisione precedente non è più sufficiente e aggiungi un link relativo alla vecchia ADR. Se il corpus lo usa, puoi aggiungere nel frontmatter della nuova ADR `supersedes: "000N"`; non introdurre questo campo se il progetto ha uno schema diverso. Ricontrolla l'assenza di collisioni immediatamente prima della scrittura.
 3. Se la nuova ADR è `proposed`, lascia la precedente nello stato attuale: una proposta non ha ancora sostituito una decisione attiva.
 4. Quando la nuova ADR è `active`, aggiorna nella vecchia ADR solo i metadati di stato, aggiungendo `superseded_by: "NNNN"` e impostando `status: superseded`. Se il pattern del progetto richiede una data di supersede, registrala nel campo previsto senza alterare la data originale della decisione:
@@ -172,7 +183,7 @@ Quando trovi documenti legacy:
 1. Non riscrivere i corpi delle vecchie ADR e non aggiungere frontmatter retroattivamente solo per uniformarle. Restano nel formato in cui sono state approvate.
 2. Continua la numerazione considerando gli ID dei file legacy e non contare `0000-template.md`.
 3. Non cancellare o spostare `0000-template.md` automaticamente. Il template embedded rende il file non necessario per le nuove ADR, ma rimuoverlo è una pulizia distruttiva e richiede una richiesta esplicita.
-4. Se il README contiene solo regole legacy, preservale e aggiungi una tabella indice senza sostituire il resto. Retrocompila le righe solo quando lo stato è leggibile con certezza: `accepted` può essere rappresentato come `active`, `proposed` come `proposed`, `superseded by ADR-NNNN` come `superseded`. Non inventare lo stato di un documento ambiguo.
+4. Se il README contiene solo regole legacy, preservale e aggiungi una tabella indice senza sostituire il resto. Retrocompila le righe solo quando lo stato è leggibile con certezza: `accepted` può essere rappresentato come `active`, `proposed` come `proposed`, `rejected` come `rejected`, `superseded by ADR-NNNN` come `superseded`. Non inventare lo stato di un documento ambiguo.
 5. Se il README dice che il comando copia `0000-template.md`, aggiorna soltanto quella frase per descrivere il template embedded, senza riscrivere il regolamento del progetto.
 6. Per supersedere una ADR legacy, non aggiungere frontmatter: aggiorna solo la riga `- Status:` preservando il formato, ad esempio `- Status: superseded by ADR-NNNN`, e crea la nuova ADR nel formato stabilito dal corpus corrente.
 

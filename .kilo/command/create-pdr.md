@@ -74,7 +74,7 @@ Template minimo:
 type: PDR
 id: "NNNN"
 title: "Titolo breve"
-status: proposed
+status: proposed   # proposed | active | superseded | rejected
 date: YYYY-MM-DD
 ---
 
@@ -113,12 +113,12 @@ Regole di compilazione:
 - Usa la data odierna nel formato `YYYY-MM-DD`. Mantieni `id` come stringa quotata per non perdere gli zeri iniziali, serializza il titolo con escaping YAML corretto e assicurati che il frontmatter sia valido. Se il titolo contiene `|`, `[`, `]`, `#`, backslash, virgolette o newline, non inserirlo alla cieca nell'indice: fai escaping Markdown oppure chiedi un titolo più semplice.
 - Usa `status: proposed` quando la regola è da discutere o approvare. Usa `status: active` solo quando la conversazione o il progetto mostra che la regola è stata approvata ed è quella corrente. Non trasformare una proposta in una decisione inventando consenso.
 - Se il pattern del progetto richiede dati di approvazione o altre sezioni/metadati, compilali solo quando l'approvazione è esplicita e i dati sono noti; non inventare approvatore, data o vincoli mancanti.
-- Nel formato nuovo gli stati supportati sono `proposed`, `active` e `superseded`. Non inventare altri stati: se il corpus usa una tassonomia diversa, seguila e documenta la transizione nello stesso stile.
+- Nel formato nuovo gli stati supportati sono `proposed`, `active`, `superseded` e `rejected`. Usa `rejected` solo quando la proposta è stata esplicitamente scartata; non attribuire approvazioni o rifiuti senza evidenza. Se il corpus usa una tassonomia diversa, seguila e documenta la transizione nello stesso stile.
 - `Intent` deve spiegare il problema e il valore, non solo elencare una feature.
 - `Design` deve esprimere regole e risultati osservabili, non un piano di implementazione tecnico. Esempi e casi limite devono rendere la regola non ambigua.
 - `Non-goals` è obbligatorio: se non ci sono esclusioni evidenti, dichiarale comunque in modo concreto.
 - Ogni acceptance criterion deve poter diventare un test o un controllo manuale oggettivo e deve specificare il comportamento atteso.
-- Inserisci metriche solo quando esiste un modo realistico per misurare l'esito; non inventare target o baseline. Aggiorna un glossario solo se il progetto ne ha già uno e la PDR introduce davvero un termine di dominio: non creare automaticamente `docs/product/GLOSSARY.md`.
+- Inserisci metriche solo quando esiste un modo realistico per misurare l'esito; non inventare target o baseline. Aggiorna il glossario del progetto (per esempio `requirements/02-glossary.md`, `docs/product/GLOSSARY.md` o il path elencato dall'indice) solo se esiste già e la PDR introduce o ridefinisce davvero un termine o un'astrazione di dominio: il glossario è una vista derivata e non normativa, con una fonte per ogni termine, e non va creato automaticamente se il progetto non ne ha uno.
 - Se il progetto ha già un proprio vocabolario o titoli di sezione, preferisci la coerenza del corpus senza cambiare retroattivamente i documenti esistenti.
 
 ## Passo 4: Aggiorna l'indice
@@ -154,7 +154,7 @@ Non creare commit automaticamente. Quando la decisione accompagna un'implementaz
 
 Usa il supersede solo quando una nuova regola di prodotto sostituisce davvero una regola precedente. Correggere un refuso o aggiungere un dettaglio non giustifica la riscrittura del contenuto di una PDR già adottata.
 
-1. Individua la PDR precedente tramite ID e verifica che sia quella corretta, che abbia `type: PDR` e che non sia già `superseded`. Non modificare il suo corpo, la data originale o i link già presenti; rifiuta auto-superseding e cicli.
+1. Individua la PDR precedente tramite ID e verifica che sia quella corretta, che abbia `type: PDR`, sia `active` e non sia già `superseded` o `rejected`. Non modificare il suo corpo, la data originale o i link già presenti; rifiuta auto-superseding e cicli.
 2. Prepara e valida prima la nuova PDR con un nuovo ID. Nella sezione `Intent` spiega perché la regola precedente non è più sufficiente e aggiungi un link relativo alla vecchia PDR. Se il corpus lo usa, puoi aggiungere nel frontmatter della nuova PDR `supersedes: "000N"`; non introdurre questo campo se il progetto ha uno schema diverso. Ricontrolla l'assenza di collisioni immediatamente prima della scrittura.
 3. Se la nuova PDR è `proposed`, lascia la precedente nello stato attuale: una proposta non ha ancora sostituito una regola attiva.
 4. Quando la nuova PDR è `active`, aggiorna nella vecchia PDR solo i metadati di stato, aggiungendo `superseded_by: "NNNN"` e impostando `status: superseded`. Se il pattern del progetto richiede una data di supersede, registrala nel campo previsto senza alterare la data originale della decisione:
@@ -181,7 +181,7 @@ Se esistono PDR senza frontmatter, con un template o uno schema precedente, trat
 1. Non riscrivere i corpi delle vecchie PDR e non aggiungere frontmatter retroattivamente solo per uniformarle. Restano nel formato in cui sono state approvate.
 2. Continua la numerazione considerando gli ID dei file legacy e applica le esclusioni definite dal corpus.
 3. Non cancellare o spostare template, README o documenti legacy automaticamente. La presenza di un nuovo template embedded non autorizza una pulizia distruttiva.
-4. Se il README contiene solo regole legacy, preservale e aggiungi una tabella indice senza sostituire il resto. Retrocompila le righe solo quando ID e stato sono leggibili con certezza; non inventare lo stato di un documento ambiguo.
+4. Se il README contiene solo regole legacy, preservale e aggiungi una tabella indice senza sostituire il resto. Retrocompila le righe solo quando ID e stato sono leggibili con certezza, includendo `rejected` solo se il formato legacy lo dichiara esplicitamente; non inventare lo stato di un documento ambiguo.
 5. Per supersedere una PDR legacy, aggiorna solo il suo campo di stato nel formato originale, se esiste, e crea la nuova PDR nel formato stabilito dal corpus corrente.
 
 La migrazione dell'indice e la creazione della nuova PDR devono essere conservative e reversibili. Non convertire in massa i documenti legacy durante una normale invocazione del comando.
