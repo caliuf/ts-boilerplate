@@ -15,6 +15,6 @@
     "@project/adapter-pino": "workspace:*",
     "@project/contracts": "workspace:*",
     "@project/greetings": "workspace:*",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   }
 }
