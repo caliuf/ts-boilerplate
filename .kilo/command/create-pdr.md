@@ -117,6 +117,7 @@ Regole di compilazione:
 - `Intent` deve spiegare il problema e il valore, non solo elencare una feature.
 - `Design` deve esprimere regole e risultati osservabili, non un piano di implementazione tecnico. Esempi e casi limite devono rendere la regola non ambigua.
 - `Non-goals` è obbligatorio: se non ci sono esclusioni evidenti, dichiarale comunque in modo concreto.
+- Se il progetto è in una fase di progettazione e non contiene ancora codice di produzione (in DesignLab: `discovery`, `specified`, `design`, `handoff`), la sezione `Rollout / migration` si compila con `N/A (nessuna migrazione: il progetto in questa fase non contiene codice di produzione)`; rollout e migrazione riguardano soltanto l'implementazione nel repository di destinazione.
 - Ogni acceptance criterion deve poter diventare un test o un controllo manuale oggettivo e deve specificare il comportamento atteso.
 - Inserisci metriche solo quando esiste un modo realistico per misurare l'esito; non inventare target o baseline. Aggiorna il glossario del progetto (per esempio `requirements/02-glossary.md`, `docs/product/GLOSSARY.md` o il path elencato dall'indice) solo se esiste già e la PDR introduce o ridefinisce davvero un termine o un'astrazione di dominio: il glossario è una vista derivata e non normativa, con una fonte per ogni termine, e non va creato automaticamente se il progetto non ne ha uno.
 - Se il progetto ha già un proprio vocabolario o titoli di sezione, preferisci la coerenza del corpus senza cambiare retroattivamente i documenti esistenti.

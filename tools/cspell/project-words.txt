@@ -20,6 +20,7 @@ direnv
 dotenv
 envrc
 footgun
+frontmatter
 GHAS
 gitleaks
 greppabili

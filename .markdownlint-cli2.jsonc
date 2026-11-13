@@ -6,7 +6,8 @@
     "MD033": { "allowed_elements": ["details", "summary", "br"] },
     "MD041": false,
     // MD060 (table column alignment in source) is off by design: it has zero
-    // rendering effect, no formatter enforces it, and it creates pure toil
+    // rendering effect, no formatter enforces it (Biome's Markdown formatter is
+    // disabled in biome.json for the same reason), and it creates pure toil
     // for agents editing tables. Deliberate rule selection, not a suppression.
     "MD060": false
   },
@@ -17,6 +18,8 @@
     "tmp/**",
     "coverage/**",
     "**/dist/**",
+    "**/test-results/**",
+    "**/playwright-report/**",
     ".codegraph/**",
     ".github/instructions/**",
     "CHANGELOG.md"

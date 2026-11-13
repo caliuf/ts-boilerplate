@@ -102,6 +102,12 @@ Indica come la decisione viene verificata automaticamente, per esempio con lint,
 
 Descrivi il piano di migrazione e rollback quando sono rilevanti; se non lo sono, dichiaralo esplicitamente.
 
+## Implementation impact
+
+- Scope: componenti, flussi o sistemi interessati.
+- Implementation constraint: yes | no (se la scelta vincola il lavoro successivo o il codice già esistente).
+- Approved by / Approved on: solo quando lo stato è `active`.
+
 ## Advice
 
 *(opzionale)* Input ricevuti prima della decisione: persone o fonti consultate e loro contributo. Ometti la sezione quando non ci sono input esterni.
@@ -118,6 +124,7 @@ Regole di compilazione:
 - Elenca le alternative realmente valutate. Se non ne esistono, dichiaralo esplicitamente e spiega il vincolo; non riempire la lista con alternative fittizie.
 - Inserisci rischi, costi e condizioni di rivalutazione: una ADR che presenta solo vantaggi è incompleta.
 - Nella sezione `Enforcement` cita solo controlli realmente configurati; nella sezione `Migration / rollback` indica il piano applicabile oppure dichiara perché non è necessario.
+- Se il progetto è in una fase di progettazione e non contiene ancora codice di produzione (in DesignLab: `discovery`, `specified`, `design`, `handoff`), la sezione `Migration / rollback` si compila con `N/A (nessuna migrazione: il progetto in questa fase non contiene codice di produzione)`; la migrazione riguarda soltanto l'implementazione nel repository di destinazione e non va inventata per riempire la sezione.
 - Se il progetto ha già un proprio vocabolario o titoli di sezione, preferisci la coerenza del corpus senza cambiare retroattivamente i documenti esistenti.
 - Se la decisione introduce o ridefinisce un termine o un'astrazione di dominio e il progetto ha già un glossario (per esempio `requirements/02-glossary.md` o `docs/product/GLOSSARY.md`), aggiornalo con la fonte e lo stato del termine; è una vista derivata e non normativa, non va creato automaticamente se assente.
 
