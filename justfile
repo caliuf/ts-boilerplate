@@ -150,6 +150,10 @@ node *args:
 dev:
     pnpm --parallel --filter @project/api --filter @project/web run dev
 
+# Production build of all workspace packages that define a build script
+build:
+    pnpm -r --if-present run build
+
 # --- static analysis -------------------------------------------------------------
 
 # Apply format and safe fixes
@@ -365,7 +369,7 @@ precommit:
       "just secrets-staged" \
       "just test-related"
 
-# Static analysis and main integration suites (pre-push hook)
+# Static analysis, production build and main integration suites (pre-push hook)
 prepush:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -397,11 +401,13 @@ prepush:
       "just test-unit" \
       "just test-integration" \
       "just smoke" \
-      "just coverage" || rc=1
+      "just coverage" \
+      "just build" || rc=1
     exit "$rc"
 
 # Exact local replica of the CI pipeline
 ci: format-check lint shell-check typecheck dead-code arch docs-check workflows-check secrets
+    just build
     just test-unit
     just test-integration
     just coverage

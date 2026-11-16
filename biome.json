@@ -23,7 +23,20 @@
     "lineWidth": 100
   },
   "linter": {
-    "enabled": false
+    "enabled": false,
+    "rules": {
+      "complexity": {
+        "noImportantStyles": "error"
+      }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "linter": {
+      "enabled": true
+    }
   },
   "markdown": {
     "formatter": {

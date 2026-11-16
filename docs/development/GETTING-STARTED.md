@@ -105,12 +105,18 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | `just bun-smoke` | Compatibility suite Bun |
 | `just guards` | Guard report-only (Vademecum §10) |
 
+### Build
+
+| Comando | Funzione |
+| --- | --- |
+| `just build` | Build di produzione dei workspace con script build (oggi `apps/web`) |
+
 ### Gate
 
 | Comando | Funzione | Budget |
 | --- | --- | --- |
 | `just precommit` | Controlli rapidi su staged/related | ≤ 10s |
-| `just prepush` | Static analysis e integration principali | target ≤ 60s |
+| `just prepush` | Static analysis, build e integration principali | target ≤ 60s |
 | `just ci` | Esatta pipeline CI in locale | target ≤ 10min |
 
 Se un diff tocca solo docs/markdown/workflow/hook (lista esatta: variabile `DOCS_ONLY_PATTERNS` nel justfile), `precommit`/`prepush` riducono i gate ai controlli pertinenti (`docs-check`, `workflows-check` e scansione segreti: `secrets-staged` in precommit, `secrets` in prepush).
@@ -127,6 +133,7 @@ I check di `precommit`/`prepush` girano via `tools/scripts/run-checks.sh`: GNU p
 
 - Test: `just test-unit`, `just test-integration`, `just test-e2e` — vedi
   [`TESTING.md`](./TESTING.md).
+- Build di produzione: `just build` (inclusa in `just prepush` e `just ci`).
 - Debug di un flusso: rieseguilo con log di debug e cita l'output nel report:
 
 ```sh

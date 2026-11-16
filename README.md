@@ -63,7 +63,7 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 ## Il modello: Guides, Gates, Guards
 
 1. **Guides** corte e vive (`AGENTS.md` < 200 righe come rule of thumb, non gate; docs gerarchiche).
-2. **Gates** deterministici a cricchetto: typecheck, lint type-aware, formattazione, dead code, architettura, segreti, test, coverage — in locale prima che in CI, mai aggirabili.
+2. **Gates** deterministici a cricchetto: typecheck, lint type-aware, formattazione, dead code, architettura, segreti, test, coverage e build di produzione — in locale prima che in CI, mai aggirabili.
 3. **Guards** schedulati e report-only: creano task invece di codice.
 
 L'obiettivo non è la velocità iniziale ma **non degradare nel tempo**. Le regole operative attive sono in `AGENTS.md` e `docs/`, il contesto durevole per gli agenti in `docs/memory/`; `docs/init/` è il blueprint storico del boilerplate e va rimosso all'adozione.

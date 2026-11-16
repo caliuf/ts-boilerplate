@@ -82,13 +82,13 @@ When the `codescene` MCP is connected, Code Health is authoritative for maintain
 - Mock only external or non-deterministic boundaries.
 - Tests must be isolated, deterministic, fast and behavioral.
 - Never call live external services or LLMs unless explicitly requested.
-- UI: use design-system components, never raw HTML elements; prefer keyboard-driven interactions.
+- UI: use design-system components for interactive controls and shared visual primitives; use native semantic HTML for document structure; do not create React wrappers for every HTML element without concrete added value; prefer keyboard-driven interactions.
 
 ## Validation
 
 - While developing, `just precommit` is the fast feedback loop on staged/related files.
 - A diff that touches only docs/markdown/workflow/hook runs a reduced gate set (`docs-check`, `workflows-check`, secret scan); the exact path list is `DOCS_ONLY_PATTERNS` in the justfile. Anything else takes the full path.
-- Before declaring completion run `just prepush` (full static analysis, integration, smoke, coverage); `just ci` replicates the whole CI pipeline locally.
+- Before declaring completion run `just prepush` (full static analysis, production build, integration, smoke, coverage); `just ci` replicates the whole CI pipeline locally.
 - Do not re-run `just precommit`/`just prepush` immediately before `git commit`/`git push`: the git hooks already run them (see `docs/development/AGENT-AUTOMATION.md`).
 - If a required command cannot run, report the exact reason.
 - Never claim a check passed unless you executed it successfully; quote the actual command output in the final report.

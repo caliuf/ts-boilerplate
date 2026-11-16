@@ -25,7 +25,7 @@ Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole
 - Entry point sottili: parse → valida → caso d'uso → mappa. Nient'altro.
 - Naming parallelo su ogni canale; mappa aggiornata in `docs/PROJECT.md`.
 - Niente cartelle `utils`/`helpers`/`common`; niente barrel interni (gli `src/index.ts` pubblici dei package sono ammessi); registry dichiarativi.
-- UI: solo componenti del design system (`apps/web/src/design-system/`), mai elementi HTML grezzi nelle feature; interazioni keyboard-first.
+- UI: per controlli interattivi e primitive visuali condivise usare solo i componenti del design system (`apps/web/src/design-system/`); per la struttura del documento usare normalmente HTML semantico nativo; non creare wrapper React per ogni elemento HTML senza valore aggiunto; interazioni keyboard-first.
 
 ## Preferenze
 

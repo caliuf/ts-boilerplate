@@ -13,7 +13,7 @@ Guida per chi non ha familiarità con CI/CD: cosa gira, dove, e perché.
 Gli hook versionati in `.githooks/` (attivati da `just setup`) chiamano solo:
 
 - `just precommit` a ogni `git commit` (≤ 10s): format, lint, shell-check sui wrapper, docs, segreti sullo staged, test correlati ai file in stage.
-- `just prepush` a ogni `git push` (≤ 60s): static analysis completa (incluso shell-check), segreti sul working tree, CodeScene change-set, integration, smoke, coverage.
+- `just prepush` a ogni `git push` (≤ 60s): static analysis completa (incluso shell-check), segreti sul working tree, CodeScene change-set, build di produzione, integration, smoke, coverage.
 
 Mai saltare gli hook (`--no-verify` è vietato; vedi `AGENTS.md`). Se un gate fallisce e non sai rimediare: fermati e riporta il fallimento esatto.
 
@@ -62,7 +62,7 @@ I workflow vivono in `.github/workflows/` e sono verificati da `just workflows-c
 
 | Workflow | Quando | Cosa fa |
 |---|---|---|
-| `ci.yml` | PR, push su main, manuale | un unico run: quality + integration & coverage + bun-compatibility + e2e; dependency-review sui repository pubblici (ADR-0005) |
+| `ci.yml` | PR, push su main, manuale | un unico run: quality (include build) + integration & coverage + bun-compatibility + e2e; dependency-review sui repository pubblici (ADR-0005) |
 | `security.yml` | settimanale, manuale | CodeQL + scansione segreti su tutta la storia (slow lane) |
 | `scheduled.yml` | cron settimanale, manuale | guard (apre issue sui findings) + link esterni |
 

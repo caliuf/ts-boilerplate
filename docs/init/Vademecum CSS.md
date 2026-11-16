@@ -66,6 +66,10 @@ Questo documento ne eredita le scelte e i vincoli:
 
 Non creare `apps/web` o pacchetti UI se il progetto non ha una UI reale.
 
+Questo vademecum definisce lo stack predefinito per un frontend nuovo o per un progetto che ha già una UI reale e ha deciso di adottare uno stack documentato. In un progetto esistente con un design system già funzionante — come la UI minima di questo boilerplate, che usa CSS nativo e primitive artigianali — l'adozione di Tailwind, shadcn e Base UI è una migrazione architetturale: richiede un ADR e un piano di migrazione, non l'esecuzione cieca del CLI sopra il design system corrente.
+
+Per una UI molto piccola e stabile, CSS nativo con token semantici e pochi componenti può essere la soluzione più leggera. Tailwind e shadcn diventano convenienti quando crescono stati, overlay, form complessi, tabelle e componenti riusabili: non adottare l'intero stack solo per un pulsante e un input.
+
 ---
 
 ## 1. Stack raccomandato
@@ -113,7 +117,7 @@ React
 
 ### 1.3 Dipendenze principali
 
-Il bootstrap del frontend deve usare il CLI ufficiale shadcn, scegliendo esplicitamente Base UI per un progetto nuovo. Le dipendenze effettive vanno installate dal CLI o verificate nella documentazione della versione selezionata; non mantenere una lista manuale divergente dal risultato del CLI.
+Il bootstrap del frontend deve usare il CLI ufficiale shadcn, scegliendo esplicitamente Base UI per un progetto nuovo. In CI o in un bootstrap non interattivo il flag è `-b base` (`-b` accetta `base`, `radix` e `aria`; verificare l'help della versione installata). Le dipendenze effettive vanno installate dal CLI o verificate nella documentazione della versione selezionata; non mantenere una lista manuale divergente dal risultato del CLI.
 
 Pacchetti normalmente presenti nello stack:
 
@@ -126,11 +130,13 @@ Pacchetti normalmente presenti nello stack:
 | `class-variance-authority` | runtime | Varianti dichiarative dei componenti |
 | `cn` | runtime | Composizione e merge delle classi Tailwind |
 | `tw-animate-css` | CSS/build | Utility animate usate dai componenti shadcn che ne hanno bisogno |
-| `shadcn` | CLI | Aggiunta e aggiornamento controllato dei componenti sorgente |
+| `shadcn` | CLI + CSS/build | Comandi `init`/`add`/`eject`; esporta anche `shadcn/tailwind.css`, importato dal CSS globale |
 
 Le dipendenze di build vanno collocate in `devDependencies`, quelle importate dal codice applicativo in `dependencies`, secondo il comportamento effettivo del package manager e del deploy.
 
 **Aggiornamento importante (2026):** la documentazione shadcn ha reso Base UI la scelta predefinita per i nuovi progetti nel luglio 2026. Da settembre 2026 i componenti shadcn usano il pacchetto `cn`, che sostituisce la precedente combinazione `clsx` + `tailwind-merge`. Non aggiungere quindi automaticamente entrambe le vecchie dipendenze: seguire il CLI e la documentazione shadcn correnti.
+
+`shadcn` non è soltanto un comando usa-e-getta: il pacchetto esporta `shadcn/tailwind.css`, che il CSS globale importa. Se lo si esegue solo con `pnpm dlx`, quell'import non è risolvibile; seguire il `package.json` generato dal CLI. L'alternativa è `pnpm dlx shadcn@latest eject`, che inlinea quel CSS nel foglio globale e rimuove la dipendenza `shadcn`: è irreversibile e rinuncia agli aggiornamenti automatici di quel file, quindi va scelta consapevolmente.
 
 ### 1.4 Politica sulle versioni
 
@@ -382,7 +388,7 @@ export const badgeVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground",
         secondary: "bg-secondary text-secondary-foreground",
-        destructive: "bg-destructive text-white",
+        destructive: "bg-destructive text-destructive-foreground",
         outline: "border border-border text-foreground",
       },
       size: {
@@ -400,7 +406,7 @@ export const badgeVariants = cva(
 export type BadgeVariantProps = VariantProps<typeof badgeVariants>;
 ```
 
-L'esempio mostra il modello, non sostituisce i componenti già generati da shadcn.
+L'esempio mostra il modello, non sostituisce i componenti già generati da shadcn. Le varianti usano token semantici (`*-foreground`), non `text-white` o `text-black`: così dark mode, contrasto e theming restano governati dal tema.
 
 Regole:
 
@@ -444,13 +450,13 @@ Vietato:
 Corretto:
 
 ```tsx
-const colorClasses = {
-  success: "bg-green-600 text-white",
-  warning: "bg-amber-500 text-black",
-  danger: "bg-red-600 text-white",
+const toneClasses = {
+  success: "bg-success text-success-foreground",
+  warning: "bg-warning text-warning-foreground",
+  danger: "bg-destructive text-destructive-foreground",
 } as const;
 
-<div className={colorClasses[status]} />
+<div className={toneClasses[tone]} />
 ```
 
 Per classi necessarie ma non individuabili nel normale sorgente usare `@source inline()` soltanto con un insieme limitato, esplicito e documentato. Non creare safelist indiscriminate.
@@ -474,6 +480,8 @@ Convenzione d'ordine consigliata:
 
 Non è necessario applicare a mano un ordine cosmetico diverso in ogni feature. Il formatter resta Biome. Non aggiungere Prettier soltanto per ottenere il plugin di ordinamento Tailwind: nel repository il formatter autorevole deve restare uno.
 
+Se si abilita `useTailwindSortedClasses` di Biome (regola `nursery`, fix unsafe), l'ordine autorevole diventa quello della regola — lo stesso del plugin Prettier ufficiale — e questa lista manuale non va mantenuta in parallelo. La regola accetta `tailwind.stylesheet` per conoscere token, utility e varianti del progetto. Scegliere una sola fonte di verità: o la regola automatica o la convenzione manuale.
+
 ### 5.4 Regole di buon uso
 
 - Preferire token e utility del tema alle arbitrary values.
@@ -482,6 +490,8 @@ Non è necessario applicare a mano un ordine cosmetico diverso in ogni feature. 
 - Evitare attributi `className` lunghi che descrivono un intero componente ripetuto: estrarre il componente o definire una variante.
 - Non usare `@apply` come meccanismo generale per ricreare un framework di classi dentro il CSS.
 - `@apply` MAY essere usato in integrazioni circoscritte con CSS legacy o markup di terze parti, con motivazione.
+- Per utility personalizzate riutilizzabili preferire `@utility` di Tailwind v4 a `@layer utilities` o a catene di `@apply`.
+- Per valori realmente dinamici usare CSS custom properties inline solo se la CSP lo consente: gli attributi `style` sono governati da `style-src-attr` e un nonce non li autorizza. In caso di CSP restrittiva preferire classi statiche o un blocco `<style>` con nonce/hash, oppure valutare `style-src-attr`/`unsafe-hashes` in modo circoscritto. Applicare un cast locale motivato o un helper tipizzato, validare i valori e non passare input non fidato in `style`.
 - Evitare `!important`; ogni eccezione deve risolvere un conflitto esterno documentato.
 - Non costruire classi CSS a partire da dati API, input utente o output LLM.
 
@@ -527,12 +537,16 @@ Preferire:
 --accent
 --accent-foreground
 --destructive
+--destructive-foreground
 --border
 --input
 --ring
 --success
+--success-foreground
 --warning
+--warning-foreground
 --info
+--info-foreground
 ```
 
 Evitare che i componenti dipendano da nomi come `blue-600`, `gray-100` o `purple-500` per esprimere il significato di un'azione. Le palette primitive possono esistere internamente, ma i componenti usano token semantici.
@@ -542,11 +556,12 @@ Evitare che i componenti dipendano da nomi come `blue-600`, `gray-100` o `purple
 Predisporre il sistema per light e dark theme, anche quando il prodotto viene inizialmente rilasciato con un solo tema.
 
 - `:root` dichiara i token del tema chiaro;
-- una classe o un attributo stabile sul root (es. `.dark` o `data-theme`) attiva i token scuri;
+- una classe o un attributo stabile sul root (es. `.dark` o `data-theme`) attiva i token scuri; scegliere un solo meccanismo. La configurazione shadcn corrente usa `.dark` e `@custom-variant dark (&:is(.dark *))`; se si usa `data-theme`, la custom variant va riscritta coerentemente (es. `@custom-variant dark (&:is([data-theme="dark"] *))`);
 - `color-scheme` va impostato coerentemente per controlli nativi e scrollbar;
 - le componenti non duplicano i propri CSS per tema: cambiano i token;
 - la modalità scelta dall'utente va gestita a livello applicativo, non con hack nei singoli componenti;
-- la persistenza della preferenza è responsabilità di un unico ThemeProvider o equivalente.
+- la persistenza della preferenza è responsabilità di un unico ThemeProvider o equivalente;
+- il tema iniziale va applicato prima del primo paint, con uno script bloccante minimo o un attributo impostato lato server, per evitare il flash; rispettare `prefers-color-scheme` come default e aggiornare `color-scheme` e `theme-color`. In presenza di CSP, lo script inline richiede nonce o hash: non introdurre `unsafe-inline` solo per il theme bootstrap.
 
 Usare la configurazione `cssVariables: true` di shadcn e le custom properties semantiche. Il CSS deve rimanere la fonte autorevole per i valori del tema; non duplicare la palette in un oggetto TypeScript parallelo salvo una necessità concreta di generare dati per un'altra piattaforma.
 
@@ -564,6 +579,9 @@ Esempio schematico: i valori effettivi vanno scelti in una PDR/decisione di visu
   --card: oklch(100% 0 0);
   --card-foreground: var(--foreground);
 
+  --popover: oklch(100% 0 0);
+  --popover-foreground: var(--foreground);
+
   --primary: oklch(48% 0.16 255);
   --primary-foreground: oklch(99% 0.003 250);
 
@@ -572,6 +590,21 @@ Esempio schematico: i valori effettivi vanno scelti in una PDR/decisione di visu
 
   --muted: oklch(96% 0.008 250);
   --muted-foreground: oklch(48% 0.02 250);
+
+  --accent: oklch(92% 0.03 255);
+  --accent-foreground: oklch(24% 0.05 255);
+
+  --destructive: oklch(55% 0.2 25);
+  --destructive-foreground: oklch(99% 0.003 25);
+
+  --success: oklch(52% 0.14 150);
+  --success-foreground: oklch(99% 0.003 150);
+
+  --warning: oklch(80% 0.14 85);
+  --warning-foreground: oklch(20% 0.03 85);
+
+  --info: oklch(55% 0.12 240);
+  --info-foreground: oklch(99% 0.003 240);
 
   --border: oklch(90% 0.01 250);
   --input: var(--border);
@@ -588,6 +621,9 @@ Esempio schematico: i valori effettivi vanno scelti in una PDR/decisione di visu
   --card: oklch(20% 0.016 255);
   --card-foreground: var(--foreground);
 
+  --popover: oklch(20% 0.016 255);
+  --popover-foreground: var(--foreground);
+
   --primary: oklch(72% 0.13 255);
   --primary-foreground: oklch(18% 0.02 255);
 
@@ -597,13 +633,28 @@ Esempio schematico: i valori effettivi vanno scelti in una PDR/decisione di visu
   --muted: oklch(25% 0.012 255);
   --muted-foreground: oklch(72% 0.012 255);
 
+  --accent: oklch(31% 0.04 255);
+  --accent-foreground: oklch(96% 0.01 255);
+
+  --destructive: oklch(62% 0.18 25);
+  --destructive-foreground: oklch(18% 0.02 25);
+
+  --success: oklch(70% 0.13 150);
+  --success-foreground: oklch(18% 0.02 150);
+
+  --warning: oklch(82% 0.13 85);
+  --warning-foreground: oklch(20% 0.03 85);
+
+  --info: oklch(72% 0.11 240);
+  --info-foreground: oklch(18% 0.02 240);
+
   --border: oklch(32% 0.012 255);
   --input: var(--border);
   --ring: var(--primary);
 }
 ```
 
-I numeri sono illustrativi: non costituiscono una palette prescritta e non garantiscono da soli il contrasto WCAG.
+I numeri sono illustrativi: non costituiscono una palette prescritta. Gli abbinamenti foreground/background dell'esempio sono scelti per superare 4.5:1, ma vanno riverificati con uno strumento di contrasto quando si cambiano i valori, soprattutto per success, warning, info e destructive.
 
 ### 6.5 Mappatura Tailwind
 
@@ -615,19 +666,38 @@ Usare la direttiva `@theme inline` per mappare i token CSS semantici alle utilit
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 ```
 
-L'opzione `inline` è importante quando una theme variable fa riferimento a un'altra custom property e si vuole evitare che il valore venga risolto nello scope sbagliato.
+L'esempio è una base: ogni token aggiunto al tema (stati, sidebar, chart, ecc.) va mappato allo stesso modo, altrimenti l'utility Tailwind non esiste.
+
+`inline` fa sì che l'utility usi direttamente il riferimento `var(--token)` invece del valore risolto: è necessario quando un tema ridefinisce i token (`.dark`) e quando un theme variable referenzia un'altra custom property (es. `--color-background: var(--background)`). Senza `inline`, il valore può essere risolto nello scope sbagliato e gli override di tema non raggiungono l'utility.
 
 Non ridefinire manualmente le utility già fornite da Tailwind. Non usare `@theme static` senza motivo: per impostazione predefinita Tailwind genera le theme variable necessarie alle classi usate; `static` è adatto solo quando si desidera esportare sempre l'intero set di variabili.
 
@@ -650,6 +720,7 @@ Non assumere però che colori con la stessa luminosità percepita garantiscano c
 - Preferire un numero ridotto di font e pesi.
 - MAY usare font variable per ridurre richieste e semplificare i pesi.
 - Se si usa un font web, preferire self-hosting o un pacchetto locale controllato; evitare dipendenze involontarie da CDN terze.
+- Caricare i font con `font-display` adeguato, subset e preload misurati; non precaricare pesi inutilizzati e contenere il CLS.
 - Definire scala tipografica e line-height coerenti tramite token/utility.
 - Non impostare font-size puntuali in ogni feature.
 - Il testo del prodotto non deve essere trasformato in immagine per ottenere un effetto visivo.
@@ -710,6 +781,8 @@ apps/web/src/
 
 La struttura è indicativa. Non creare cartelle vuote e non introdurre `patterns`, `icons` o `motion.css` finché non contengono responsabilità reali.
 
+Per i nuovi progetti basati su shadcn, usare file kebab-case (`button.tsx`, `dropdown-menu.tsx`) e simboli React PascalCase (`Button`, `DropdownMenu`). Nel boilerplate attuale non effettuare una migrazione indiscriminata: mantenere la convenzione PascalCase e il design system piatto fino a una migrazione esplicita e coerente, con `git mv` in un commit dedicato. Evitare in ogni caso file duplicati che differiscono solo per maiuscole/minuscole.
+
 ### 7.2 Regole sui confini
 
 - `design-system/primitives` contiene componenti generici, senza logica di dominio.
@@ -722,7 +795,7 @@ La struttura è indicativa. Non creare cartelle vuote e non introdurre `patterns
 
 ### 7.3 Elementi HTML nativi e design system
 
-La prescrizione «non usare elementi HTML grezzi fuori dal design system» riguarda soprattutto i **controlli interattivi e le primitive che hanno comportamento e stile condivisi**.
+La prescrizione «non usare elementi HTML grezzi fuori dal design system» va intesa come divieto di ricostruire **controlli interattivi e primitive che hanno comportamento e stile condivisi**, non come divieto di usare HTML semantico per la struttura del documento.
 
 Fuori dal design system è corretto e spesso preferibile usare HTML semantico nativo per la struttura del documento: `main`, `section`, `header`, `nav`, `h1`–`h6`, `p`, `ul`, `ol`, `li`, `article`, `label` e simili.
 
@@ -734,6 +807,8 @@ Per pulsanti, link d'azione, input, checkbox, switch, select, combobox, menu, di
 - se manca il componente necessario, aggiungerlo al design system prima di usarlo in più schermate.
 
 Non creare un wrapper design system per ogni tag HTML (`Text`, `Paragraph`, `Section` ecc.) se non aggiunge valore reale.
+
+Questa è una precisazione della formulazione del Vademecum TypeScript (§ UI web) e di `AGENTS.md`: se il progetto adotta questa lettura, allineare anche quei documenti — o registrarla in ADR — per evitare che un agente riceva due regole apparentemente in conflitto.
 
 ### 7.4 Colocazione dei CSS
 
@@ -764,6 +839,8 @@ La configurazione effettiva di shadcn generata dal CLI è la fonte di verità. U
 ```
 
 L'ordine preciso e il contenuto di `@theme inline` devono seguire il template della versione shadcn installata. Non riscrivere manualmente il bootstrap generato senza capire cosa il CLI si aspetta.
+
+`shadcn/tailwind.css` è esportato dal pacchetto `shadcn`: se il progetto non lo tiene installato, l'import non si risolve. `pnpm dlx shadcn@latest eject` inlinea quel CSS e rimuove la dipendenza, ma è irreversibile e rinuncia agli aggiornamenti automatici del file. Scegliere consapevolmente una delle due strade.
 
 ### 8.2 Reset e Preflight
 
@@ -853,6 +930,14 @@ Evitare:
 
 Preferire stati semantici espressi da proprietà/attributi (`disabled`, `aria-invalid`, `data-state`, `data-open`) e utility variant coerenti. Non derivare lo stato visuale esclusivamente da una classe opaca impostata manualmente dall'agente.
 
+### 9.5 Internazionalizzazione, testo lungo e RTL
+
+- Impostare `lang` e, quando supportato, `dir` sul documento; non affidarsi al solo layout visivo.
+- Usare `Intl` per date, numeri, valute e plurali invece di formattazioni hardcoded.
+- Testare testi lunghi e traduzioni: evitare larghezze fisse, usare wrapping, `overflow-wrap` e `min-width: 0` dove serve.
+- Usare proprietà logiche (`margin-inline`, `padding-block`, `inset-inline-start`) per essere pronti a RTL.
+- Non inserire testo in immagini; il testo deve restare selezionabile, traducibile e leggibile dagli screen reader.
+
 ---
 
 ## 10. Accessibilità e semantica UI
@@ -879,6 +964,18 @@ Requisiti operativi:
 - layout leggibile con zoom e font ingranditi;
 - supporto a `prefers-reduced-motion`.
 
+Requisiti WCAG 2.2 AA spesso dimenticati, da verificare esplicitamente:
+
+- **1.4.11 Contrasto non testuale:** almeno 3:1 per le informazioni visive necessarie a identificare controlli, stati e elementi grafici significativi (bordi di controlli, indicatori di focus, icone portatrici di informazione). Non riguarda indistintamente ogni bordo decorativo.
+- **2.5.8 Target size:** target di puntamento almeno 24×24 CSS px, o spazio equivalente, salvo le eccezioni previste.
+- **1.4.4 e 1.4.10:** testo ridimensionabile al 200% e reflow a 320 CSS px senza perdita di contenuto.
+- **2.4.11 Focus non occultato:** il componente con focus non deve essere interamente nascosto da sticky header, banner o overlay. La visibilità completa del focus resta la buona pratica raccomandata, ma il minimo AA richiede solo che non sia completamente coperto.
+- **2.5.7 Dragging movements:** se un'operazione richiede un gesto di trascinamento (slider, riordino, disegno), offrire un'alternativa a puntamento singolo, salvo quando il trascinamento è essenziale.
+- **3.2.6 Consistent help:** se il prodotto offre un meccanismo di aiuto (contatto, chat, FAQ), deve comparire nello stesso ordine e nella stessa posizione relativa nelle pagine in cui è presente.
+- **3.3.7 Redundant entry:** se il flusso chiede di reinserire informazioni già fornite nella stessa sessione, precompilare o offrire una selezione, salvo le eccezioni previste (sicurezza, dati non più validi).
+- **3.3.8 Accessible authentication:** se l'autenticazione richiede un test cognitivo (memoria, puzzle, trascrizione), offrire un'alternativa o un supporto compatibile (password manager, incolla, passkey, OTP), salvo le eccezioni previste.
+- **MAY:** supporto a `prefers-contrast` e `forced-colors` quando il prodotto lo richiede.
+
 Il contrasto deve essere verificato per ogni combinazione effettiva, compresi hover, disabled, focus, dark mode e stati di errore.
 
 ### 10.2 Focus
@@ -887,6 +984,8 @@ Il contrasto deve essere verificato per ogni combinazione effettiva, compresi ho
 - non rimuovere outline senza sostituirlo con un indicatore equivalente o migliore;
 - non affidarsi al solo cambio di colore;
 - evitare che sticky header, dialog o contenitori scrollabili nascondano l'elemento focalizzato;
+- per anchor e focus programmatico usare `scroll-margin-top`/`scroll-padding-top` commisurati allo header sticky, invece di compensazioni JS fragili;
+- il criterio 2.4.11 richiede che il componente con focus non sia interamente occultato; puntare comunque alla visibilità completa dell'indicatore e dell'elemento;
 - dopo la chiusura di un overlay, restituire il focus al trigger corretto.
 
 ### 10.3 Icone e controlli
@@ -906,6 +1005,15 @@ Il prodotto SHOULD essere completamente fruibile senza mouse. I test Playwright 
 - Home/End quando previsto dalla convenzione del componente.
 
 Usare Base UI per non reinventare queste interazioni, ma non presumere che l'uso di una libreria garantisca automaticamente l'accessibilità dell'intera pagina.
+
+### 10.5 Sicurezza del rendering e del CSS
+
+- Non usare `dangerouslySetInnerHTML` con contenuto non fidato: sanitizzare con una libreria dedicata e una policy esplicita.
+- Non passare input utente, output LLM o dati API in `style`, custom properties o nomi di classe senza validazione e allow-list. Gli attributi `style` inline possono essere bloccati da una CSP restrittiva (`style-src-attr`); i nonce non li sbloccano. Se servono valori dinamici, usare classi statiche, custom properties impostate da un blocco `<style>` con nonce/hash o, in modo circoscritto, `unsafe-hashes`.
+- Validare URL e attributi `href`/`src` con allow-list specifiche per contesto (link, immagini, media, form): consentire solo schemi e origini necessari (es. `https:`, path relativi, `mailto:`/`tel:` se previsti). `data:` non è vietato in assoluto: può essere legittimo per immagini o font, ma va limitato con `img-src`/`font-src` e controlli di tipo e dimensione.
+- Preferire CSS statico generato dalla build: è compatibile con una CSP senza `unsafe-inline` per gli stili. Gli script inline necessari (es. theme bootstrap) richiedono nonce o hash; per gli attributi `style` serve una policy `style-src-attr` esplicita o un'alternativa.
+- Se si rende Markdown o HTML di terze parti, usare una pipeline di sanitizzazione e testare i casi malevoli.
+- Trattare le dipendenze UI come supply chain: versioni fissate, lockfile, revisione degli aggiornamenti.
 
 ---
 
@@ -966,6 +1074,8 @@ Per hover, focus, piccoli cambi di stato e transizioni semplici usare CSS/Tailwi
 
 Ridurre o eliminare movimento non essenziale per chi lo richiede. Non comunicare informazioni soltanto tramite movimento.
 
+Implementare il rispetto in modo sistematico: usare la variante `motion-reduce:` di Tailwind o azzerare una custom property di durata condivisa nel media query, evitando `!important` globali. Le animazioni infinite o decorative vanno disattivate, non solo rallentate.
+
 ### 12.3 Motion for React
 
 La libreria Motion per React (precedentemente Framer Motion) MAY essere aggiunta quando il prodotto richiede:
@@ -999,6 +1109,8 @@ La regola generale è **non trasformare un catalogo di librerie utili in uno sta
 | Motion | MAY | Animazioni complesse e gesture | CSS prima |
 | Storybook | MAY | Catalogo, sviluppo isolato e documentazione di un design system in crescita | Non necessario per 3–5 componenti semplici |
 | `@axe-core/playwright` | SHOULD | Audit accessibilità nei flussi E2E | Integrare con i test Playwright |
+| `@testing-library/react` + `@testing-library/user-event` + jsdom/happy-dom | MAY, quando si testano componenti | Test comportamentali in Vitest | Un solo ambiente DOM confinato al progetto Vitest frontend, mai al dominio |
+| Plugin Oxlint `jsx-a11y` | SHOULD quando esiste una UI | Lint statico di accessibilità su JSX | Abilitare le regole applicabili, senza duplicare Biome |
 | `@fontsource-variable/<font>` | MAY | Self-hosting di un font variable specifico | Solo se il font è deciso dal prodotto |
 | Libreria grafici | MAY | Dashboard o data visualization | Selezione separata in base ai grafici richiesti |
 
@@ -1014,6 +1126,8 @@ Non usare toast per:
 - conferme di operazioni distruttive (usare Alert Dialog o pattern equivalente).
 
 Non introdurre due sistemi toast contemporaneamente.
+
+I messaggi asincroni devono essere annunciati in modo appropriato: `role="status"`/`aria-live="polite"` per conferme non urgenti, `role="alert"`/`aria-live="assertive"` solo per errori che richiedono attenzione immediata. Non duplicare lo stesso annuncio in più regioni live e non affidare informazioni essenziali a un toast che scompare.
 
 ### 13.3 React Hook Form e validazione
 
@@ -1078,6 +1192,7 @@ Regole:
 - classi complete e statiche nei file TSX/CSS;
 - `@source` per package sorgente non scansionati automaticamente;
 - `@source inline()` solo per safelist piccole e documentate;
+- `@source not` per escludere percorsi generati o irrilevanti, invece di allargare la scansione;
 - niente classi dinamiche costruite per concatenazione;
 - non aggiungere PurgeCSS sopra Tailwind senza una motivazione misurata;
 - verificare il CSS prodotto dalla build, non dedurre la dimensione dal numero di classi nel sorgente.
@@ -1118,6 +1233,7 @@ Non aggiungere polyfill CSS o prefissi vendor manuali senza evidenza: la pipelin
 ### 14.5 Buone pratiche di rendering
 
 - evitare layout shift dovuti a immagini senza dimensioni/ratio;
+- dichiarare `width`/`height` o `aspect-ratio`, usare `srcset`/`sizes`, formati moderni e `loading="lazy"` sotto la piega; `fetchpriority="high"` solo per l'immagine principale;
 - riservare spazio per contenuti asincroni quando necessario;
 - evitare animazioni continue e costose;
 - non forzare `will-change` permanentemente su molti elementi;
@@ -1144,17 +1260,43 @@ Non fissare un limite universale di kilobyte valido per ogni applicazione. Stabi
 
 **Biome è l'autorità per format e lint CSS**, in continuità con il Vademecum TypeScript.
 
-La versione corrente di Biome supporta parsing, formattazione e linting di CSS e SCSS. È quindi sufficiente per i controlli CSS standard e permette di evitare un secondo linter nel caso comune.
+La versione corrente di Biome supporta parsing, formattazione e linting di CSS e SCSS, quindi è sufficiente per i controlli CSS standard e permette di evitare un secondo linter nel caso comune.
+
+Attenzione alla configurazione: Biome non interpreta i direttivi Tailwind (`@theme`, `@utility`, `@source`, `@apply`, `@custom-variant`) se `css.parser.tailwindDirectives` è disattivato, ed è disattivato per default. Inoltre il linter Biome può essere spento globalmente (come in questo repository, dove Oxlint è il linter TS/JS) e restare attivo solo per il CSS tramite `css.linter.enabled`. Configurazione minima consigliata:
+
+```json
+{
+  "linter": {
+    "enabled": false,
+    "rules": {
+      "complexity": { "noImportantStyles": "error" }
+    }
+  },
+  "css": {
+    "parser": { "tailwindDirectives": true },
+    "linter": { "enabled": true }
+  }
+}
+```
+
+Con questa configurazione `biome check`/`biome lint` controlla il CSS senza riattivare il linter Biome su TS/JS. Le severità delle regole CSS si impostano in `linter.rules` (es. `complexity.noImportantStyles: "error"`) e restano efficaci con il linter globale spento. Se invece si esegue Biome con il parser Tailwind disattivato, i direttivi vengono segnalati come errore di parsing e la formattazione si interrompe.
 
 Policy:
 
 - `biome format` / `biome check` formato CSS, TSX e TypeScript;
 - Oxlint continua a essere il linter TS/JS autorevole secondo il vademecum TypeScript;
-- attivare i controlli CSS raccomandati di Biome;
-- abilitare regole più restrittive (es. proprietà sconosciute, at-rule sconosciute, `!important`, duplicazioni) quando supportate e senza false positive;
+- attivare il linter CSS di Biome con le regole raccomandate;
+- regole CSS utili: `correctness/noUnknownProperty`, `suspicious/noUnknownAtRules`, `suspicious/noDuplicateProperties`, `complexity/noImportantStyles`;
+- `nursery/noUnusedClasses`: abilitarla solo su CSS per cui l'analisi è affidabile. In Biome 2.6.5 non riconosce i riferimenti CSS Modules come `styles.button` e segnala falsi positivi: escludere `*.module.css` o non abilitarla finché il supporto non è affidabile;
+- `nursery/useTailwindStaticClassStrings` (dalla 2.6.0, dominio `tailwind`): raccomandata per impedire classi Tailwind costruite dinamicamente; rileva template literal e concatenazioni negli attributi e nelle funzioni riconosciute, ma non segue le variabili né i tagged template, quindi la review resta necessaria. Valutarne l'attivazione come gate dopo aver verificato i falsi positivi;
+- `nursery/useTailwindSortedClasses` (fix unsafe): opt-in, non obbligatoria; se adottata diventa l'unica fonte di ordinamento al posto della convenzione manuale e va validata prima di promuoverla a gate. Usa `tailwind.stylesheet` per conoscere token e utility;
+- `nursery/noTailwindRawColors` e `nursery/noTailwindRestyledComponents`: disponibili in Biome 2.6.x; valutarle inizialmente come warning per impedire colori di palette arbitrari e override dello stile dei componenti centrali, definendo le eccezioni ammesse prima di trasformarle in gate;
+- le regole `nursery` vanno valutate e, se promosse a gate, impostate a `error` esplicito: non sono bloccanti per default e non si abbassano le soglie in caso di errori.
 - Stylelint MAY essere aggiunto soltanto se emerge una specifica regola CSS importante non coperta da Biome;
 - se Stylelint viene introdotto, definire con precisione quali regole possiede e disattivare i duplicati in Biome;
 - non introdurre Prettier per il solo ordinamento delle classi Tailwind.
+
+Le regole del dominio `tailwind` si attivano solo quando Biome rileva `tailwindcss@>=4`; in un progetto senza Tailwind restano inerti. Per `noUnusedClasses` e per le regole Tailwind sui file TSX verifica la configurazione risolta: con `linter.enabled: false` alcune regole project-domain possono non girare; usa gli `overrides` per i file pertinenti o verifica con `biome lint --only=<gruppo>/<regola>`.
 
 Biome è aggiornato rapidamente: le opzioni di configurazione vanno verificate nello schema della versione effettivamente installata, non copiate da una versione precedente.
 
@@ -1181,15 +1323,15 @@ Controlli bloccanti:
 
 1. Biome format-check sui file CSS/TSX/TS interessati;
 2. Biome lint sui CSS;
-3. Oxlint e typecheck sui componenti TSX;
-4. `vite build`;
+3. Oxlint e typecheck sui componenti TSX; per i progetti con UI abilitare il plugin `jsx-a11y` di Oxlint;
+4. build di produzione: `just build` è obbligatoria per ogni progetto con `apps/web` ed è integrata in `just prepush` e `just ci`; il gate deve verificare che la build sia realmente eseguita e superata, non solo che la recipe esista;
 5. test dei componenti e dei flussi UI modificati;
 6. audit axe sui flussi critici selezionati;
 7. verifica dei confini di import: le feature importano primitive dal design system e non direttamente da più librerie headless;
 8. verifica che non siano state abbassate soglie, aggiunte ignore-list o disabilitati controlli;
 9. verifica di dimensione CSS quando è stato fissato un budget.
 
-La policy sui controlli interattivi HTML grezzi deve essere codificata con il meccanismo statico più sostenibile per il repository. Non introdurre un linter custom fragile solo per ottenere un gate nominale: se non è disponibile una regola AST affidabile, mantenere il requisito in AGENTS.md e attivare un guard di review fino a quando esiste una soluzione verificata.
+La policy sui controlli interattivi HTML grezzi e sulle classi dinamiche va codificata con il meccanismo statico più sostenibile: `useTailwindStaticClassStrings` per le classi Tailwind, `jsx-a11y` e le regole disponibili per l'accessibilità, un guard di review per ciò che non è esprimibile in modo affidabile. Non introdurre un linter custom fragile solo per ottenere un gate nominale.
 
 ### 15.4 Ratchet
 
@@ -1208,7 +1350,7 @@ Le soglie di qualità CSS/UI seguono lo stesso principio del vademecum TypeScrip
 
 ### 16.1 Test componentistici
 
-Usare Vitest e Testing Library per testare comportamento osservabile:
+Usare Vitest e, quando aggiunge valore ai test comportamentali dei componenti React, Testing Library. Testing Library è MAY: non è obbligatoria per ogni progetto né implica testare ogni componente isolatamente. Se la si usa, serve un progetto Vitest con ambiente DOM (`jsdom` o `happy-dom`), `@testing-library/react` e `@testing-library/user-event`; l'ambiente DOM resta confinato a quel progetto e i test di dominio restano nell'ambiente Node. In questa baseline `apps/web` non ha ancora un progetto DOM e la UI è coperta solo da Playwright, quindi la sezione diventa operativa dopo l'aggiunta di quel progetto.
 
 - stato disabled/loading;
 - selezione e interazione;
@@ -1343,7 +1485,7 @@ I gate devono bloccare:
 - CSS non formattato o lint error;
 - TSX non tipizzato o con lint error;
 - build fallita;
-- classi Tailwind costruite dinamicamente quando rilevabili;
+- classi Tailwind costruite dinamicamente rilevate da `useTailwindStaticClassStrings`;
 - violazioni delle regole di architettura;
 - test dei flussi critici falliti;
 - violazioni di accessibilità sopra la soglia concordata;
@@ -1406,14 +1548,10 @@ Quando un gate fallisce ripetutamente, l'agente deve correggere la causa o segna
 
 ### 19.3 Prima della consegna
 
-Eseguire le recipe pubbliche `just` del repository, non comandi inventati o script alternativi:
+Eseguire le recipe pubbliche `just` del repository, non comandi inventati o script alternativi. Nella baseline attuale le recipe rilevanti sono `just build`, `just format-check`, `just lint`, `just typecheck`, `just test-related`, `just test-e2e`, `just smoke`, `just prepush` e `just ci`; `just build` esegue la build di produzione ed è inclusa in `just prepush` e `just ci`. In pratica:
 
-- format-check;
-- lint;
-- typecheck;
-- build;
-- test correlati;
-- test E2E dei flussi coinvolti;
+- `just prepush` (o `just ci` per la pipeline completa) copre format, lint, typecheck, architettura, build, test, coverage e smoke;
+- `just test-e2e` per i flussi E2E coinvolti;
 - audit accessibilità se previsto;
 - screenshot review per cambiamenti visivi rilevanti.
 
@@ -1483,7 +1621,7 @@ Non dichiarare mai un controllo superato se non è stato eseguito con successo.
 
 - [ ] Biome format/lint CSS passa.
 - [ ] Oxlint e typecheck passano.
-- [ ] Vite build passa.
+- [ ] La build di produzione è eseguita e superata (`just build`, inclusa in `just prepush` e `just ci`).
 - [ ] Tailwind rileva le classi dei package corretti.
 - [ ] Il CSS di produzione è stato controllato quando rilevante.
 - [ ] Non sono state abbassate soglie o aggiunte esclusioni ingiustificate.
@@ -1514,6 +1652,8 @@ Le scelte seguenti costituiscono la baseline standard e non vanno riaperte per o
 
 Una deroga significativa deve essere registrata tramite ADR. Le scelte di linguaggio visivo specifiche di un prodotto devono invece essere documentate nella PDR pertinente.
 
+Queste decisioni valgono per un progetto nuovo o per un progetto che le adotta con un ADR. In un progetto esistente con un design system diverso — come la UI minima attuale del boilerplate — non sono automaticamente retroattive: la migrazione va pianificata, registrata e trattata come un cambiamento separato.
+
 ---
 
 ## 22. Fonti e documentazione di riferimento
@@ -1532,6 +1672,9 @@ Fonti ufficiali consultate per la baseline del **16 novembre 2026**. Le API e le
 
 - [Manual installation shadcn/ui](https://ui.shadcn.com/docs/installation/manual)
 - [Theming e CSS variables](https://ui.shadcn.com/docs/theming)
+- [CLI shadcn: init, add, eject, migrazioni](https://ui.shadcn.com/docs/cli)
+- [Dark mode e theme bootstrap](https://ui.shadcn.com/docs/dark-mode)
+- [Changelog maggio 2026: `shadcn eject`](https://ui.shadcn.com/docs/changelog/2026-05-shadcn-eject)
 - [Changelog luglio 2026: Base UI default](https://ui.shadcn.com/docs/changelog/2026-07-base-ui-default)
 - [Changelog settembre 2026: pacchetto `cn`](https://ui.shadcn.com/docs/changelog/2026-09-cn)
 - [Base UI: overview](https://base-ui.com/react/overview/about)
@@ -1558,6 +1701,9 @@ Fonti ufficiali consultate per la baseline del **16 novembre 2026**. Le API e le
 - [Biome: supporto linguaggi](https://biomejs.dev/introduction/language-support/)
 - [Biome: configurazione](https://biomejs.dev/reference/configuration/)
 - [Biome: regole CSS](https://biomejs.dev/linter/css/rules/)
+- [Biome: `useTailwindStaticClassStrings`](https://biomejs.dev/linter/rules/use-tailwind-static-class-strings/)
+- [Biome: `useTailwindSortedClasses`](https://biomejs.dev/linter/rules/use-tailwind-sorted-classes/)
+- [Biome: `noUnusedClasses`](https://biomejs.dev/linter/rules/no-unused-classes/)
 - [Playwright: accessibility testing](https://playwright.dev/docs/accessibility-testing)
 - [Storybook: React + Vite](https://storybook.js.org/docs/get-started/frameworks/react-vite)
 - [React Hook Form](https://react-hook-form.com/get-started)

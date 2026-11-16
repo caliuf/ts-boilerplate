@@ -23,6 +23,7 @@ jobs:
       - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # tag: v5.2.4
       - run: pnpm install --frozen-lockfile
       - run: just format-check lint shell-check typecheck dead-code arch docs-check workflows-check secrets
+      - run: just build
 
   integration-and-coverage:
     runs-on: ubuntu-latest

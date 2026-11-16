@@ -399,7 +399,7 @@ Default: **un solo bin con albero di subcommand** (`<progetto> <gruppo> <verbo>`
 #### UI web
 
 - Struttura per **feature colocate** (`features/<feature>/`: componenti, hook, client API, test), non per tipo tecnico (`components/`, `hooks/` globali): ogni feature è comprensibile ed eliminabile in un solo posto.
-- Il design system vive in `apps/web/src/design-system/` (o `packages/ui` se condiviso tra più frontend); elementi HTML grezzi restano vietati fuori da esso (§ 6).
+- Il design system vive in `apps/web/src/design-system/` (o `packages/ui` se condiviso tra più frontend); i controlli interattivi e le primitive visuali condivise devono passare dal design system, mentre la struttura del documento usa normalmente HTML semantico nativo (`main`, `section`, `nav`, `article`, `header`, `p`, liste e heading).
 - Le chiamate API passano da un client tipato sui contratti; lo stato server (cache, refetch) è tenuto separato dallo stato UI.
 
 #### Navigabilità per gli agenti
@@ -571,11 +571,12 @@ Gli agenti devono usare esclusivamente le recipe pubbliche di `just`. Gli script
 |`just test-live`|Servizi reali/LLM; mai implicito|
 |`just coverage`|Suite con coverage|
 |`just coverage-raise`|Alza i threshold di coverage al valore corrente (solo salita)|
+|`just build`|Build di produzione dei workspace con script build|
 |`just smoke`|Sottoinsieme critico di integrazione|
 |`just bun-smoke`|Compatibility suite Bun|
 |`just guards`|Esegue i guard in modalità report-only (§ 10)|
 |`just precommit`|Controlli rapidi su staged/related|
-|`just prepush`|Static analysis e integration principali|
+|`just prepush`|Static analysis, build e integration principali|
 |`just ci`|Esatta pipeline CI locale|
 
 Budget consigliati:
@@ -607,6 +608,7 @@ Mappa consolidata dei controlli sui tre stage di esecuzione. Ogni riga corrispon
 | Test integration | `test-integration` | ❌ | ✅ (principali) | ✅ |
 | Smoke | `smoke` | ❌ | ✅ | ✅ |
 | Coverage e cricchetto | `coverage` | ❌ | ✅ | ✅ |
+| Build di produzione | `build` | ❌ | ✅ | ✅ |
 | E2E | `test-e2e` | ❌ | ❌ | ✅ |
 | Compatibilità Bun | `bun-smoke` | ❌ | ❌ | ✅ (job separato) |
 | Link esterni | lychee | ❌ | ❌ | slow lane |
@@ -734,7 +736,7 @@ Coprono:
 
 Playwright deve conservare trace, screenshot e log sui fallimenti, non su ogni esecuzione.
 
-**Keyboard-first** (progetti con UI): gli agenti sono deboli con il mouse e con i dettagli pixel-perfect. Il prodotto SHOULD essere interamente usabile da tastiera e i test E2E SHOULD preferire interazioni da tastiera quando equivalenti. In fase di implementazione UI, usare sempre i componenti del design system del progetto, mai elementi HTML grezzi, e studiare il linguaggio visivo esistente prima di aggiungerne.
+**Keyboard-first** (progetti con UI): gli agenti sono deboli con il mouse e con i dettagli pixel-perfect. Il prodotto SHOULD essere interamente usabile da tastiera e i test E2E SHOULD preferire interazioni da tastiera quando equivalenti. In fase di implementazione UI, usare i componenti del design system per i controlli interattivi e le primitive visuali condivise; usare normalmente HTML semantico nativo per la struttura del documento; non creare wrapper React per ogni elemento HTML senza un valore aggiunto concreto. Studiare il linguaggio visivo esistente prima di aggiungere componenti.
 
 ### Test LLM, se presenti
 
@@ -991,7 +993,7 @@ Regole:
 - Mock only external or non-deterministic boundaries.
 - Tests must be isolated, deterministic, fast and behavioral.
 - Never call live external services or LLMs unless explicitly requested.
-- UI: use design-system components, never raw HTML elements; prefer keyboard-driven interactions.
+- UI: use design-system components for interactive controls and shared visual primitives; use native semantic HTML for document structure; do not create React wrappers for every HTML element without concrete added value; prefer keyboard-driven interactions.
 
 ## Validation
 

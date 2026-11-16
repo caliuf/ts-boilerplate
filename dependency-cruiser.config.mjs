@@ -80,6 +80,7 @@ export default {
   ],
   options: {
     doNotFollow: { path: "node_modules" },
+    exclude: { path: "(^|/)(dist|coverage)/" },
     tsPreCompilationDeps: true,
     enhancedResolveOptions: {
       exportsFields: ["exports"],

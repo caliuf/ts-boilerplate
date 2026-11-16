@@ -74,3 +74,7 @@ subshell
 codegraph
 colbymchenry
 pinnabile
+lintare
+componentistici
+parsati
+lintati
