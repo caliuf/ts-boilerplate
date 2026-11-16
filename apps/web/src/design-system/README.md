@@ -4,8 +4,8 @@ Il design system della UI web. Le feature compongono questi componenti e non ric
 
 ## Struttura
 
-- `primitives/`: componenti generici sorgente, oggi generati da shadcn/ui su Base UI (`button`, `input`, `label`, `alert`).
-- `patterns/`: composizioni riutilizzabili fra feature (`page`, `text-field`, `message`, `theme-toggle`). Non conoscono il dominio e non importano codice dell'app.
+- `primitives/`: componenti generici sorgente, oggi generati da shadcn/ui su Base UI (`button`, `input`, `label`, `alert`, `card`).
+- `patterns/`: composizioni riutilizzabili fra feature (`app-header`, `page`, `text-field`, `message`, `theme-toggle`). Non conoscono il dominio e non importano codice dell'app.
 - `theme/`: token semantici (`tokens.css`) e unico ingresso CSS globale (`global.css`).
 - `lib/utils.ts`: punto centrale di import per `cn`. I componenti importano `cn` da qui, non dal pacchetto esterno.
 

@@ -23,6 +23,7 @@
 - github.branch_naming :: Naming branch `<tipo>/<issue>-<slug>` (tipi = conventional commit); il numero issue GitHub è il progressivo univoco, niente contatori manuali nel nome (race condition con agenti paralleli).
 - github.review_solo_maintainer :: Con un solo code owner la review obbligatoria del ruleset non è self-approvabile: le PR locali del maintainer si mergiano con bypass owner a CI verde (auditato); le PR degli agenti remoti (GitHub App) vanno in review reale.
 - frontend.design_system :: Il design system vive in `apps/web/src/design-system/` con `primitives/`, `patterns/`, `theme/` e `lib/utils.ts`; i componenti shadcn si aggiungono con il CLI e il codice generato diventa proprietà del progetto (ADR-0009).
+- frontend.visual_direction :: La UI dimostrativa segue PDR-0003: header applicativo (`AppHeader`), accento blu `--primary` blue-600 e card `base-nova` con footer d'azione; PDR-0002 resta la base di token e accessibilità.
 
 ## Constraints
 

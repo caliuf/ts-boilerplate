@@ -3,7 +3,6 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, test, vi } from "vitest";
 
-import { ThemeProvider } from "../../app/providers/theme-provider.tsx";
 import { GreetingPage } from "./GreetingPage.tsx";
 import { fetchHelloWorld } from "./hello-world-api.ts";
 
@@ -14,11 +13,7 @@ vi.mock("./hello-world-api.ts", () => ({
 const fetchHelloWorldMock = vi.mocked(fetchHelloWorld);
 
 function renderPage() {
-  return render(
-    <ThemeProvider>
-      <GreetingPage />
-    </ThemeProvider>,
-  );
+  return render(<GreetingPage />);
 }
 
 beforeEach(() => {
@@ -68,14 +63,4 @@ test("shows an assertive message on error", async () => {
   await user.type(screen.getByLabelText("Name"), "Ada{Enter}");
 
   expect(await screen.findByRole("alert")).toHaveTextContent("network error");
-});
-
-test("toggles the theme and persists the choice", async () => {
-  const user = userEvent.setup();
-
-  renderPage();
-  await user.click(screen.getByRole("button", { name: "Toggle theme" }));
-
-  expect(document.documentElement).toHaveClass("dark");
-  expect(localStorage.getItem("project-theme")).toBe("dark");
 });

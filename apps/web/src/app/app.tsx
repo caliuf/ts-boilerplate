@@ -1,5 +1,26 @@
+import { AppHeader } from "../design-system/patterns/app-header.tsx";
+import { ThemeToggle } from "../design-system/patterns/theme-toggle.tsx";
 import { GreetingPage } from "../features/greeting/GreetingPage.tsx";
-import { ThemeProvider } from "./providers/theme-provider.tsx";
+import { ThemeProvider, useTheme } from "./providers/theme-provider.tsx";
+
+const BRAND = "ts-boilerplate";
+
+function Shell() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
+  return (
+    <>
+      <AppHeader
+        brand={BRAND}
+        actions={
+          <ThemeToggle isDark={isDark} onToggle={() => setTheme(isDark ? "light" : "dark")} />
+        }
+      />
+      <GreetingPage />
+    </>
+  );
+}
 
 export function App() {
   return (
@@ -10,7 +31,7 @@ export function App() {
       >
         Skip to content
       </a>
-      <GreetingPage />
+      <Shell />
     </ThemeProvider>
   );
 }

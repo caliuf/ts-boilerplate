@@ -7,8 +7,8 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
-    <meta name="description" content="Project web UI" />
-    <title>project</title>
+    <meta name="description" content="ts-boilerplate web UI" />
+    <title>ts-boilerplate</title>
     <script>
       /*
        * Theme bootstrap: apply the stored/system theme before the first paint
@@ -24,7 +24,7 @@
           const dark = preference === "dark" || (preference === "system" && systemDark);
           document.documentElement.classList.toggle("dark", dark);
           const themeColor = document.querySelector('meta[name="theme-color"]');
-          themeColor?.setAttribute("content", dark ? "#1c1c1c" : "#ffffff");
+          themeColor?.setAttribute("content", dark ? "#0a0a0a" : "#ffffff");
         } catch {
           /* localStorage can be unavailable; CSS still honors prefers-color-scheme */
         }
