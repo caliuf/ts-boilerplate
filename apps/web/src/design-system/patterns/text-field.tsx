@@ -1,12 +1,15 @@
 import type { ChangeEvent } from "react";
 import { useId } from "react";
 
+import { cn } from "../lib/utils.ts";
 import { Input } from "../primitives/input.tsx";
 import { Label } from "../primitives/label.tsx";
 
 /**
  * Text field pattern: label, input, hint and error are wired with the right
  * accessible relationships. Features never rebuild this wiring themselves.
+ * `invalid` marks the field as failed without rendering an extra message,
+ * which is how a use case shows the server-side error elsewhere.
  */
 export function TextField(props: {
   readonly label: string;
@@ -17,11 +20,13 @@ export function TextField(props: {
   readonly type?: "text" | "email" | "search" | "url";
   readonly hint?: string;
   readonly error?: string;
+  readonly invalid?: boolean;
   readonly disabled?: boolean;
 }) {
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
+  const isInvalid = props.invalid === true || props.error !== undefined;
 
   const describedBy = [
     props.hint === undefined ? null : hintId,
@@ -34,11 +39,13 @@ export function TextField(props: {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{props.label}</Label>
+      <Label className={cn("leading-snug", isInvalid && "text-destructive")} htmlFor={id}>
+        {props.label}
+      </Label>
       <Input
         id={id}
         aria-describedby={describedBy === "" ? undefined : describedBy}
-        aria-invalid={props.error !== undefined}
+        aria-invalid={isInvalid}
         disabled={props.disabled === true}
         name={props.name}
         onChange={handleChange}
@@ -47,7 +54,7 @@ export function TextField(props: {
         value={props.value}
       />
       {props.hint === undefined ? null : (
-        <p id={hintId} className="text-xs text-muted-foreground">
+        <p id={hintId} className="text-sm leading-normal text-muted-foreground">
           {props.hint}
         </p>
       )}

@@ -4,7 +4,7 @@ Il design system della UI web. Le feature compongono questi componenti e non ric
 
 ## Struttura
 
-- `primitives/`: componenti generici sorgente, oggi generati da shadcn/ui su Base UI (`button`, `input`, `label`, `alert`, `card`).
+- `primitives/`: componenti generici sorgente, oggi generati da shadcn/ui su Base UI (`button`, `input`, `label`, `alert`, `card`, `empty`, `tooltip`).
 - `patterns/`: composizioni riutilizzabili fra feature (`app-header`, `page`, `text-field`, `message`, `theme-toggle`). Non conoscono il dominio e non importano codice dell'app.
 - `theme/`: token semantici (`tokens.css`) e unico ingresso CSS globale (`global.css`).
 - `lib/utils.ts`: punto centrale di import per `cn`. I componenti importano `cn` da qui, non dal pacchetto esterno.
@@ -18,7 +18,7 @@ Le API pubbliche non ancora consumate dal boilerplate (per esempio `AlertTitle`,
 - `class-variance-authority` per le varianti reali;
 - `lucide-react` come unico set di icone;
 - token CSS custom properties + `@theme inline`, light e dark tramite la classe `.dark`;
-- font variable self-hosted Geist tramite `@fontsource-variable/geist`.
+- stack sans di sistema (`ui-sans-serif`, `system-ui`, `Segoe UI`, Roboto, ...): nessun webfont da servire.
 
 La configurazione shadcn vive in `apps/web/components.json`. Gli alias portano `ui` su `design-system/primitives` e `utils` su `design-system/lib/utils`.
 

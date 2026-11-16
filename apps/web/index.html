@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#fafafa" />
     <meta name="description" content="ts-boilerplate web UI" />
     <title>ts-boilerplate</title>
     <script>
@@ -24,7 +24,7 @@
           const dark = preference === "dark" || (preference === "system" && systemDark);
           document.documentElement.classList.toggle("dark", dark);
           const themeColor = document.querySelector('meta[name="theme-color"]');
-          themeColor?.setAttribute("content", dark ? "#0a0a0a" : "#ffffff");
+          themeColor?.setAttribute("content", dark ? "#101318" : "#fafafa");
         } catch {
           /* localStorage can be unavailable; CSS still honors prefers-color-scheme */
         }

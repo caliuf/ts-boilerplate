@@ -27,7 +27,7 @@ test("the button path shows the default greeting", async ({ page }) => {
 test("the theme toggle switches to dark mode", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Toggle theme" }).click();
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
 
   await expect(page.locator("html")).toHaveClass(/dark/);
 });
@@ -40,7 +40,7 @@ for (const theme of themes) {
   }) => {
     await page.goto("/");
     if (theme === "dark") {
-      await page.getByRole("button", { name: "Toggle theme" }).click();
+      await page.getByRole("button", { name: "Switch to dark theme" }).click();
     }
 
     await page.getByLabel("Name").fill("x".repeat(101));
@@ -68,7 +68,7 @@ for (const theme of themes) {
   }) => {
     await page.goto("/");
     if (theme === "dark") {
-      await page.getByRole("button", { name: "Toggle theme" }).click();
+      await page.getByRole("button", { name: "Switch to dark theme" }).click();
     }
 
     expect(await axeViolations(page)).toEqual([]);

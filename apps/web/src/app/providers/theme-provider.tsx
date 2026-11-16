@@ -38,7 +38,7 @@ function applyTheme(theme: ResolvedTheme) {
   }
   document.documentElement.classList.toggle("dark", theme === "dark");
   const themeColor = document.querySelector('meta[name="theme-color"]');
-  themeColor?.setAttribute("content", theme === "dark" ? "#0a0a0a" : "#ffffff");
+  themeColor?.setAttribute("content", theme === "dark" ? "#101318" : "#fafafa");
 }
 
 /**

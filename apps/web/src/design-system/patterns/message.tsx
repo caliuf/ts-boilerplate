@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "../primitives/alert.tsx";
  * Result message pattern over the Alert primitive. Non-error messages are
  * polite live regions; errors are assertive (Vademecum CSS §13.2). Title and
  * icon are optional so the pattern stays useful for one-line feedback too.
+ * Styling is the Alert variant default: `bg-card` with a hairline border.
  */
 export function Message(props: {
   readonly text: string;
@@ -17,13 +18,10 @@ export function Message(props: {
     <Alert
       role={props.error === true ? "alert" : "status"}
       variant={props.error === true ? "destructive" : "default"}
-      className="bg-background px-4 py-3"
     >
       {props.icon}
       {props.title === undefined ? null : <AlertTitle>{props.title}</AlertTitle>}
-      <AlertDescription className={props.error === true ? "text-destructive" : undefined}>
-        {props.text}
-      </AlertDescription>
+      <AlertDescription>{props.text}</AlertDescription>
     </Alert>
   );
 }

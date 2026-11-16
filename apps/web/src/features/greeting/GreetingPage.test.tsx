@@ -31,7 +31,13 @@ test("submits from the keyboard and shows the greeting", async () => {
   expect(fetchHelloWorldMock).toHaveBeenCalledWith("Ada");
 });
 
-test("shows a polite loading message while the request is pending", async () => {
+test("shows the idle empty state before any request", () => {
+  renderPage();
+
+  expect(screen.getByText("No greeting yet")).toBeInTheDocument();
+});
+
+test("disables the form and shows the loading label while the request is pending", async () => {
   let resolveRequest: ((value: Result<HelloWorldOutput>) => void) | undefined;
   fetchHelloWorldMock.mockReturnValue(
     new Promise<Result<HelloWorldOutput>>((resolve) => {
@@ -43,7 +49,8 @@ test("shows a polite loading message while the request is pending", async () => 
   renderPage();
   await user.type(screen.getByLabelText("Name"), "Ada{Enter}");
 
-  expect(await screen.findByRole("status")).toHaveTextContent("Loading…");
+  expect(screen.getByRole("button", { name: /loading/i })).toBeDisabled();
+  expect(screen.getByLabelText("Name")).toBeDisabled();
 
   await act(async () => {
     resolveRequest?.({ ok: true, value: { message: "Hello, Ada!" } });

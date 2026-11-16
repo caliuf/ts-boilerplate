@@ -16,7 +16,7 @@ Il boilerplate e i progetti derivati devono partire da una direzione visiva sobr
 - Palette neutra in OKLCH, definita una sola volta in `apps/web/src/design-system/theme/tokens.css` e mappata alle utility Tailwind con `@theme inline`.
 - Token semantici per superfici, testo, bordi, focus, stati (`destructive`, `success`, `warning`, `info`) e radius. Le feature non usano colori di palette grezzi.
 - Light e dark theme con gli stessi token semantici; default `system`, preferenza persistita da `ThemeProvider` e applicata prima del primo paint.
-- Tipografia sans variable Geist self-hosted; niente CDN di font.
+- Tipografia sans di sistema (`ui-sans-serif`, `system-ui` e fallback): nessun webfont, nessuna dipendenza da CDN; la direzione visiva del caso d'uso è in PDR-0003.
 - Layout mobile-first, larghezza di lettura contenuta, spaziatura coerente, focus visibile e navigazione da tastiera.
 - Componenti di base con varianti esplicite (`Button` con `variant` e `size`), stati disabled, focus, invalid e loading dove applicabili.
 - Icone Lucide con dimensioni coerenti e nomi accessibili sui controlli icon-only.

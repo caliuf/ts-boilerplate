@@ -83,3 +83,5 @@ OKLCH
 riverificate
 retrofitare
 minificazione
+Segoe
+Neue
