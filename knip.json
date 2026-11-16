@@ -17,6 +17,9 @@
     "tests": {
       "entry": ["integration/**/*.test.ts", "e2e/**/*.spec.ts"],
       "ignoreBinaries": ["direnv"]
+    },
+    "apps/web": {
+      "ignoreDependencies": ["happy-dom"]
     }
   }
 }

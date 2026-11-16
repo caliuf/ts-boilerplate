@@ -6,7 +6,7 @@ Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole
 
 - Strict al massimo (`tsconfig.base.json`); ESM puro; estensione `.ts` esplicita negli import relativi.
 - Solo sintassi eliminabile: niente `enum`, namespace, parameter properties, decorator. Union e oggetti `as const` al posto degli enum.
-- Niente alias `tsconfig.paths`: workspace package e `exports` standard.
+- Niente alias `tsconfig.paths` nel backend, nel dominio e nei package: workspace package e `exports` standard. L'unica eccezione è l'alias `@/*` di `apps/web` verso `src/*`, richiesto da shadcn e confinato al bundler frontend (ADR-0009).
 - `import type` espliciti (`verbatimModuleSyntax`).
 
 ## Vietato (codice di produzione; nessuna eccezione senza motivazione in linea)
@@ -26,6 +26,18 @@ Estratto operativo del vademecum per chi scrive codice in questo repo. Le regole
 - Naming parallelo su ogni canale; mappa aggiornata in `docs/PROJECT.md`.
 - Niente cartelle `utils`/`helpers`/`common`; niente barrel interni (gli `src/index.ts` pubblici dei package sono ammessi); registry dichiarativi.
 - UI: per controlli interattivi e primitive visuali condivise usare solo i componenti del design system (`apps/web/src/design-system/`); per la struttura del documento usare normalmente HTML semantico nativo; non creare wrapper React per ogni elemento HTML senza valore aggiunto; interazioni keyboard-first.
+- Design system: `primitives/` per i componenti generici (shadcn/Base UI), `patterns/` per le composizioni riutilizzabili, `theme/` per token e CSS globale, `lib/utils.ts` per `cn`. Le feature non importano `@base-ui/react` direttamente (gate dependency-cruiser) e il design system non importa `app/` o `features/`.
+
+## Frontend e UI
+
+- Tailwind CSS 4 è il vocabolario di styling standard; CSS Modules o CSS nativo restano per i casi in cui sono più leggibili. Niente SCSS, CSS-in-JS runtime o DaisyUI senza ADR.
+- Ogni classe Tailwind deve essere una stringa completa e statica nel sorgente: niente `bg-${color}-500`, concatenazioni o valori derivati da API/input/LLM.
+- Usare i token semantici (`bg-background`, `text-muted-foreground`, `border-border`, `ring-ring`, `destructive`, `success`, `warning`, `info`) e non colori di palette grezzi. Se un valore si ripete, promuoverlo a token o variante.
+- Comporre le classi con `cn` dal punto centrale `design-system/lib/utils.ts`. Usare CVA solo per varianti reali e riutilizzabili.
+- I componenti interattivi passano dal design system; le feature non ricostruiscono focus, tastiera o ARIA. Le icone usano Lucide React, sono decorative con `aria-hidden` o hanno un nome accessibile sul controllo.
+- Rispettare `prefers-reduced-motion` con la variante `motion-reduce:` sui componenti che animano transizioni non essenziali.
+- Non usare `dangerouslySetInnerHTML` con contenuto non fidato e non passare input non validato in `style`, custom properties o nomi di classe.
+- Aggiungere componenti shadcn solo con il CLI e solo quando servono; la procedura e le trappole (import di `cn`, alias) sono in `apps/web/src/design-system/README.md`.
 
 ## Preferenze
 

@@ -11,6 +11,8 @@
 - env.envrc_purpose :: `.envrc` è il file di configurazione direnv committato in root che carica `.env.default`, `.env` e `.envrc.local`.
 - runtime.authoritative :: Node 24 è il runtime autorevole; Bun 1.4.0 è solo compatibility target, non dipendenza di dominio.
 - memory.location :: Kilo Memory è abilitata e salvata in `~/.local/share/kilo/memory/ts-boilerplate-0636824f8fd8/`; il repository memory bank in `docs/memory/` ne è il fallback portatile e versionabile.
+- frontend.stack :: `apps/web` usa React 19 + Vite 8 con Tailwind CSS 4, shadcn/ui su Base UI, CVA, `cn`, Lucide e token semantici in `apps/web/src/design-system/theme/tokens.css`; decisione in ADR-0009, visual language in PDR-0002.
+- frontend.theme :: tema `light | dark | system` applicato prima del primo paint dallo script in `apps/web/index.html`, persistito da `ThemeProvider` in `localStorage` con chiave `project-theme`.
 
 ## Decisions
 
@@ -20,11 +22,13 @@
 - github.main_ruleset :: Ruleset `Default` su `~DEFAULT_BRANCH`: deletion, non_fast_forward, PR (1 approve, CODEOWNERS, dismiss stale, extra approval unattributed; no last-push-approval, no thread resolution), required checks `quality` `integration-and-coverage` `bun-compatibility` `e2e` e `dependency-review` solo sui repository pubblici, bypass user Always. `delete_branch_on_merge` acceso. CodeQL resta slow lane, non è required check.
 - github.branch_naming :: Naming branch `<tipo>/<issue>-<slug>` (tipi = conventional commit); il numero issue GitHub è il progressivo univoco, niente contatori manuali nel nome (race condition con agenti paralleli).
 - github.review_solo_maintainer :: Con un solo code owner la review obbligatoria del ruleset non è self-approvabile: le PR locali del maintainer si mergiano con bypass owner a CI verde (auditato); le PR degli agenti remoti (GitHub App) vanno in review reale.
+- frontend.design_system :: Il design system vive in `apps/web/src/design-system/` con `primitives/`, `patterns/`, `theme/` e `lib/utils.ts`; i componenti shadcn si aggiungono con il CLI e il codice generato diventa proprietà del progetto (ADR-0009).
 
 ## Constraints
 
 - runtime.domain_no_node_builtins :: Domain/application e packages greetings/contracts senza `node:*` né `Bun.*`; I/O dietro adapter (ADR-0002); `just arch` lo verifica.
 - git.moves_with_git_mv :: Spostamenti e rinomine di file sempre con `git mv`, mai delete+ricrea, e quando possibile in un commit dedicato separato dalle modifiche di contenuto, per mantenere l'atomicità dello staging e rename detection, `git log --follow` e `git blame` coerenti. Dettagli in `docs/development/WORKFLOWS.md` § Movimenti e rinomine di file.
-- github.gate_files_protected :: CODEOWNERS protegge i file che definiscono gate e toolchain (`justfile`, `.githooks/`, `biome.json`, `.oxlintrc.json`, `.markdownlint-cli2.jsonc`, `cspell.json`, `knip.json`, `dependency-cruiser.config.mjs`, `coverage-thresholds.json`, `lychee.toml`, `tools/scripts/`, `tools/cspell/`, `.mise.toml`, `.node-version`, `.kilo/{kilo.jsonc,scripts,command}`, `.codescene-thresholds`, `conventions.conf`) e il blueprint congelato `docs/init/`.
+- github.gate_files_protected :: CODEOWNERS protegge i file che definiscono gate e toolchain (`justfile`, `.githooks/`, `biome.json`, `.oxlintrc.json`, `.markdownlint-cli2.jsonc`, `cspell.json`, `knip.json`, `dependency-cruiser.config.mjs`, `coverage-thresholds.json`, `vitest.config.ts`, `apps/web/{components.json,vite.config.ts,tsconfig.json}`, `lychee.toml`, `tools/scripts/`, `tools/cspell/`, `.mise.toml`, `.node-version`, `.kilo/{kilo.jsonc,scripts,command}`, `.codescene-thresholds`, `conventions.conf`) e il blueprint congelato `docs/init/`.
+- frontend.ds_boundaries :: Le feature non importano `@base-ui/react` direttamente e il design system non importa `app/` o `features/`; entrambe le regole sono gate dependency-cruiser (`just arch`). Le classi Tailwind devono essere statiche e i colori semantici (Vademecum CSS §5.2, §6).
 
 ## Open Questions

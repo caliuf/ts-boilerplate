@@ -50,7 +50,7 @@ Segui la guida passo passo con prompt pronti per l'agente: **[`docs/development/
 | [`apps/cli`](./apps/cli/) | CLI: un bin con subcommand |
 | [`apps/api`](./apps/api/) | API HTTP (Hono) |
 | [`apps/mcp`](./apps/mcp/) | Server MCP (stdio) |
-| [`apps/web`](./apps/web/) | UI web (React + Vite) |
+| [`apps/web`](./apps/web/) | UI web (React + Vite + Tailwind CSS, design system shadcn/Base UI) |
 | [`packages/contracts`](./packages/contracts/) | DTO, schemi Zod, tassonomia errori |
 | [`packages/greetings`](./packages/greetings/) | Bounded context di riferimento |
 | [`packages/adapter-pino`](./packages/adapter-pino/) | Adapter di logging |

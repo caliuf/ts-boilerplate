@@ -12,3 +12,4 @@ Decisioni architetturali del progetto, create con il comando `/create-adr`.
 | [0006](0006-codescene-mcp.md) | CodeScene MCP come autorità di Code Health per gli agenti | active |
 | [0007](0007-wrapper-cli-bin-direnv.md) | Wrapper CLI in bin/ e gestione environment con direnv | active |
 | [0008](0008-memory-bank-locale.md) | Repository-local memory bank come fallback a Kilo Memory | active |
+| [0009](0009-baseline-frontend-tailwind-shadcn.md) | Baseline frontend: Tailwind CSS 4, shadcn/ui su Base UI, token semantici e test UI | active |

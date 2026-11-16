@@ -78,3 +78,8 @@ lintare
 componentistici
 parsati
 lintati
+WCAG
+OKLCH
+riverificate
+retrofitare
+minificazione

@@ -16,6 +16,8 @@ apps/cli, api, mcp, web  adapter di ingresso + composition root sottili
 tests/                 suite integration ed E2E
 ```
 
+La UI web usa React + Vite con un design system locale in `apps/web/src/design-system/`: Tailwind CSS 4, primitive shadcn/Base UI, token semantici e tema light/dark (ADR-0009, PDR-0002).
+
 ## Un caso d'uso, molte superfici
 
 Ogni capability esiste **una sola volta** come caso d'uso nell'application layer (`<verbo>-<nome>.ts`, un file per caso d'uso, test colocato). CLI, API, MCP e UI sono adapter di ingresso intercambiabili con la stessa anatomia:

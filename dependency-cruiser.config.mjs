@@ -61,6 +61,25 @@ export default {
       to: { dependencyTypes: ["core"] },
     },
     {
+      name: "features-use-design-system",
+      severity: "error",
+      comment:
+        "Features compose design-system primitives; they never import Base UI directly (Vademecum CSS §4.2, §15.3).",
+      from: { path: "^apps/web/src/features/" },
+      to: {
+        path: "node_modules/.*@base-ui/react/",
+        dependencyTypes: ["npm"],
+      },
+    },
+    {
+      name: "design-system-independent",
+      severity: "error",
+      comment:
+        "The design system must not depend on app or feature code; dependencies point inward (Vademecum CSS §7.2).",
+      from: { path: "^apps/web/src/design-system/" },
+      to: { path: "^apps/web/src/(app|features)/" },
+    },
+    {
       name: "no-orphans",
       severity: "warn",
       comment: "Modules not reachable from any entry point are suspicious.",
@@ -72,6 +91,8 @@ export default {
           "(^|/)(vite|vitest|playwright)\\.config\\.ts$",
           "\\.test\\.tsx?$",
           "\\.spec\\.tsx?$",
+          "(^|/)setup\\.ts$",
+          "\\.css$",
           "(^|/)index\\.html$",
         ],
       },

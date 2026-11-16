@@ -17,7 +17,12 @@
     "typescript/no-unnecessary-type-assertion": "error",
     "oxc/no-async-await": "off",
     "react/react-in-jsx-scope": "off",
-    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }],
+    "import/no-unassigned-import": [
+      "error",
+      {
+        "allow": ["**/*.css", "@testing-library/jest-dom/vitest"]
+      }
+    ],
     "unicorn/filename-case": [
       "error",
       { "cases": { "kebabCase": true, "camelCase": true, "pascalCase": true } }

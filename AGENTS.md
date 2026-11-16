@@ -59,7 +59,7 @@ Boilerplate placeholders to customize:
 
 ## Architecture in one paragraph
 
-One use case = one file in `packages/<context>/src/application/`. The kept surfaces (CLI, HTTP API, MCP and/or web UI) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every kept surface and a row in the surface map of `docs/PROJECT.md`.
+One use case = one file in `packages/<context>/src/application/`. The kept surfaces (CLI, HTTP API, MCP and/or web UI) are thin interchangeable entry points: parse → validate (shared schema) → call the use case → map the result. DTOs, schemas and the error taxonomy live in `packages/contracts`. Dependency rules are enforced by `just arch`; the full boundary table is `docs/architecture/BOUNDARIES.md`. Every new use case gets parallel naming on every kept surface and a row in the surface map of `docs/PROJECT.md`. The web UI is React + Vite with a local design system in `apps/web/src/design-system/` (Tailwind CSS 4, shadcn/ui on Base UI, semantic tokens, component tests and axe E2E); features compose it and never rebuild interactive primitives.
 
 ## CodeScene
 

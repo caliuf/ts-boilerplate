@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 import thresholds from "./coverage-thresholds.json" with { type: "json" };
 
@@ -8,7 +8,8 @@ export default defineConfig({
       {
         test: {
           name: "unit",
-          include: ["packages/**/*.test.ts", "apps/**/*.test.ts"],
+          include: ["packages/**/*.test.ts", "apps/**/*.test.ts", "tools/**/*.test.ts"],
+          exclude: [...configDefaults.exclude, "apps/web/**"],
         },
       },
       {
@@ -17,6 +18,14 @@ export default defineConfig({
           include: ["tests/integration/**/*.test.ts"],
           testTimeout: 30_000,
           hookTimeout: 30_000,
+        },
+      },
+      {
+        test: {
+          name: "web",
+          include: ["apps/web/src/**/*.test.ts", "apps/web/src/**/*.test.tsx"],
+          environment: "happy-dom",
+          setupFiles: ["apps/web/src/test/setup.ts"],
         },
       },
     ],
@@ -35,8 +44,9 @@ export default defineConfig({
         "apps/api/src/main.ts",
         "apps/mcp/src/server.ts",
         "apps/cli/src/cli.ts",
-        // apps/web is covered by Playwright E2E (DOM code cannot run under
-        // Node V8 coverage).
+        // apps/web has component tests (Vitest + Testing Library) and E2E
+        // (Playwright); it is deliberately outside the backend coverage ratchet
+        // until the frontend gets its own measured baseline.
         "apps/web/**",
         // Test doubles: exercised by definition whenever tests run.
         "packages/testkit/**",

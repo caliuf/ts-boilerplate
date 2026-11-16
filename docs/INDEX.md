@@ -35,6 +35,7 @@ Vista sullo stato corrente: riporta solo le decisioni **attive**. Per lo zoom-in
 - [`development/GETTING-STARTED.md`](./development/GETTING-STARTED.md) — onboarding tecnico.
 - [`development/ENVIRONMENT.md`](./development/ENVIRONMENT.md) — gestione environment, direnv e wrapper `bin/`.
 - [`development/CODING.md`](./development/CODING.md) — regole di codice e convenzioni.
+- [`apps/web/src/design-system/README.md`](../apps/web/src/design-system/README.md) — design system, token e procedura shadcn.
 - [`development/TESTING.md`](./development/TESTING.md) — strategia di test e coverage.
 - [`development/WORKFLOWS.md`](./development/WORKFLOWS.md) — gate, CI/CD, task schedulati.
 - [`development/AGENT-AUTOMATION.md`](./development/AGENT-AUTOMATION.md) — script di automazione del flusso per agenti (briefing, PR, finish-task).

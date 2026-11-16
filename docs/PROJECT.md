@@ -6,13 +6,14 @@ va riscritto per descrivere il TUO sistema (è il primo documento che un
 
 ## Obiettivo
 
-Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente tramite agenti AI: CLI, API HTTP, server MCP e UI web minime ma reali, con tutti i gate di qualità del vademecum già configurati e verdi.
+Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente tramite agenti AI: CLI, API HTTP, server MCP e UI web minime ma reali, con tutti i gate di qualità del vademecum già configurati e verdi. La UI parte dalla baseline frontend del Vademecum CSS (Tailwind CSS 4, shadcn/ui su Base UI, token semantici, dark mode, test componentistici e audit axe) così che i progetti derivati non debbano ricostruirla.
 
 ## Non-obiettivi
 
 - Persistenza, autenticazione, multiutente: non esistono data store.
 - SSR, SEO: la UI è una SPA Vite.
 - Coprire ogni tool opzionale del vademecum (SonarQube, CodeCharta, ecc.): documentati come MAY in `docs/development/WORKFLOWS.md`.
+- Storybook, visual regression, React Hook Form, Sonner, TanStack Table e Motion: MAY del Vademecum CSS, non parte della baseline finché non esiste un caso d'uso reale.
 
 ## Deployable esistenti
 
@@ -21,7 +22,7 @@ Boilerplate di riferimento per progetti full-TypeScript sviluppati interamente t
 | CLI | `apps/cli` | `bin/project-hello-world --name Ada` | Wrapper del bin, albero di subcommand |
 | API HTTP | `apps/api` | `just dev` (API + web) | Hono su Node, API su `:3100` |
 | Server MCP | `apps/mcp` | `just node apps/mcp/src/server.ts` | Trasporto stdio |
-| Web UI | `apps/web` | `just dev` (API + web) | React + Vite, UI su `:5100` |
+| Web UI | `apps/web` | `just dev` (API + web) | React + Vite + Tailwind/shadcn, UI su `:5100` |
 
 La CLI ha anche wrapper bash in `bin/` (`project-*` oggi, `<nome>-*` dopo l'adozione) per l'uso da PATH globale; vedi [`docs/development/ENVIRONMENT.md`](./development/ENVIRONMENT.md).
 
@@ -80,7 +81,7 @@ Gli indici autorevoli, con lo stato di ogni decisione, sono [`architecture/adr/R
 
 ## Budget
 
-- Performance: nessun probe ancora (performance guard non applicabile).
+- Performance: nessun probe ancora (performance guard non applicabile). La build web riporta le dimensioni di CSS e JS; un budget kilobyte va fissato nel progetto derivato dopo la prima build rappresentativa (Vademecum CSS §14.6).
 - Test: precommit ≤ 10s · smoke ≤ 20s · prepush ≤ 60s · suite CI target ≤ 10 min (il testing guard misura solo la suite Vitest, non l'intera pipeline CI).
 - Coverage: cricchetto in `coverage-thresholds.json` (baseline 95/95/94/76).
 
@@ -89,3 +90,4 @@ Gli indici autorevoli, con lo stato di ogni decisione, sono [`architecture/adr/R
 | Funzionalità | Stato |
 |---|---|
 | hello-world su CLI/API/MCP/UI | ✅ completo |
+| Baseline frontend: design system, build, tema chiaro/scuro, test UI e axe | ✅ completo (ADR-0009, PDR-0002) |

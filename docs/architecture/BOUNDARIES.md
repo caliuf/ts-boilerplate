@@ -19,6 +19,8 @@ domain  ←  application + ports  ←  adapters  ←  apps (composition root)
 | `domain-is-pure` | npm/`node:*`/unknown nel dominio | errore |
 | `domain-no-cross-layer` | dominio che importa `application` o `ports` | errore |
 | `application-no-core-modules` | `node:*` in `application` e `ports` | errore |
+| `features-use-design-system` | import diretti di `@base-ui/react` dentro `apps/web/src/features/` | errore |
+| `design-system-independent` | import di `apps/web/src/app/` o `apps/web/src/features/` dentro `apps/web/src/design-system/` | errore |
 | `no-orphans` | moduli irraggiungibili (warning: segnale di codice morto) | warning |
 
 Regole correlate applicate da altri gate:
@@ -26,6 +28,8 @@ Regole correlate applicate da altri gate:
 - niente `console.log` fuori da `tools/scripts` e `apps/web` → Oxlint `no-console` (`just lint`);
 - niente `any`, `@ts-ignore`, non-null assertion fuori dai test → Oxlint (`just lint`);
 - codice morto (file, export, dipendenze) → Knip (`just dead-code`);
+- confini della UI: primitive Base UI solo nel design system, design system indipendente da app e feature → dependency-cruiser (`just arch`);
+- accessibilità statica JSX → Oxlint `jsx-a11y` (`just lint`); build UI → `just build`; test componentistici → `just test-web`; audit axe → `just test-e2e`.
 - segreti → Gitleaks (`just secrets`).
 
 ## Aggiungere una regola

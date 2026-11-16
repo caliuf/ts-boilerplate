@@ -59,6 +59,17 @@ just node apps/cli/src/cli.ts hello-world --name Ada
 
 Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per la catena di caricamento di `.env.default`, `.env` e `.envrc.local`. L'environment runtime è validato prima di entrare nei confini applicativi; la configurazione del bundler resta tooling e deve rifiutare valori non utilizzabili.
 
+## Frontend
+
+La UI è React + Vite con Tailwind CSS 4 e shadcn/ui su Base UI (ADR-0009). Il design system vive in `apps/web/src/design-system/`:
+
+- `theme/tokens.css` è l'unica fonte per palette, radius, tipografia e stati; `theme/global.css` importa Tailwind e mappa i token con `@theme inline`;
+- `primitives/` contiene i componenti generici, `patterns/` le composizioni riutilizzabili, `lib/utils.ts` il punto centrale per `cn`;
+- `apps/web/components.json` configura il CLI shadcn e gli alias; la procedura per aggiungere un componente è in `apps/web/src/design-system/README.md`;
+- il tema `light | dark | system` è applicato prima del primo paint e persistito da `ThemeProvider`.
+
+Per modificare l'aspetto globale cambia i token, non le feature. I test dei componenti sono `just test-web`; i flussi E2E e l'audit axe sono `just test-e2e`.
+
 ## Recipe
 
 `just` è l'unica interfaccia operativa: gli script in `package.json` sono dettagli implementativi, non chiamarli direttamente.
@@ -97,6 +108,7 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 | `just test-unit` | Piccola suite specialistica |
 | `just test-integration` | Suite principale |
 | `just test-related` | Test collegati ai file in stage |
+| `just test-web` | Test componentistici UI (Vitest, Testing Library, happy-dom) |
 | `just test-e2e` | Flussi end-to-end (Playwright) |
 | `just test-live` | Servizi reali/LLM; mai implicito (oggi: nessuno) |
 | `just coverage` | Suite con coverage e soglie a cricchetto |
@@ -109,7 +121,8 @@ Configurazione: vedi [`docs/development/ENVIRONMENT.md`](./ENVIRONMENT.md) per l
 
 | Comando | Funzione |
 | --- | --- |
-| `just build` | Build di produzione dei workspace con script build (oggi `apps/web`) |
+| `just build` | Build di produzione dei workspace con script build (oggi `apps/web`, Vite + Tailwind) |
+| `just ui-check` | Ciclo completo UI: format, lint, typecheck, component test e build |
 
 ### Gate
 
@@ -157,7 +170,7 @@ conventions.conf  Directory di ADR e PDR lette dai comandi Kilo (/create-adr, /c
 apps/cli        CLI (un bin, subcommand in src/commands/<nome>.ts)
 apps/api        API HTTP (Hono; route in src/routes/)
 apps/mcp        server MCP stdio (tool in src/tools/)
-apps/web        UI (Vite+React; src/features/<feature>/, src/design-system/)
+apps/web        UI (Vite+React+Tailwind; src/features/<feature>/, src/design-system/)
 packages/contracts    DTO, schemi Zod, tassonomia errori
 packages/greetings    bounded context di riferimento (domain/application/ports)
 packages/adapter-pino adapter Logger → pino

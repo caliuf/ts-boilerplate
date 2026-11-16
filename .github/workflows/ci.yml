@@ -34,7 +34,7 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # tag: v5.2.4
       - run: pnpm install --frozen-lockfile
-      - run: just test-unit test-integration smoke coverage
+      - run: just test-unit test-integration test-web smoke coverage
 
   bun-compatibility:
     runs-on: ubuntu-latest

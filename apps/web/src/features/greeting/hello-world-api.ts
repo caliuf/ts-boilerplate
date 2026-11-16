@@ -2,6 +2,18 @@ import type { HelloWorldOutput, Result } from "@project/contracts";
 import { helloWorldOutputSchema, problemDetailsSchema } from "@project/contracts";
 
 /**
+ * Reads the body without trusting it. Proxies and upstream failures can return
+ * HTML or an empty body; a parse error must never escape as an exception.
+ */
+async function readJson(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Typed API client for the greeting feature. Responses are validated against
  * the shared schemas: external data is never trusted (Vademecum §3,
  * "Contratti e dati esterni"). Types are never redefined manually — they come
@@ -16,7 +28,7 @@ export async function fetchHelloWorld(name?: string): Promise<Result<HelloWorldO
     return { ok: false, error: { code: "INTERNAL", message: "network error" } };
   }
 
-  const raw: unknown = await response.json();
+  const raw: unknown = await readJson(response);
   if (!response.ok) {
     const problem = problemDetailsSchema.safeParse(raw);
     return {

@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { GreetingPage } from "./features/greeting/GreetingPage.tsx";
+import { App } from "./app/app.tsx";
 
-import "./design-system/style.css";
+import "./design-system/theme/global.css";
 
 const container = document.getElementById("root");
 if (!container) {
@@ -12,6 +12,6 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <GreetingPage />
+    <App />
   </StrictMode>,
 );

@@ -154,6 +154,14 @@ dev:
 build:
     pnpm -r --if-present run build
 
+# Full UI loop: format, lint, typecheck, component tests and build
+ui-check:
+    just format-check
+    just lint
+    just typecheck
+    just test-web
+    just build
+
 # --- static analysis -------------------------------------------------------------
 
 # Apply format and safe fixes
@@ -191,7 +199,8 @@ docs-check:
     pnpm exec markdownlint-cli2
     pnpm exec cspell lint --no-progress "**/*.md"
     if command -v lychee >/dev/null 2>&1; then
-      lychee --offline --no-progress --include-fragments .
+      # --root-dir resolves Vite public assets (e.g. /favicon.svg in index.html)
+      lychee --offline --no-progress --include-fragments --root-dir apps/web/public .
     else
       if [ "${CI:-}" = "true" ]; then
         echo "❌ lychee not found in CI — install the pinned toolchain with mise" >&2
@@ -286,6 +295,10 @@ test-related:
       exit 0
     fi
     pnpm exec vitest related --run $files
+
+# Web component tests (Vitest + Testing Library, happy-dom)
+test-web:
+    pnpm exec vitest run --project web
 
 # End-to-end flows (Playwright)
 test-e2e:
@@ -400,6 +413,7 @@ prepush:
     tools/scripts/run-checks.sh \
       "just test-unit" \
       "just test-integration" \
+      "just test-web" \
       "just smoke" \
       "just coverage" \
       "just build" || rc=1
@@ -410,6 +424,7 @@ ci: format-check lint shell-check typecheck dead-code arch docs-check workflows-
     just build
     just test-unit
     just test-integration
+    just test-web
     just coverage
     just smoke
     just bun-smoke

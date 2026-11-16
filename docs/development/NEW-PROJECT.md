@@ -112,6 +112,7 @@ Cose da rinominare:
 - prefisso URN `urn:project:` in `packages/contracts`;
 - nome del server MCP in `apps/mcp/src/create-server.ts`;
 - titolo in `apps/web/index.html` e `name` nel `package.json` radice;
+- direzione visiva in `apps/web/src/design-system/theme/tokens.css` e PDR-0002: il derivato sostituisce la palette neutra del boilerplate e registra la propria visual language, senza ricostruire il design system;
 - prefisso dei wrapper in `bin/` (`project-*` → `<nome>-*`) e commento `META` nello script;
 - handle in `.github/CODEOWNERS` (`@caliuf` → il maintainer reale). Un CODEOWNERS con handle inesistente rende inutilizzabile "require review from code owners";
 - contatto `<SECURITY_CONTACT>` in `SECURITY.md`;
@@ -125,7 +126,7 @@ Dopo il rename, esegui di nuovo la ricerca e non procedere se restano placeholde
 Prompt pronto:
 
 ```text
-Adotta il boilerplate per il progetto "<NOME>": rinomina lo scope npm `@project` in `@<nome>` in tutti i package.json e import, il bin della CLI da `project` a `<nome>` (apps/cli/package.json, help in cli.ts), il prefisso URN `urn:project:` in packages/contracts, il nome del server MCP in apps/mcp/src/create-server.ts, il titolo in apps/web/index.html e il name nel package.json radice, e i file in `bin/` da `project-*` a `<nome>-*`. Sostituisci @caliuf in .github/CODEOWNERS con @<handle> e `<SECURITY_CONTACT>` in SECURITY.md con il contatto reale. Risolvi o rimuovi tutti i commenti `META:` nei file vivi, senza toccare docs/init. Aggiorna README.md e docs/PROJECT.md di conseguenza, rigenera il lockfile con `just setup` e richiudi la ricerca dei placeholder. Non toccare ancora GitHub remote, CodeScene id o lo store nativo di Kilo Memory. Chiudi con `just ci` verde.
+Adotta il boilerplate per il progetto "<NOME>": rinomina lo scope npm `@project` in `@<nome>` in tutti i package.json e import, il bin della CLI da `project` a `<nome>` (apps/cli/package.json, help in cli.ts), il prefisso URN `urn:project:` in packages/contracts, il nome del server MCP in apps/mcp/src/create-server.ts, il titolo in apps/web/index.html e il name nel package.json radice, e i file in `bin/` da `project-*` a `<nome>-*`. Sostituisci @caliuf in .github/CODEOWNERS con @<handle> e `<SECURITY_CONTACT>` in SECURITY.md con il contatto reale. Risolvi o rimuovi tutti i commenti `META:` nei file vivi, senza toccare docs/init. Aggiorna README.md e docs/PROJECT.md di conseguenza, personalizza i token in apps/web/src/design-system/theme/tokens.css e la PDR-0002 per la visual language del progetto, rigenera il lockfile con `just setup` e richiudi la ricerca dei placeholder. Non toccare ancora GitHub remote, CodeScene id o lo store nativo di Kilo Memory. Chiudi con `just ci` verde.
 ```
 
 ## 3. Descrivi il TUO progetto (la parte che decide l'umano)

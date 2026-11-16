@@ -4,7 +4,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Project web UI" />
     <title>project</title>
+    <script>
+      /*
+       * Theme bootstrap: apply the stored/system theme before the first paint
+       * to avoid a flash. Keep in sync with ThemeProvider. If a CSP is added,
+       * this inline script needs a nonce or hash (Vademecum CSS §6.3).
+       */
+      (() => {
+        try {
+          const stored = localStorage.getItem("project-theme");
+          const preference =
+            stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+          const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const dark = preference === "dark" || (preference === "system" && systemDark);
+          document.documentElement.classList.toggle("dark", dark);
+          const themeColor = document.querySelector('meta[name="theme-color"]');
+          themeColor?.setAttribute("content", dark ? "#1c1c1c" : "#ffffff");
+        } catch {
+          /* localStorage can be unavailable; CSS still honors prefers-color-scheme */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
