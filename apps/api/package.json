@@ -12,11 +12,11 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@hono/node-server": "2.1.6",
+    "@hono/node-server": "2.1.9",
     "@project/adapter-pino": "workspace:*",
     "@project/contracts": "workspace:*",
     "@project/greetings": "workspace:*",
-    "hono": "4.13.16",
+    "hono": "4.13.19",
     "zod": "4.6.7"
   }
 }

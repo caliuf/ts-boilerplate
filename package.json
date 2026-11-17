@@ -3,24 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@12.4.2",
+  "packageManager": "pnpm@12.21.0",
   "engines": {
     "node": "^26.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.5",
+    "@biomejs/biome": "2.6.8",
     "@cspell/dict-it-it": "^3.1.7",
     "@project/contracts": "workspace:*",
     "@project/greetings": "workspace:*",
     "@project/testkit": "workspace:*",
     "@types/node": "26.6.6",
     "@vitest/coverage-v8": "5.1.0",
-    "cspell": "10.4.0",
-    "dependency-cruiser": "18.7.2",
-    "knip": "6.44.1",
-    "markdownlint-cli2": "0.24.0",
-    "oxlint": "1.91.0",
-    "oxlint-tsgolint": "7.0.2005",
+    "cspell": "10.5.1",
+    "dependency-cruiser": "18.8.0",
+    "knip": "6.45.1",
+    "markdownlint-cli2": "0.24.1",
+    "oxlint": "1.94.0",
+    "oxlint-tsgolint": "7.0.2007",
     "typescript": "7.0.2",
     "vitest": "5.1.0"
   }

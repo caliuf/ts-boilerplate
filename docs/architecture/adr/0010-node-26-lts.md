@@ -17,14 +17,14 @@ Node 26 mantiene stabile il type stripping già usato dal progetto e rimuove `--
 
 ## Decision
 
-**Il runtime autorevole del progetto è Node 26.13.1, fissato in `.node-version` e `.mise.toml`; il resto dello stack di ADR-0001 resta invariato: TypeScript 7.0.2, pnpm 12.4.2, ESM, just e mise.**
+**Il runtime autorevole del progetto è Node 26.13.1, fissato in `.node-version` e `.mise.toml`; il resto dello stack di ADR-0001 resta invariato: TypeScript 7.0.2, pnpm 12.21.0, ESM, just e mise.**
 
 Dettagli:
 
 - `package.json#engines` delimita la major supportata con `^26.0.0`;
 - la dipendenza diretta `@types/node` è allineata alla nuova major con 26.6.6; l'ignore Dependabot delle major resta per evitare aggiornamenti dei tipi separati dal runtime, che verranno aggiornati insieme nella prossima PR di migrazione;
 - esecuzione TypeScript senza build step tramite type stripping stabile di Node 26 (solo sintassi eliminabile, `erasableSyntaxOnly`);
-- Bun 1.4.0 resta il compatibility target (`just bun-smoke`), mai nel dominio né nell'application layer;
+- Bun 1.4.4 resta il compatibility target (`just bun-smoke`), mai nel dominio né nell'application layer;
 - `libatomic1` entra nei prerequisiti Debian/Ubuntu installati da `just install`;
 - dependency-cruiser continua a usare TypeScript 6.0.3 via `packageExtensions` in `pnpm-workspace.yaml`, come previsto da ADR-0001.
 

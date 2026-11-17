@@ -9,3 +9,8 @@ packageExtensions:
   dependency-cruiser:
     dependencies:
       typescript: 6.0.3
+
+minimumReleaseAgeExclude:
+  - dependency-cruiser@18.8.0
+  - lucide-react@1.74.0
+  - "@hono/node-server@2.1.9"

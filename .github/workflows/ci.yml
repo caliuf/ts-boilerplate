@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # tag: v5.2.4
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # tag: v5.2.9
       - run: pnpm install --frozen-lockfile
       - run: just format-check lint shell-check typecheck dead-code arch docs-check workflows-check secrets
       - run: just build
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # tag: v5.2.4
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # tag: v5.2.9
       - run: pnpm install --frozen-lockfile
       - run: just test-unit test-integration test-web smoke coverage
 
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # tag: v5.2.4
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # tag: v5.2.9
       - run: pnpm install --frozen-lockfile
       - run: just bun-smoke
 
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # tag: v5.2.4
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # tag: v5.2.9
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @project/tests exec playwright install --with-deps chromium
       - run: just test-e2e
@@ -78,4 +78,4 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/dependency-review-action@cc4f6536e38d1126c5e3b0683d469a14f23bfea4 # tag: v3
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # tag: v5.0.0

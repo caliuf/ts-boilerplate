@@ -3,12 +3,12 @@
 # If you do not use mise, install the same versions with your package manager.
 [tools]
 node = "26.13.1"
-pnpm = "12.4.2"
-just = "1.58.0"
-direnv = "2.37.1"
-bun = "1.4.0"
+pnpm = "12.21.0"
+just = "1.59.0"
+direnv = "2.38.2"
+bun = "1.4.4"
 gitleaks = "8.30.1"
 actionlint = "1.7.12"
-zizmor = "1.30.0"
+zizmor = "1.32.0"
 lychee = "0.24.2"
 shellcheck = "0.11.0"
