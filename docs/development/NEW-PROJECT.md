@@ -241,7 +241,7 @@ gh api repos/<owner>/<nome>/dependency-graph/sbom \
 
 404/403 = graph non attivo. Il tentativo `security_and_analysis.dependency_graph.enabled` è documentato ma non efficace qui (vedi [`GITHUB-CLI.md`](./GITHUB-CLI.md)).
 
-`.github/dependabot.yml` è già nel repo: version updates settimanali per npm e GitHub Actions. Non duplicarlo. Resta l'ignore delle major di `@types/node` (ADR-0001) finché Node 24 è il runtime autorevole.
+`.github/dependabot.yml` è già nel repo: version updates settimanali per npm e GitHub Actions. Non duplicarlo. Le major di `@types/node` restano ignorate per evitare aggiornamenti dei tipi separati dal runtime; l'allineamento va fatto nella PR dedicata di migrazione (ADR-0010).
 
 ### 5.5 Ruleset di `main`
 

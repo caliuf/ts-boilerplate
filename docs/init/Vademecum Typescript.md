@@ -51,7 +51,7 @@ Tutto ciò che governa il lavoro dell'agente è di tre tipi. Questo modello è l
 
 ### Policy Node.js
 
-Un nuovo progetto parte sempre con la **più recente Active LTS**, non con la release `Current`. Al momento della verifica, **Node 24 è Active LTS**; Node 26 è `Current` e il passaggio ad Active LTS è previsto per il **28 ottobre 2026**. Versione major e patch devono essere fissate in `.node-version`, mentre `package.json#engines` delimita la major supportata. ([github.com](https://github.com/nodejs/Release))
+Un nuovo progetto parte sempre con la **più recente Active LTS**, non con la release `Current`. Al momento della verifica (17 novembre 2026), **Node 26 «Lithium» è Active LTS** dal 28 ottobre 2026 (ultima patch 26.13.1, supporto fino al 30 aprile 2029); **Node 24 «Krypton» è passato a Maintenance LTS** il 20 ottobre 2026 (supporto fino al 30 aprile 2028). Versione major e patch devono essere fissate in `.node-version`, mentre `package.json#engines` delimita la major supportata. I binari ufficiali Linux di Node 26 sono linkati a `libatomic`: sui sistemi Debian/Ubuntu serve il pacchetto `libatomic1`. ([calendario release](https://github.com/nodejs/Release/blob/main/schedule.json), [release Node 26.13.1](https://nodejs.org/en/blog/release/v26.13.1), [nota su `libatomic`](https://nodejs.org/en/blog/release/v26.13.0))
 
 Gli upgrade:
 

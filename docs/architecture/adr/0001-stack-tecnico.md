@@ -2,8 +2,9 @@
 type: ADR
 id: "0001"
 title: "Stack tecnico: Node 24 LTS, TypeScript 7, pnpm, ESM, just, mise"
-status: active
+status: superseded
 date: 2026-08-20
+superseded_by: "0010"
 ---
 
 ## Context

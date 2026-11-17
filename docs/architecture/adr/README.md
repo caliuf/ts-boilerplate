@@ -4,7 +4,7 @@ Decisioni architetturali del progetto, create con il comando `/create-adr`.
 
 | ADR | Titolo | Stato |
 | --- | ------ | ----- |
-| [0001](0001-stack-tecnico.md) | Stack tecnico: Node 24 LTS, TypeScript 7, pnpm, ESM, just, mise | active |
+| [0001](0001-stack-tecnico.md) | Stack tecnico: Node 24 LTS, TypeScript 7, pnpm, ESM, just, mise | superseded by [0010](0010-node-26-lts.md) |
 | [0002](0002-architettura-porte-adapters.md) | Architettura: modular monolith, functional core / imperative shell, ports & adapters | active |
 | [0003](0003-zod-validazione.md) | Zod come unica libreria di validazione schema | active |
 | [0004](0004-tassonomia-errori-exit-codes.md) | Tassonomia errori condivisa ed exit code della CLI | active |
@@ -13,3 +13,4 @@ Decisioni architetturali del progetto, create con il comando `/create-adr`.
 | [0007](0007-wrapper-cli-bin-direnv.md) | Wrapper CLI in bin/ e gestione environment con direnv | active |
 | [0008](0008-memory-bank-locale.md) | Repository-local memory bank come fallback a Kilo Memory | active |
 | [0009](0009-baseline-frontend-tailwind-shadcn.md) | Baseline frontend: Tailwind CSS 4, shadcn/ui su Base UI, token semantici e test UI | active |
+| [0010](0010-node-26-lts.md) | Stack tecnico: Node 26 LTS, TypeScript 7, pnpm, ESM, just, mise | active |

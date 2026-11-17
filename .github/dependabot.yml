@@ -8,13 +8,11 @@ updates:
       default-days: 7
     open-pull-requests-limit: 5
     groups:
-      # Compatible updates batched; major updates always get explicit review.
+      # Raggruppa patch/minor compatibili; le major non ignorate restano separate per review.
       patch-and-minor:
         update-types: ["patch", "minor"]
     ignore:
-      # ADR-0001 pins Node 24 as the authoritative runtime. Keep @types/node
-      # aligned with the runtime major; upgrade it only in the dedicated Node
-      # migration PR, never via an automated patch-and-minor batch.
+      # Le major di @types/node seguono il runtime e si aggiornano nella PR dedicata (ADR-0010).
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions

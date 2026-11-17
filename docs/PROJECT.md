@@ -73,7 +73,7 @@ Aggiorna questa tabella a ogni nuovo caso d'uso (il docs guard verifica la coere
 
 Gli indici autorevoli, con lo stato di ogni decisione, sono [`architecture/adr/README.md`](./architecture/adr/README.md) (decisioni architetturali) e [`product/pdr/README.md`](./product/pdr/README.md) (decisioni di prodotto). Questa vista riporta solo i riferimenti essenziali per orientarsi:
 
-- [ADR-0001](./architecture/adr/0001-stack-tecnico.md) — stack: Node 24 LTS, TS 7, pnpm, ESM, just, mise.
+- [ADR-0010](./architecture/adr/0010-node-26-lts.md) — stack: Node 26 LTS, TS 7, pnpm, ESM, just, mise.
 - [ADR-0002](./architecture/adr/0002-architettura-porte-adapters.md) — modular monolith, ports & adapters.
 - [ADR-0006](./architecture/adr/0006-codescene-mcp.md) — CodeScene MCP come autorità di Code Health per gli agenti.
 - [ADR-0008](./architecture/adr/0008-memory-bank-locale.md) — repository-local memory bank come fallback a Kilo Memory.

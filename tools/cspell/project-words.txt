@@ -85,3 +85,6 @@ retrofitare
 minificazione
 Segoe
 Neue
+libatomic
+libatomic1
+linkati

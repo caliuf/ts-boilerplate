@@ -46,7 +46,7 @@ Coverage. Non puoi raccogliere V8 sotto Bun. La suite di qualità resterebbe Nod
 CI. Oggi un job bun-smoke. Dual full-runtime = matrice (o job duplicati) su integration/E2E, budget tempo, flake surface.
 Il vademecum scarta Deno come terzo runtime per lo stesso motivo: costo senza beneficio dimostrato. Dual full Node+Bun è la stessa classe di costo.
 
-Quindi: sì si può, ma non come switch in .env. È una policy di prodotto/architettura (nuova ADR che ridefinisce ADR-0001), con adapter di ingresso per runtime e CI a due binari. Non è “configurabile” nel senso di un flag.
+Quindi: sì si può, ma non come switch in .env. È una policy di prodotto/architettura (nuova ADR che ridefinisce ADR-0010), con adapter di ingresso per runtime e CI a due binari. Non è “configurabile” nel senso di un flag.
 
 Switch completo a Bun?
 Solo se l’intenzione è Bun in produzione, non “provare Bun in locale”.
@@ -64,7 +64,7 @@ Dopo. Anzi: continua su Node e tieni vivo bun-smoke.
 Motivi, in ordine:
 
 Oggi lo spike non misura nulla di difficile. Hello-world + Hono + pino + MCP stdio è il pezzo facile. I fallimenti Bun arrivano con DB, worker, SDK nativi, inspector, node:sqlite, test runner, deploy. Farlo ora ti dà un “funziona” falso.
-Il costo di switch è front-loaded. ADR-0001, engines, script start/dev, CI, eventualmente package manager, adapter HTTP. Per un dominio ancora dimostrativo sprechi il momento in cui il repo è pulito senza guadagnare evidenza.
+Il costo di switch è front-loaded. ADR-0010, engines, script start/dev, CI, eventualmente package manager, adapter HTTP. Per un dominio ancora dimostrativo sprechi il momento in cui il repo è pulito senza guadagnare evidenza.
 L’architettura c’è apposta per rinviare. Domain/application già senza node:*. Se sviluppi così, lo switch futuro è sostituire composition root e qualche adapter, non riscrivere il prodotto.
 Sviluppare “codice vero” su Node non brucia la strada. Brucerebbe solo se iniziassi a spargere node:* nel dominio, Fastify al posto di Hono, o API Node-only nei use case. I gate just arch lo impediscono già.
 L’unica cosa utile adesso, se vuoi “provare Bun”, non è lo switch:
@@ -77,8 +77,8 @@ Se quegli esperimenti rompono, hai un dato; se passano, non hai ancora il via li
 Raccomandazione
 Tieni il piede in due staffe come è disegnato il repo, non come dual-runtime configurabile.
 
-Runtime di lavoro e di produzione: Node 24.
+Runtime di lavoro e di produzione: Node 26 LTS.
 Bun: compatibility suite, pinnato, in CI, mai nel dominio.
-Switch completo: solo con spike su superficie reale + ADR che supersede ADR-0001.
+Switch completo: solo con spike su superficie reale + ADR che supersede ADR-0010.
 Dual configurabile full-stack: no. Raddoppi lockfile, adapter, CI e mental model per un beneficio che questo perimetro non ha.
 Se l’intenzione vera è “voglio Bun come runtime delle app”, il momento giusto è quando esiste almeno un adapter I/O non banale (filesystem, DB, subprocess) da spikare. Prima è teatro di compatibilità, e il teatro lo fa già just bun-smoke.

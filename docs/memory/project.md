@@ -9,14 +9,16 @@
 - env.env_default_purpose :: `.env.default` è committato, usato come floor di default dai wrapper in `bin/`, e deve restare libero da segreti.
 - env.env_purpose :: `.env` è gitignored e contiene variabili locali in formato `KEY=VALUE`, caricate da `.envrc` tramite `dotenv .env`.
 - env.envrc_purpose :: `.envrc` è il file di configurazione direnv committato in root che carica `.env.default`, `.env` e `.envrc.local`.
-- runtime.authoritative :: Node 24 è il runtime autorevole; Bun 1.4.0 è solo compatibility target, non dipendenza di dominio.
+- runtime.authoritative :: Node 26.13.1 è il runtime autorevole (Active LTS dal 2026-10-28, ADR-0010); Bun 1.4.0 è solo compatibility target, non dipendenza di dominio.
+- runtime.node26_lts :: Node 26 «Lithium» è Active LTS dal 2026-10-28 (26.13.1, supporto fino al 2029-04-30); Node 24 è passato a Maintenance LTS il 2026-10-20 (supporto fino al 2028-04-30).
 - memory.location :: Kilo Memory è abilitata e salvata in `~/.local/share/kilo/memory/ts-boilerplate-0636824f8fd8/`; il repository memory bank in `docs/memory/` ne è il fallback portatile e versionabile.
 - frontend.stack :: `apps/web` usa React 19 + Vite 8 con Tailwind CSS 4, shadcn/ui su Base UI, CVA, `cn`, Lucide e token semantici in `apps/web/src/design-system/theme/tokens.css`; decisione in ADR-0009, visual language in PDR-0002.
 - frontend.theme :: tema `light | dark | system` applicato prima del primo paint dallo script in `apps/web/index.html`, persistito da `ThemeProvider` in `localStorage` con chiave `project-theme`.
 
 ## Decisions
 
-- runtime.dual_vs_switch :: Non dual-runtime configurabile Node+Bun e non switch completo ora: tenere Node per esecuzione/tooling e Bun solo come smoke del core; switch solo con spike reale e ADR che supersede ADR-0001.
+- runtime.dual_vs_switch :: Non dual-runtime configurabile Node+Bun e non switch completo ora: tenere Node per esecuzione/tooling e Bun solo come smoke del core; switch solo con spike reale e ADR che supersede ADR-0010.
+- dependabot.ignore_types_node_major :: Le major di `@types/node` restano ignorate da Dependabot e si aggiornano insieme al major runtime nella PR dedicata (ADR-0010), per evitare disallineamenti types/runtime.
 - memory.repo_bank :: Mantenere un memory bank nel repository (`docs/memory/`) come fallback visibile e portabile della Kilo Memory nativa; vedi ADR-0008.
 - github.branch_pr_flow :: Flusso strutturato di default: un task = un branch = una PR. Merge non squash-only: squash, merge commit e rebase. Niente `required_linear_history`. Nel workspace principale si può lavorare su `main` e lasciare il commit all'utente solo quando non è stata richiesta una PR; non usare il bypass per chiudere PR rosse. Convenzioni in `docs/development/WORKFLOWS.md` § Branching, PR e worktree.
 - github.main_ruleset :: Ruleset `Default` su `~DEFAULT_BRANCH`: deletion, non_fast_forward, PR (1 approve, CODEOWNERS, dismiss stale, extra approval unattributed; no last-push-approval, no thread resolution), required checks `quality` `integration-and-coverage` `bun-compatibility` `e2e` e `dependency-review` solo sui repository pubblici, bypass user Always. `delete_branch_on_merge` acceso. CodeQL resta slow lane, non è required check.

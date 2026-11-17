@@ -11,6 +11,7 @@ Prima di autorizzare un clone non fidato, ispeziona `.envrc` e i file richiamati
 | Tool | Versione | Installazione |
 | --- | --- | --- |
 | Node.js | vedi `.node-version` | `mise install` (consigliato) |
+| libatomic1 | versione distro | richiesto dai binari ufficiali Linux di Node 26; `just install` lo prepara su Debian/Ubuntu |
 | pnpm | vedi `packageManager` in `package.json` | `mise install` |
 | just | vedi `.mise.toml` | `mise install` (o [package manager di sistema](https://just.systems/man/en/packages.html)) |
 | direnv | vedi `.mise.toml` | `mise install` (richiesto per i wrapper in `bin/`) |

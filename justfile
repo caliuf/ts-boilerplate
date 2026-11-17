@@ -41,10 +41,10 @@ install:
     fi
     if [ "$(id -u)" -eq 0 ]; then
       apt-get update
-      apt-get install -y bash ca-certificates coreutils curl findutils gawk git grep gh jq parallel python3 sed tar unzip xz-utils build-essential
+      apt-get install -y bash ca-certificates coreutils curl findutils gawk git grep gh jq libatomic1 parallel python3 sed tar unzip xz-utils build-essential
     elif command -v sudo >/dev/null 2>&1; then
       sudo apt-get update
-      sudo apt-get install -y bash ca-certificates coreutils curl findutils gawk git grep gh jq parallel python3 sed tar unzip xz-utils build-essential
+      sudo apt-get install -y bash ca-certificates coreutils curl findutils gawk git grep gh jq libatomic1 parallel python3 sed tar unzip xz-utils build-essential
     else
       echo "❌ install needs root or sudo to install Debian packages" >&2
       exit 1

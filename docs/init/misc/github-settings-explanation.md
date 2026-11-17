@@ -188,7 +188,7 @@ Off significherebbe accumulare branch morti sul remote. On è allineato a squash
 Non sono ruleset.
 
 - **Dependency graph:** va acceso in UI (*Code security*). L'API `dependency_graph.enabled` su questo stack non è efficace. Senza di esso `dependency-review` fallisce in pochi secondi. Verifica: `GET .../dependency-graph/sbom` (404/403 = spento).
-- **Dependabot alerts + security updates:** API `PUT .../vulnerability-alerts` e `PUT .../automated-security-fixes`. `.github/dependabot.yml` è già nel repo (npm + Actions, ignore major di `@types/node`).
+- **Dependabot alerts + security updates:** API `PUT .../vulnerability-alerts` e `PUT .../automated-security-fixes`. `.github/dependabot.yml` è già nel repo (npm + Actions); le major di `@types/node` restano ignorate e vanno allineate al runtime nella PR di migrazione (ADR-0010).
 - **Secret scanning + push protection:** `PATCH` `security_and_analysis`. Su privato Free spesso 403. Push protection rifiuta un push che contiene un segreto noto **prima** che entri in history.
 
 I workflow partono al primo push: non c'è uno switch «accendi la CI».
