@@ -28,11 +28,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # tag: v7.0.1
         with:
           persist-credentials: false
-      - uses: github/codeql-action/init@3ea37a44b6e4e6847c46edae209410d258d548d1 # tag: v4
+      - uses: github/codeql-action/init@776237d428f23fefc3d9e0fe1962921cbcd53e17 # tag: v4
         with:
           languages: javascript-typescript
           build-mode: none
-      - uses: github/codeql-action/analyze@3ea37a44b6e4e6847c46edae209410d258d548d1 # tag: v4
+      - uses: github/codeql-action/analyze@776237d428f23fefc3d9e0fe1962921cbcd53e17 # tag: v4
 
   secrets-history:
     runs-on: ubuntu-latest
@@ -42,5 +42,5 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # tag: v5.2.9
+      - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # tag: v5.2.10
       - run: gitleaks git --redact --no-banner .
